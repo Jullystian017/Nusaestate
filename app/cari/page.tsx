@@ -75,6 +75,8 @@ export default function CariPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'split' | 'list'>('split');
   const [activePopover, setActivePopover] = useState<'harga' | 'tipe' | 'kamar' | null>(null);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const togglePopover = (type: 'harga' | 'tipe' | 'kamar') => {
     setActivePopover(activePopover === type ? null : type);
@@ -91,13 +93,79 @@ export default function CariPage() {
         <div className="container-standard py-3 flex flex-wrap items-center gap-3">
           
           {/* Main Search Input */}
-          <div className="flex-1 min-w-[200px] relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-gray" size={18} />
-            <input 
-              type="text" 
-              placeholder="Cari lokasi, perumahan..." 
-              className="w-full pl-10 pr-4 py-2.5 bg-surface-gray border-none rounded-full text-sm focus:ring-2 focus:ring-brand-blue/20 outline-none transition-all"
-            />
+          <div className="flex-1 min-w-[200px] relative z-[60]">
+            <div className={`relative group transition-all duration-300 ${isSearchFocused ? 'scale-[1.01]' : ''}`}>
+              <Search className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isSearchFocused ? 'text-brand-blue' : 'text-text-gray'}`} size={18} />
+              <input 
+                type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+                placeholder="Cari lokasi, perumahan..." 
+                className={`w-full pl-11 pr-10 py-2 bg-surface-gray border border-border-line/50 rounded-full text-sm outline-none transition-all shadow-inner ${isSearchFocused ? 'bg-white-pure border-brand-blue shadow-premium ring-4 ring-brand-blue/5' : 'hover:bg-surface-dim hover:border-border-line'}`}
+              />
+              {searchQuery && (
+                <button 
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-surface-gray rounded-full text-text-gray transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+
+            {/* Search Suggestions Dropdown */}
+            {isSearchFocused && (
+              <div className="absolute top-full left-0 right-0 mt-3 bg-white-pure rounded-[2rem] shadow-premium border border-border-line overflow-hidden animate-in fade-in slide-in-from-top-2 max-w-lg lg:max-w-xl">
+                <div className="p-5 max-h-[350px] overflow-y-auto">
+                  
+                  {/* Category: Locations */}
+                  <div className="mb-5">
+                    <h4 className="text-[9px] font-bold text-text-gray uppercase tracking-[0.1em] mb-2.5 px-2">Lokasi Populer</h4>
+                    <div className="space-y-0.5">
+                      {['Semarang Tengah', 'Solo Baru', 'Ungaran Barat', 'BSB City'].map((loc) => (
+                        <button 
+                          key={loc} 
+                          onClick={() => { setSearchQuery(loc); setIsSearchFocused(false); }}
+                          className="w-full flex items-center gap-3 p-2.5 hover:bg-surface-gray rounded-xl transition-all group text-left"
+                        >
+                          <div className="p-1.5 bg-blue-50 text-brand-blue rounded-lg group-hover:bg-brand-blue group-hover:text-white-pure transition-colors">
+                            <MapIcon size={12} />
+                          </div>
+                          <div>
+                            <span className="block text-sm font-semibold text-text-dark">{loc}</span>
+                            <span className="block text-[9px] text-text-gray">Jawa Tengah</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Category: Projects */}
+                  <div>
+                    <h4 className="text-[9px] font-bold text-text-gray uppercase tracking-[0.1em] mb-2.5 px-2">Proyek Terbaru</h4>
+                    <div className="space-y-0.5">
+                      {['Griya Asri Premiere', 'Cilacap Bay View'].map((proj) => (
+                        <button 
+                          key={proj} 
+                          onClick={() => { setSearchQuery(proj); setIsSearchFocused(false); }}
+                          className="w-full flex items-center gap-3 p-2.5 hover:bg-surface-gray rounded-xl transition-all group text-left"
+                        >
+                          <div className="p-1.5 bg-orange-50 text-brand-orange rounded-lg group-hover:bg-brand-orange group-hover:text-white-pure transition-colors">
+                            <House size={12} />
+                          </div>
+                          <span className="text-sm font-semibold text-text-dark">{proj}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                </div>
+                <div className="bg-surface-gray/50 p-3.5 border-t border-border-line flex justify-center">
+                   <p className="text-[10px] text-text-gray font-medium italic">Klik lokasi untuk mencari otomatis</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Quick Filters - Desktop Only */}
@@ -347,6 +415,14 @@ export default function CariPage() {
               </div>
            </div>
         </div>
+      )}
+
+      {/* Background Dim Overlay when searching */}
+      {isSearchFocused && (
+        <div 
+          onClick={() => setIsSearchFocused(false)}
+          className="fixed inset-0 z-[55] bg-black-pure/10 animate-in fade-in"
+        ></div>
       )}
 
     </div>
