@@ -79,35 +79,22 @@ export default function HomePage() {
       <Navbar />
 
       {/* ── HERO SECTION (HEARTHAVEN STYLE) ── */}
-      <section className="relative min-h-[110vh] flex flex-col pt-48 pb-80 overflow-hidden">
+      <section className="relative h-screen flex flex-col justify-end pb-64 overflow-hidden">
         {/* Full Image Background */}
         <div 
           className="absolute inset-0 z-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1920')" }}
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80&w=1920')" }}
         >
           <div className="absolute inset-0 bg-black-pure/50"></div>
         </div>
 
         <div className="container-standard relative z-10">
           
-          {/* Top Toggles */}
-          <div className="flex flex-wrap gap-2 mb-8">
-            {['House', 'Apartment', 'Residential', 'Townhouse'].map((type, i) => (
-              <button 
-                key={type} 
-                className={`px-5 py-2 rounded-full text-xs font-bold transition-all ${
-                  i === 0 ? 'bg-white-pure text-text-dark' : 'bg-white/10 backdrop-blur-md text-white-pure/90 hover:bg-white/20'
-                }`}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] items-end gap-12 mb-20">
+           {/* Big Heading & Search */}
+           <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] items-end gap-12 mb-20">
             {/* Big Heading */}
             <div className="max-w-3xl">
-              <h1 className="font-display font-light text-3xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight text-white-pure drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
+              <h1 className="font-display font-light text-3xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight text-white-pure drop-shadow-md">
                 Find Your Dream Home <br className="hidden md:block" />
                 With <span className="text-brand-blue font-bold">PropNest</span>
               </h1>
@@ -123,7 +110,7 @@ export default function HomePage() {
 
 
           {/* ── SEARCH CONTAINER (THE WHITE BOX) ── */}
-          <div className="bg-white-pure rounded-[2rem] p-4 lg:p-6 shadow-2xl max-w-6xl mx-auto -mb-48 relative z-30 border border-gray-100">
+          <div className="bg-white-pure rounded-[2.5rem] py-5 lg:py-7 px-6 lg:px-10 shadow-xl max-w-6xl mx-auto -mb-48 relative z-30 border border-gray-100">
             <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-5">
               <h2 className="text-xl md:text-2xl font-display font-medium text-text-dark max-w-xl">Find The Perfect Place To Call Home</h2>
               
@@ -148,7 +135,7 @@ export default function HomePage() {
               {/* Looking For */}
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-text-gray uppercase tracking-widest block ml-1 opacity-60">Property Type</label>
-                <div className="flex items-center justify-between p-4 bg-white border border-border-line rounded-3xl cursor-pointer group hover:border-brand-blue transition-all shadow-sm">
+                <div className="flex items-center justify-between p-5 bg-[#F1F1F3] rounded-[2rem] cursor-pointer group hover:bg-gray-200 transition-all">
                   <div className="flex items-center gap-3">
                     <Home size={18} className="text-brand-blue" />
                     <span className="text-sm font-semibold text-text-dark">Modern House</span>
@@ -160,7 +147,7 @@ export default function HomePage() {
               {/* Price */}
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-text-gray uppercase tracking-widest block ml-1 opacity-60">Budget Range</label>
-                <div className="flex items-center justify-between p-4 bg-white border border-border-line rounded-3xl cursor-pointer group hover:border-brand-blue transition-all shadow-sm">
+                <div className="flex items-center justify-between p-5 bg-[#F1F1F3] rounded-[2rem] cursor-pointer group hover:bg-gray-200 transition-all">
                   <div className="flex items-center gap-3">
                     <DollarSign size={18} className="text-brand-blue" />
                     <span className="text-sm font-semibold text-text-dark">$250k - $500k</span>
@@ -172,7 +159,7 @@ export default function HomePage() {
               {/* Locations */}
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-text-gray uppercase tracking-widest block ml-1 opacity-60">Location</label>
-                <div className="flex items-center justify-between p-4 bg-white border border-border-line rounded-3xl cursor-pointer group hover:border-brand-blue transition-all shadow-sm">
+                <div className="flex items-center justify-between p-5 bg-[#F1F1F3] rounded-[2rem] cursor-pointer group hover:bg-gray-200 transition-all">
                   <div className="flex items-center gap-3">
                     <MapPin size={18} className="text-brand-blue" />
                     <span className="text-sm font-semibold text-text-dark">Semarang, ID</span>
@@ -182,23 +169,13 @@ export default function HomePage() {
               </div>
 
               {/* Search Button Integrated */}
-              <button className="h-[52px] bg-black-pure hover:bg-gray-800 text-white-pure font-bold rounded-3xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg group">
+              <button className="h-[64px] bg-black-pure hover:bg-gray-800 text-white-pure font-bold rounded-[2rem] flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg group">
                 <Search size={18} className="group-hover:scale-110 transition-transform" />
                 <span className="text-sm">Search</span>
               </button>
             </div>
 
             {/* Trending / Quick Links to fill space and look premium */}
-            <div className="mt-6 pt-6 border-t border-border-line/50 flex flex-wrap items-center gap-4">
-              <span className="text-[11px] font-bold text-text-gray uppercase tracking-wider">Trending:</span>
-              <div className="flex flex-wrap gap-3">
-                {['Apartment in Solo', 'Villa at Ungaran', 'BSB City House', 'Luxury Yogyakarta'].map(tag => (
-                  <button key={tag} className="text-xs font-medium text-text-dark/60 hover:text-brand-blue transition-colors px-3 py-1.5 rounded-full bg-surface-gray hover:bg-blue-50">
-                    {tag}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </section>
