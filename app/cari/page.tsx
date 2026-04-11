@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/ui/Navbar';
 import MapContainer from '@/components/maps/MapContainer';
+import Footer from '@/components/ui/Footer';
 import { 
   Heart, Search, Filter, BedDouble, Bath, Scaling, 
   Map as MapIcon, ChevronDown, List, X, House, Wifi, Car,
-  Bookmark, Star 
+  Bookmark, Star, ChevronLeft, ChevronRight
 } from 'lucide-react';
 
 const MOCK_PROPERTIES = [
@@ -280,10 +281,10 @@ export default function CariPage() {
       </div>
 
       {/* ────── MAIN SPLIT CONTENT ────── */}
-      <div className="flex-1 flex min-h-0 container-standard gap-x-12">
+      <div className="flex flex-col lg:flex-row container-standard gap-x-12 mb-20">
         
         {/* LEFT: LISTING AREA */}
-        <div className={`flex-1 overflow-y-auto lg:pr-8 ${viewMode === 'split' ? 'lg:w-[50%] xl:w-[55%]' : 'w-full'}`}>
+        <div className={`lg:pr-8 ${viewMode === 'split' ? 'lg:w-[50%] xl:w-[55%]' : 'w-full'}`}>
           <div className="py-8 px-0 max-w-full">
             
             {/* Results Info */}
@@ -424,10 +425,21 @@ export default function CariPage() {
               })}
             </div>
 
-            {/* Pagination Placeholder */}
-            <div className="mt-16 pt-8 border-t border-border-line/40 flex justify-center">
-               <button className="text-sm font-semibold text-white-pure bg-brand-blue px-8 py-3 rounded-full shadow-soft hover:bg-blue-700 transition-all active:scale-95">
-                 Muat Lebih Banyak
+            {/* Pagination */}
+            <div className="mt-16 pt-8 border-t border-border-line/40 flex items-center justify-center gap-2">
+               <button className="p-2.5 rounded-full border border-border-line/60 hover:border-brand-blue hover:text-brand-blue transition-all disabled:opacity-30 disabled:hover:border-border-line/60 disabled:hover:text-text-gray" disabled>
+                 <ChevronLeft size={18} />
+               </button>
+               {[1, 2, 3, '...', 12].map((page, i) => (
+                 <button 
+                   key={i} 
+                   className={`min-w-[42px] h-[42px] flex items-center justify-center rounded-full text-sm font-bold transition-all ${page === 1 ? 'bg-brand-blue text-white-pure shadow-soft' : 'text-text-dark hover:bg-surface-gray'}`}
+                 >
+                   {page}
+                 </button>
+               ))}
+               <button className="p-2.5 rounded-full border border-border-line/60 hover:border-brand-blue hover:text-brand-blue transition-all">
+                 <ChevronRight size={18} />
                </button>
             </div>
           </div>
@@ -435,7 +447,7 @@ export default function CariPage() {
 
         {/* RIGHT: MAP AREA (STICKY) */}
         {viewMode === 'split' && (
-          <div className="hidden lg:block lg:w-[50%] xl:w-[45%] h-[calc(100vh-64px)] sticky top-[64px] p-4 lg:pr-0">
+          <div className="hidden lg:block lg:w-[50%] xl:w-[45%] h-[calc(100vh-80px)] sticky top-[80px] p-4 lg:pr-0 self-start">
             <div className="relative w-full h-full rounded-[2rem] overflow-hidden border border-border-line/50 shadow-premium bg-surface-dim">
                <MapContainer properties={MOCK_PROPERTIES} />
                
@@ -509,6 +521,7 @@ export default function CariPage() {
       )}
 
 
+      <Footer />
     </div>
   );
 }
