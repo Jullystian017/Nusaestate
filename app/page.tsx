@@ -110,7 +110,7 @@ export default function HomePage() {
 
 
           {/* ── SEARCH CONTAINER (THE WHITE BOX) ── */}
-          <div className="bg-white-pure rounded-[2.5rem] py-5 lg:py-7 px-6 lg:px-10 shadow-xl max-w-6xl mx-auto -mb-48 relative z-30 border border-gray-100">
+          <div className="bg-white-pure rounded-[2.5rem] py-5 lg:py-7 px-6 lg:px-10 shadow-xl max-w-full mx-auto -mb-48 relative z-30 border border-gray-100">
             <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-5">
               <h2 className="text-xl md:text-2xl font-display font-medium text-text-dark max-w-xl">Find The Perfect Place To Call Home</h2>
 

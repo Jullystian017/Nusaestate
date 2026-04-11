@@ -65,12 +65,27 @@ export default function Navbar() {
             >
               Home
             </Link>
-            {NAV_LINKS.slice(1).map((link) => (
+            {NAV_LINKS.slice(1, 2).map((link) => ( // Only show Properties in center for now or adjust as needed
+              <Link
+                key={link.label}
+                href={link.href}
+                className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${
+                  pathname === link.href 
+                    ? 'bg-brand-blue text-white-pure shadow-sm' 
+                    : (isScrolled || pathname !== '/' ? 'text-text-gray hover:text-text-dark' : 'text-white-pure/80 hover:text-white-pure')
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+            {NAV_LINKS.slice(2).map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
                 className={`px-5 py-2 text-sm font-medium transition-colors flex items-center gap-1 ${
-                  isScrolled || pathname !== '/' ? 'text-text-gray hover:text-text-dark' : 'text-white-pure/80 hover:text-white-pure'
+                  pathname === link.href
+                    ? 'text-brand-blue font-bold'
+                    : (isScrolled || pathname !== '/' ? 'text-text-gray hover:text-text-dark' : 'text-white-pure/80 hover:text-white-pure')
                 }`}
               >
                 {link.label}
