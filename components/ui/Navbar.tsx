@@ -40,11 +40,11 @@ export default function Navbar() {
           
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-brand-orange text-white-pure flex items-center justify-center font-display font-bold text-lg">
+            <div className="w-8 h-8 rounded-lg bg-brand-blue text-white-pure flex items-center justify-center font-display font-bold text-lg">
               PJ
             </div>
             <span className="font-display font-bold text-xl tracking-tight">
-              PropNest<span className="text-brand-orange">.</span>
+              PropNest<span className="text-brand-blue">.</span>
             </span>
           </Link>
 
@@ -56,7 +56,7 @@ export default function Navbar() {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className={`text-sm font-medium transition-colors hover:text-brand-orange`}
+                  className={`text-sm font-medium transition-colors hover:text-brand-blue ${isActive ? 'text-brand-blue' : 'text-text-dark/70'}`}
                 >
                   {link.label}
                 </Link>
@@ -66,10 +66,10 @@ export default function Navbar() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-4">
-             <Link href="/login" className="text-sm font-medium hover:text-brand-orange transition-colors">
+             <Link href="/login" className="text-sm font-medium hover:text-brand-blue transition-colors">
                Masuk
              </Link>
-             <Link href="/daftar" className="btn-orange !py-2 !px-5 !text-sm">
+             <Link href="/daftar" className="btn-primary !py-2 !px-5 !text-sm">
                Daftar Gratis
              </Link>
           </div>
@@ -114,7 +114,7 @@ export default function Navbar() {
                   <Link
                     key={link.label}
                     href={link.href}
-                    className="text-lg font-medium transition-colors hover:text-brand-orange"
+                    className={`text-lg font-medium transition-colors hover:text-brand-blue ${isActive ? 'text-brand-blue' : 'text-text-dark'}`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {link.label}
@@ -134,7 +134,7 @@ export default function Navbar() {
             </Link>
             <Link
               href="/daftar"
-              className="btn-orange w-full"
+              className="btn-primary w-full"
               onClick={() => setMobileMenuOpen(false)}
             >
               Daftar Gratis

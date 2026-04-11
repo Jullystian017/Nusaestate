@@ -15,7 +15,7 @@ const RECOMMENDATIONS = [
     price: 'Rp 1,25 Miliar',
     specs: { beds: 4, baths: 3, size: 180 },
     badge: 'Baru',
-    badgeColor: 'bg-brand-orange',
+    badgeColor: 'bg-brand-blue',
     image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=600&h=400',
   },
   {
@@ -25,7 +25,7 @@ const RECOMMENDATIONS = [
     price: 'Rp 875 Juta',
     specs: { beds: 3, baths: 2, size: 120 },
     badge: 'Populer',
-    badgeColor: 'bg-brand-orange',
+    badgeColor: 'bg-text-dark',
     image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=600&h=400',
   },
   {
@@ -35,7 +35,7 @@ const RECOMMENDATIONS = [
     price: 'Rp 2,1 Miliar',
     specs: { beds: 5, baths: 4, size: 350 },
     badge: 'Eksklusif',
-    badgeColor: 'bg-brand-orange',
+    badgeColor: 'bg-brand-blue-deep',
     image: 'https://images.unsplash.com/photo-1600607687931-cebf10c2c31e?auto=format&fit=crop&q=80&w=600&h=400',
   },
 ];
@@ -95,7 +95,7 @@ export default function HomePage() {
           
           <h1 className="font-display font-medium text-4xl md:text-6xl lg:text-[4rem] leading-tight tracking-tight mb-6">
             Temukan Rumah <br className="hidden md:block"/>
-            <span className="text-brand-orange font-bold">Impianmu</span> di Sini
+            <span className="text-brand-blue font-bold">Impianmu</span> di Sini
           </h1>
           
           <p className="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto mb-12">
@@ -140,7 +140,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <button className="w-full md:w-auto bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-4 rounded-lg flex items-center justify-center gap-2 transition-colors">
+            <button className="w-full md:w-auto bg-brand-blue hover:bg-brand-blue-hover text-white font-bold px-8 py-4 rounded-lg flex items-center justify-center gap-2 transition-colors">
               <Search size={18} strokeWidth={2.5} />
               Cari Properti
             </button>
@@ -168,7 +168,7 @@ export default function HomePage() {
       {/* ── FITUR UNGGULAN ── */}
       <section className="py-24 container-standard">
         <div className="text-center mb-16">
-          <p className="text-brand-orange text-xs font-bold tracking-widest uppercase mb-3">Fitur Unggulan</p>
+          <p className="text-brand-blue text-xs font-bold tracking-widest uppercase mb-3 text-center">Fitur Unggulan</p>
           <h2 className="text-3xl md:text-4xl font-display font-bold text-text-dark mb-4">
             Teknologi Modern untuk Pencarian<br/> Properti
           </h2>
@@ -207,7 +207,7 @@ export default function HomePage() {
       <section className="py-24 container-standard border-t border-border-line/50">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
            <div>
-             <p className="text-brand-orange text-xs font-bold tracking-widest uppercase mb-2">Rekomendasi</p>
+             <p className="text-brand-blue text-xs font-bold tracking-widest uppercase mb-2">Rekomendasi</p>
              <h2 className="text-3xl font-display font-bold text-text-dark">Properti Pilihan</h2>
            </div>
            <Link href="/cari" className="border border-border-line px-5 py-2 rounded-lg text-sm font-medium hover:bg-white-pure transition-colors bg-transparent">
@@ -235,7 +235,7 @@ export default function HomePage() {
                </div>
 
                <div className="p-5">
-                 <h3 className="text-brand-orange font-bold text-lg mb-1">{item.price}</h3>
+                 <h3 className="text-text-dark font-extrabold text-xl mb-1">{item.price}</h3>
                  <div className="font-semibold text-text-dark text-[15px] mb-1 truncate">{item.name}</div>
                  <div className="text-xs text-text-gray mb-4">{item.location}</div>
                  
@@ -262,7 +262,7 @@ export default function HomePage() {
             Daftarkan diri Anda sekarang dan dapatkan rekomendasi properti terbaik langsung ke inbox Anda.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/daftar" className="btn-orange">
+            <Link href="/daftar" className="btn-primary">
               Mulai Sekarang →
             </Link>
             <Link href="/about" className="bg-white-pure text-brand-blue px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors">

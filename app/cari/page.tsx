@@ -5,7 +5,8 @@ import Navbar from '@/components/ui/Navbar';
 import MapContainer from '@/components/maps/MapContainer';
 import { 
   Heart, Search, Filter, BedDouble, Bath, Scaling, 
-  Map as MapIcon, ChevronDown, List, X, House, Wifi, Car 
+  Map as MapIcon, ChevronDown, List, X, House, Wifi, Car,
+  Bookmark, Star 
 } from 'lucide-react';
 
 const MOCK_PROPERTIES = [
@@ -74,11 +75,12 @@ const MOCK_PROPERTIES = [
 export default function CariPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'split' | 'list'>('split');
-  const [activePopover, setActivePopover] = useState<'harga' | 'tipe' | 'kamar' | null>(null);
+  const [activePopover, setActivePopover] = useState<'harga' | 'tipe' | 'kamar' | 'sort' | null>(null);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('Terbaru');
 
-  const togglePopover = (type: 'harga' | 'tipe' | 'kamar') => {
+  const togglePopover = (type: 'harga' | 'tipe' | 'kamar' | 'sort') => {
     setActivePopover(activePopover === type ? null : type);
   };
 
@@ -144,15 +146,15 @@ export default function CariPage() {
                   {/* Category: Projects */}
                   <div>
                     <h4 className="text-[9px] font-bold text-text-gray uppercase tracking-[0.1em] mb-2.5 px-2">Proyek Terbaru</h4>
-                    <div className="space-y-0.5">
+                    <div className="space-y-1">
                       {['Griya Asri Premiere', 'Cilacap Bay View'].map((proj) => (
                         <button 
                           key={proj} 
                           onClick={() => { setSearchQuery(proj); setIsSearchFocused(false); }}
-                          className="w-full flex items-center gap-3 p-2.5 hover:bg-surface-gray rounded-xl transition-all group text-left"
+                          className="w-full flex items-center gap-3 p-3 hover:bg-surface-gray rounded-2xl transition-all group text-left border border-transparent hover:border-border-line/40"
                         >
-                          <div className="p-1.5 bg-orange-50 text-brand-orange rounded-lg group-hover:bg-brand-orange group-hover:text-white-pure transition-colors">
-                            <House size={12} />
+                          <div className="p-2 bg-blue-50 text-brand-blue rounded-xl group-hover:bg-brand-blue group-hover:text-white-pure transition-colors">
+                            <House size={14} />
                           </div>
                           <span className="text-sm font-semibold text-text-dark">{proj}</span>
                         </button>
@@ -277,10 +279,10 @@ export default function CariPage() {
       </div>
 
       {/* ────── MAIN SPLIT CONTENT ────── */}
-      <div className="flex-1 flex min-h-0 container-standard">
+      <div className="flex-1 flex min-h-0 container-standard gap-x-12">
         
         {/* LEFT: LISTING AREA */}
-        <div className={`flex-1 overflow-y-auto ${viewMode === 'split' ? 'lg:w-[50%] xl:w-[55%]' : 'w-full'}`}>
+        <div className={`flex-1 overflow-y-auto lg:pr-8 ${viewMode === 'split' ? 'lg:w-[50%] xl:w-[55%]' : 'w-full'}`}>
           <div className="py-8 px-0 max-w-full">
             
             {/* Results Info */}
@@ -289,48 +291,136 @@ export default function CariPage() {
                   <h1 className="text-xl font-semibold text-text-dark">Properti di Jawa Tengah</h1>
                   <p className="text-sm text-text-gray">Menampilkan 1-6 dari 145 hasil</p>
                </div>
-               <div className="flex items-center gap-2 text-sm text-text-gray font-medium">
-                  Urutkan: <span className="text-text-dark cursor-pointer flex items-center gap-1 hover:text-brand-blue transition-colors">Terbaru <ChevronDown size={14}/></span>
-               </div>
+                <div className="relative">
+                  <div className="flex items-center gap-2 text-xs font-bold text-text-gray">
+                    Urutkan: 
+                    <button 
+                      onClick={() => togglePopover('sort')}
+                      className={`flex items-center gap-1.5 py-1.5 px-3 rounded-full transition-all duration-300 ${activePopover === 'sort' ? 'bg-brand-blue text-white-pure shadow-soft' : 'bg-surface-gray border border-border-line/40 text-text-dark hover:border-brand-blue hover:text-brand-blue shadow-inner'}`}
+                    >
+                      {sortBy} <ChevronDown size={14} className={`transition-transform duration-300 ${activePopover === 'sort' ? 'rotate-180' : ''}`} />
+                    </button>
+                  </div>
+
+                  {activePopover === 'sort' && (
+                    <div className="absolute top-full right-0 mt-2 w-48 bg-white-pure rounded-2xl shadow-premium border border-border-line p-2 z-50 animate-in fade-in slide-in-from-top-2">
+                      {[
+                        'Terbaru', 
+                        'Harga Terendah', 
+                        'Harga Tertinggi', 
+                        'Paling Populer'
+                      ].map((item) => (
+                        <button 
+                          key={item}
+                          onClick={() => { setSortBy(item); setActivePopover(null); }}
+                          className={`w-full text-left px-3 py-2.5 text-xs font-bold rounded-xl transition-colors ${sortBy === item ? 'bg-blue-50 text-brand-blue' : 'text-text-gray hover:bg-surface-gray hover:text-text-dark'}`}
+                        >
+                          {item}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
             </div>
 
             {/* PRODUCT GRID - 1 Column when split, 3 Columns when list */}
-            <div className={`grid gap-6 ${viewMode === 'split' ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
-              {MOCK_PROPERTIES.map((item) => (
-                <Link 
-                  key={item.id} 
-                  href={`/properti/${item.id}`} 
-                  className={`flex group cursor-pointer border-b border-border-line/40 pb-6 last:border-0 hover:bg-surface-gray/30 -mx-4 px-4 rounded-xl transition-all duration-300 ${viewMode === 'split' ? 'flex-row gap-5 items-start' : 'flex-col gap-3'}`}
-                >
-                  <div className={`relative overflow-hidden bg-surface-dim shadow-sm group-hover:shadow-md transition-all duration-500 shrink-0 ${viewMode === 'split' ? 'w-[180px] sm:w-[240px] aspect-[4/3] rounded-xl' : 'w-full aspect-[4/3] rounded-2xl'}`}>
-                     <div className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-1000" style={{ backgroundImage: `url(${item.image})` }}></div>
-                     
-                     <div className="absolute top-2 left-2 bg-white-pure/95 backdrop-blur-sm text-[9px] font-bold text-text-dark px-2 py-0.5 rounded shadow-sm border border-white/20">
-                       {item.badge}
-                     </div>
-                  </div>
-                  
-                  <div className="flex-1 min-w-0 space-y-1.5 pt-1">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                      <h3 className="text-[15px] font-semibold text-text-dark group-hover:text-brand-blue transition-colors truncate pr-2">{item.name}</h3>
-                      <span className="text-sm font-bold text-brand-orange whitespace-nowrap">{item.price}</span>
+            <div className={`grid gap-x-8 gap-y-12 ${viewMode === 'split' ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
+              {MOCK_PROPERTIES.map((item) => {
+                if (viewMode === 'split') {
+                  // STYLE FOR SPLIT VIEW (Original Horizontal Card restored)
+                  return (
+                    <Link 
+                      key={item.id} 
+                      href={`/properti/${item.id}`} 
+                      className="group flex gap-5 items-start border-b border-border-line/40 pb-6 last:border-0 hover:bg-surface-gray/30 -mx-4 px-4 rounded-xl transition-all duration-300"
+                    >
+                      <div className="relative w-[180px] sm:w-[240px] aspect-[4/3] shrink-0 rounded-xl overflow-hidden shadow-sm">
+                        <div className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-1000" style={{ backgroundImage: `url(${item.image})` }}></div>
+                        <div className="absolute top-2 left-2 bg-white-pure/95 backdrop-blur-sm text-[9px] font-bold text-text-dark px-2 py-0.5 rounded shadow-sm border border-white/20">
+                          {item.badge}
+                        </div>
+                      </div>
+                      
+                      <div className="flex-1 min-w-0 pt-1">
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                          <h3 className="text-[15px] font-semibold text-text-dark group-hover:text-brand-blue transition-colors pr-2 leading-snug">{item.name}</h3>
+                          <span className="text-sm font-extrabold text-text-dark whitespace-nowrap pt-0.5">{item.price}</span>
+                        </div>
+                        <p className="text-xs text-text-gray flex items-center gap-1 mt-1.5">
+                          <MapIcon size={12} className="shrink-0" /> {item.location}
+                        </p>
+                        <div className="mt-3.5 flex items-center gap-4 text-[11px] font-medium text-text-gray">
+                           <span className="flex items-center gap-1"><BedDouble size={15} className="text-brand-blue/70" /> {item.specs.beds} Bed</span>
+                           <span className="flex items-center gap-1"><Bath size={15} className="text-brand-blue/70" /> {item.specs.baths} Bath</span>
+                           <span className="flex items-center gap-1"><Scaling size={15} className="text-brand-blue/70" /> {item.specs.size}m²</span>
+                        </div>
+                        <p className="hidden sm:block text-[11px] text-text-gray leading-relaxed pt-2 line-clamp-2">
+                          Properti premium dengan desain modern yang terletak di lokasi strategis. Fasilitas lengkap dengan keamanan 24 jam...
+                        </p>
+                      </div>
+                    </Link>
+                  );
+                }
+
+                // STYLE FOR LIST VIEW (New Premium Floating Card - Precise Version)
+                return (
+                  <Link 
+                    key={item.id} 
+                    href={`/properti/${item.id}`} 
+                    className={`group relative flex flex-col transition-all duration-500 hover:-translate-y-2`}
+                  >
+                    {/* Image Area */}
+                    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-soft group-hover:shadow-md transition-all duration-700">
+                      <div className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-[3s]" style={{ backgroundImage: `url(${item.image})` }}></div>
+                      
+                      {/* Dynamic Badge */}
+                      <div className={`absolute top-4 left-4 backdrop-blur-md px-3 py-1 rounded-full shadow-sm border border-white/30 text-[10px] font-extrabold flex items-center gap-1.5
+                        ${item.badge === 'Baru' ? 'bg-blue-50/90 text-brand-blue' : 
+                          item.badge === 'Populer' ? 'bg-text-dark/90 text-white-pure' : 
+                          'bg-white-pure/90 text-brand-blue-deep'}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${item.badge === 'Baru' ? 'bg-brand-blue' : 'bg-brand-blue-light'}`}></span>
+                        {item.badge === 'Baru' ? 'Home' : item.badge}
+                      </div>
                     </div>
-                    <p className="text-xs text-text-gray flex items-center gap-1">
-                      <MapIcon size={12} className="shrink-0" /> {item.location}
-                    </p>
-                    <div className="pt-2 flex items-center gap-4 text-[11px] font-medium text-text-gray">
-                       <span className="flex items-center gap-1"><BedDouble size={15} className="text-brand-blue/70" /> {item.specs.beds} Bed</span>
-                       <span className="flex items-center gap-1"><Bath size={15} className="text-brand-blue/70" /> {item.specs.baths} Bath</span>
-                       <span className="flex items-center gap-1"><Scaling size={15} className="text-brand-blue/70" /> {item.specs.size}m²</span>
+
+                    {/* Floating Content Box */}
+                    <div className="relative -mt-14 mx-3 bg-white-pure rounded-xl p-4 shadow-premium border border-border-line/20 group-hover:border-brand-blue/30 transition-all duration-500 z-10">
+                      <div className="flex justify-between items-start mb-1">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-base font-bold text-text-dark group-hover:text-brand-blue transition-colors truncate">
+                            {item.name}
+                          </h3>
+                          <p className="flex items-center gap-1.5 text-[11px] text-text-gray font-medium mt-0.5">
+                            <MapIcon size={12} className="text-brand-blue" />
+                            <span className="truncate">{item.location}</span>
+                          </p>
+                        </div>
+                        
+                        <button className="p-2.5 bg-blue-50/80 text-brand-blue rounded-full hover:bg-brand-blue hover:text-white-pure transition-all duration-300 shadow-sm overflow-hidden active:scale-95 group-hover:shadow-soft">
+                          <Bookmark size={16} fill="currentColor" className="fill-transparent hover:fill-current" />
+                        </button>
+                      </div>
+
+                      <div className="my-2.5 border-t border-border-line/30 w-full"></div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col">
+                          <p className="text-lg font-extrabold text-text-dark">
+                            Rp{item.price.replace('Rp ', '').replace(' Juta', 'jt').replace(' Miliar', 'M')}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Quick Specs (Compact) */}
+                      <div className="mt-3 pt-3 border-t border-border-line/30 flex items-center gap-4 text-[10px] font-bold text-text-gray/80">
+                         <span className="flex items-center gap-1.5"><BedDouble size={14} className="text-brand-blue/60" /> {item.specs.beds} Bed</span>
+                         <span className="flex items-center gap-1.5"><Bath size={14} className="text-brand-blue/60" /> {item.specs.baths} Bath</span>
+                         <span className="flex items-center gap-1.5"><Scaling size={14} className="text-brand-blue/60" /> {item.specs.size}m²</span>
+                      </div>
                     </div>
-                    {viewMode === 'split' && (
-                      <p className="hidden sm:block text-[11px] text-text-gray leading-relaxed pt-2 line-clamp-2">
-                        Properti premium dengan desain modern yang terletak di lokasi strategis. Fasilitas lengkap dengan keamanan 24 jam...
-                      </p>
-                    )}
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
 
             {/* Pagination Placeholder */}
@@ -409,7 +499,7 @@ export default function CariPage() {
 
               <div className="px-8 py-5 border-t border-border-line bg-surface-gray flex items-center justify-between">
                 <button onClick={() => setShowFilters(false)} className="text-sm font-bold text-brand-blue hover:underline">Hapus Semua</button>
-                <button onClick={() => setShowFilters(false)} className="bg-brand-orange hover:bg-orange-600 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-soft">
+                <button onClick={() => setShowFilters(false)} className="bg-brand-blue hover:bg-brand-blue-deep text-white-pure font-bold px-8 py-3 rounded-xl transition-all shadow-soft active:scale-95">
                   Tampilkan 145 Properti
                 </button>
               </div>

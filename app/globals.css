@@ -6,19 +6,17 @@
   --font-display: "Outfit", sans-serif;
   
   /* Clean & Elegant Refinements */
-  --color-brand-orange: #f97316;
-  --color-brand-orange-hover: #ea580c;
-  
   --color-brand-blue: #1d4ed8;
   --color-brand-blue-hover: #1e40af;
   --color-brand-blue-light: #2563eb;
+  --color-brand-blue-deep: #1e3a8a;
   
   /* Neutral / Accents - Lightened */
   --color-surface-gray: #fcfcfd;
   --color-surface-dim: #f3f4f6;
-  --color-text-dark: #222222; /* Softer black */
-  --color-text-gray: #717171; /* Airbnb gray */
-  --color-border-line: #ebebeb; /* Very subtle line */
+  --color-text-dark: #111827; /* Deep Black/Blue */
+  --color-text-gray: #6b7280; /* Neutral gray */
+  --color-border-line: #e5e7eb; 
 
   /* Basic Setup */
   --color-white-pure: #ffffff;
@@ -47,12 +45,17 @@
 }
 
 @layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-blue text-white-pure font-bold rounded-lg transition-all duration-200 active:scale-95 disabled:opacity-50 hover:bg-brand-blue-hover shadow-soft hover:shadow-md;
+  }
+  
+  /* Alias for backward compatibility if needed, but styled blue */
   .btn-orange {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-orange text-white-pure font-semibold rounded-lg transition-transform duration-200 active:scale-95 disabled:opacity-50 hover:bg-brand-orange-hover;
+    @apply btn-primary;
   }
   
   .btn-white {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-white-pure text-brand-blue font-semibold rounded-lg transition-transform duration-200 active:scale-95 disabled:opacity-50 hover:bg-gray-50;
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-white-pure text-brand-blue font-semibold rounded-lg transition-transform duration-200 active:scale-95 disabled:opacity-50 hover:bg-gray-50 border border-border-line;
   }
 
   .btn-outline-blue {
@@ -60,7 +63,7 @@
   }
 
   .container-standard {
-    @apply max-w-[1280px] mx-auto px-4 lg:px-8 w-full;
+    @apply max-w-[1200px] mx-auto px-4 lg:px-8 w-full;
   }
 }
 
@@ -90,7 +93,7 @@
 }
 
 .price-marker-outer:hover .price-marker-inner {
-  @apply bg-brand-orange scale-110 -translate-y-1;
+  @apply bg-brand-black-pure scale-110 -translate-y-1;
 }
 
 /* Subtle pulse animation for emphasis */
@@ -99,7 +102,7 @@
 }
 
 .price-marker-outer:hover .price-marker-pulse {
-  @apply bg-brand-orange/30;
+  @apply bg-brand-blue/40;
 }
 
 /* Premium Popup Styling */

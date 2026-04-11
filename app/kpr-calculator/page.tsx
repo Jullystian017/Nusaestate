@@ -49,12 +49,12 @@ export default function KPRCalculatorPage() {
                  <div>
                    <label className="flex justify-between text-sm font-semibold text-text-dark mb-2">
                      <span>Harga Properti</span>
-                     <span className="text-brand-orange">Rp {(harga/1000000).toLocaleString('id-ID')} Juta</span>
+                     <span className="text-brand-blue">Rp {(harga/1000000).toLocaleString('id-ID')} Juta</span>
                    </label>
                    <input 
                      type="range" min="100000000" max="2000000000" step="50000000" 
                      value={harga} onChange={(e) => setHarga(Number(e.target.value))}
-                     className="w-full accent-brand-orange h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                     className="w-full accent-brand-blue h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                    />
                  </div>
 

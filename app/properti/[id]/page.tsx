@@ -21,17 +21,17 @@ export default function DetailPropertiPage() {
               <span className="text-text-dark font-medium">Banyumas</span>
             </div>
             
-            <div className="flex flex-wrap items-center gap-3 mb-2">
-              <span className="bg-brand-blue/10 text-brand-blue text-xs font-bold px-3 py-1 rounded-full border border-brand-blue/20">Rumah Komersil</span>
-              <span className="bg-brand-orange/10 text-brand-orange text-xs font-bold px-3 py-1 rounded-full border border-brand-orange/20">Siap Huni</span>
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="bg-blue-50 text-brand-blue text-xs font-bold px-3 py-1 rounded-full border border-brand-blue/20">Siap Huni</span>
+              <span className="bg-surface-dim text-text-gray text-xs font-bold px-3 py-1 rounded-full border border-border-line">SHM/HGB</span>
             </div>
             
-            <h1 className="text-3xl md:text-4xl font-display font-bold text-text-dark mb-2">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-display font-bold text-text-dark mt-2">
               Griya Asri Premiere Purwokerto
             </h1>
-            <div className="flex items-center gap-2 text-text-gray text-sm font-medium">
-              <MapPin size={16} className="text-brand-orange" />
-              Jl. Raden Patah, Purwokerto Utara, Banyumas
+            <div className="flex items-center gap-2 text-text-gray mt-2">
+              <MapPin size={16} className="text-brand-blue" />
+              <span className="text-sm md:text-base">Jl. Raden Patah, Purwokerto Utara, Banyumas</span>
             </div>
           </div>
 
@@ -99,12 +99,12 @@ export default function DetailPropertiPage() {
             <div>
               <h2 className="text-xl font-display font-bold text-text-dark mb-4">Fasilitas Utama</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {['One Gate System', 'CCTV 24 Jam', 'Playground Anak', 'Taman Hijau', 'Mushola', 'Row Jalan 8 Meter'].map((fas, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm text-text-gray bg-white-pure px-4 py-3 rounded-xl border border-border-line/50">
-                    <CheckCircle2 size={16} className="text-green-500 shrink-0" />
-                    <span>{fas}</span>
-                  </div>
-                ))}
+                  {['Keamanan 24 Jam', 'Area Taman Playful', 'Dekat Pintu Tol', 'Bebas Banjir'].map((feat) => (
+                    <div key={feat} className="flex items-center gap-3 text-sm text-text-dark font-medium">
+                      <CheckCircle2 size={16} className="text-brand-blue shrink-0" />
+                      {feat}
+                    </div>
+                  ))}
               </div>
             </div>
 
@@ -134,7 +134,7 @@ export default function DetailPropertiPage() {
                <div className="flex items-center justify-between bg-white-pure p-4 rounded-xl border border-border-line shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
                   <div>
                     <div className="text-xs text-text-gray font-medium mb-1">Estimasi Cicilan per Bulan</div>
-                    <div className="text-2xl font-bold text-brand-orange">Rp 3.450.000</div>
+                    <div className="text-2xl font-bold text-text-dark">Rp 3.450.000</div>
                   </div>
                   <Link href="/kpr-calculator" className="text-brand-blue font-bold text-sm bg-blue-50 px-4 py-2 rounded-lg hover:bg-brand-blue hover:text-white-pure transition-colors">
                     Lihat Detail
@@ -149,17 +149,20 @@ export default function DetailPropertiPage() {
              <div className="bg-white-pure rounded-2xl border border-border-line p-6 shadow-floating sticky top-28">
                
                <div className="mb-6 pb-6 border-b border-border-line/60">
-                 <div className="text-sm text-text-gray font-medium mb-1 line-through">Rp 450.000.000</div>
-                 <div className="text-3xl font-display font-bold text-text-dark mb-3">Rp 350 Juta</div>
-                 <div className="bg-orange-50 border border-orange-100 text-orange-600 text-sm font-semibold p-3 rounded-lg flex items-start gap-2">
-                   <Award size={18} className="shrink-0 mt-0.5" />
-                   Promo Free BPHTB & Biaya KPR untuk pembelian bulan ini!
-                 </div>
+                 <div className="text-sm font-semibold text-text-gray mb-1">Cicilan Mulai</div>
+                 <div className="text-2xl font-bold text-text-dark">Rp 3.450.000</div>
+                 <div className="text-[10px] text-text-gray tracking-wide mt-0.5">ESTIMASI KPR</div>
+               </div>
+
+               {/* Tips Container */}
+               <div className="bg-blue-50 border border-blue-100 text-brand-blue text-sm font-semibold p-3 rounded-lg flex items-start gap-2 mb-6">
+                 <Zap size={16} className="shrink-0 mt-0.5" />
+                 Rumah di area ini sangat populer, kemungkinan besar akan terjual dalam 30 hari.
                </div>
 
                <div className="space-y-3 mb-6">
-                 <button className="w-full bg-brand-orange hover:bg-orange-600 text-white font-bold py-4 rounded-xl transition-colors shadow-soft hover:shadow-floating flex items-center justify-center gap-2">
-                   <Phone size={18} /> Hubungi Developer
+                 <button className="w-full btn-primary py-4 rounded-xl shadow-soft hover:shadow-floating flex items-center justify-center gap-2">
+                   <MessageSquare size={18} /> Hubungi Agen Sekarang
                  </button>
                  <button className="w-full bg-white-pure border-2 border-brand-blue text-brand-blue hover:bg-blue-50 font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2">
                    <CalendarHeart size={18} /> Jadwalkan Kunjungan

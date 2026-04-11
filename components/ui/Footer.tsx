@@ -9,11 +9,11 @@ export default function Footer() {
           {/* Logo & Description */}
           <div className="lg:col-span-4">
             <Link href="/" className="flex items-center gap-2 mb-6">
-              <div className="w-8 h-8 rounded-lg bg-brand-orange text-white-pure flex items-center justify-center font-display font-bold text-lg">
+              <div className="w-8 h-8 rounded-lg bg-brand-blue text-white-pure flex items-center justify-center font-display font-bold text-lg">
                 PJ
               </div>
               <span className="font-display font-bold text-lg tracking-tight text-white-pure">
-                PropNest<span className="text-brand-orange">.</span>
+                PropNest<span className="text-brand-blue">.</span>
               </span>
             </Link>
             <p className="leading-relaxed text-gray-400 max-w-sm">
