@@ -38,10 +38,10 @@ export default function Navbar() {
 
   const NAV_LINKS = [
     { label: 'Beli', href: '/cari' },
-    { label: 'Properties', href: '/cari', hasDropdown: true },
-    { label: 'Services', href: '/services' },
-    { label: 'Agents', href: '/agents' },
-    { label: 'About Us', href: '/about' },
+    { label: 'Properti', href: '/cari', hasDropdown: true },
+    { label: 'Layanan', href: '/services' },
+    { label: 'Agen', href: '/agents' },
+    { label: 'Tentang Kami', href: '/about' },
     { label: 'Blog', href: '/blog' },
   ];
 
@@ -81,7 +81,7 @@ export default function Navbar() {
                   : (isScrolled || pathname !== '/' ? 'text-text-gray hover:text-text-dark' : 'text-white-pure/80 hover:text-white-pure')
               }`}
             >
-              Home
+              Beranda
             </Link>
             {NAV_LINKS.slice(1, 2).map((link) => ( 
               <Link
@@ -117,7 +117,7 @@ export default function Navbar() {
              <Link href="/contact" className={`hidden sm:block text-sm font-medium transition-colors px-4 ${
                isScrolled || pathname !== '/' ? 'text-text-gray hover:text-text-dark' : 'text-white-pure/90 hover:text-white-pure'
              }`}>
-               Contact Us
+               Hubungi Kami
              </Link>
              {user ? (
                <Link href="/dashboard" className="bg-brand-blue hover:bg-brand-blue-hover text-white-pure text-sm font-medium px-6 py-2.5 rounded-full flex items-center gap-2 transition-all shadow-md active:scale-95">
@@ -157,7 +157,7 @@ export default function Navbar() {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="p-6 flex items-center justify-between border-b border-border-line">
-            <span className="font-display font-semibold text-xl text-text-dark">Menu</span>
+            <span className="font-display font-semibold text-xl text-text-dark">Menu Utama</span>
             <button
               onClick={() => setMobileMenuOpen(false)}
               className="p-2 bg-surface-gray rounded-full text-text-dark"

@@ -31,9 +31,9 @@ export default async function DetailPropertiPage({
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
           <div>
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-text-gray/60 mb-4 font-medium">
-              <Link href="/" className="hover:text-brand-blue transition-colors">Home</Link>
+              <Link href="/" className="hover:text-brand-blue transition-colors">Beranda</Link>
               <ChevronRight size={12} />
-              <Link href="/cari" className="hover:text-brand-blue transition-colors">Properties</Link>
+              <Link href="/cari" className="hover:text-brand-blue transition-colors">Properti</Link>
               <ChevronRight size={12} />
               <span className="text-text-dark">{property.location.split(',')[0]}</span>
             </div>
@@ -59,7 +59,7 @@ export default async function DetailPropertiPage({
              <button className="flex items-center gap-2 px-5 py-2.5 bg-white-pure border border-border-line/60 rounded-xl text-sm font-medium text-text-dark hover:bg-surface-gray transition-all shadow-sm active:scale-95">
                <Share2 size={16} className="text-brand-blue" /> Bagikan
              </button>
-             <button className="flex items-center gap-2 px-5 py-2.5 bg-white-pure border border-border-line/60 rounded-xl text-sm font-bold text-text-dark hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all shadow-sm active:scale-95">
+             <button className="flex items-center gap-2 px-5 py-2.5 bg-white-pure border border-border-line/60 rounded-xl text-sm font-semibold text-text-dark hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all shadow-sm active:scale-95">
                <Heart size={16} /> Simpan
              </button>
           </div>
@@ -83,7 +83,7 @@ export default async function DetailPropertiPage({
              <div className="absolute inset-0 bg-black-pure/30 backdrop-blur-[2px] flex items-center justify-center cursor-pointer hover:bg-black-pure/50 transition-all">
                <div className="text-center">
                  <div className="text-white-pure font-semibold text-2xl tracking-tighter">+12</div>
-                 <div className="text-white-pure/80 text-[10px] font-bold uppercase tracking-widest">More Photos</div>
+                 <div className="text-white-pure/80 text-[10px] font-semibold uppercase tracking-widest">Lihat Foto</div>
                </div>
              </div>
            </div>
@@ -101,20 +101,20 @@ export default async function DetailPropertiPage({
                
                <div className="flex flex-col items-center gap-1 flex-1 min-w-[120px] border-r border-border-line/40 last:border-0 py-2">
                  <BedDouble size={24} className="text-brand-blue mb-2" />
-                 <div className="text-[10px] text-text-gray font-semibold uppercase tracking-widest">Bedrooms</div>
-                 <div className="text-xl font-medium">{property.specs.beds} Rooms</div>
+                 <div className="text-[10px] text-text-gray font-semibold uppercase tracking-widest">Kamar Tidur</div>
+                 <div className="text-xl font-medium">{property.specs.beds} Kamar</div>
                </div>
                
                <div className="flex flex-col items-center gap-1 flex-1 min-w-[120px] border-r border-border-line/40 last:border-0 py-2">
                  <Bath size={24} className="text-brand-blue mb-2" />
-                 <div className="text-[10px] text-text-gray font-bold uppercase tracking-widest">Bathrooms</div>
-                 <div className="text-xl font-bold">{property.specs.baths} Rooms</div>
+                 <div className="text-[10px] text-text-gray font-semibold uppercase tracking-widest">Kamar Mandi</div>
+                 <div className="text-xl font-semibold">{property.specs.baths} Kamar</div>
                </div>
                
                <div className="flex flex-col items-center gap-1 flex-1 min-w-[120px] py-2">
                  <Scaling size={24} className="text-brand-blue mb-2" />
-                 <div className="text-[10px] text-text-gray font-bold uppercase tracking-widest">Land Area</div>
-                 <div className="text-xl font-bold">{property.specs.size} m²</div>
+                 <div className="text-[10px] text-text-gray font-semibold uppercase tracking-widest">Luas Tanah</div>
+                 <div className="text-xl font-semibold">{property.specs.size} m²</div>
                </div>
             </div>
 
@@ -122,7 +122,7 @@ export default async function DetailPropertiPage({
             <div>
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-1.5 h-10 bg-brand-blue rounded-full"></div>
-                <h2 className="text-3xl font-display font-medium text-text-dark">About this Property</h2>
+                <h2 className="text-3xl font-display font-medium text-text-dark">Tentang Properti Ini</h2>
               </div>
               <div className="text-text-gray leading-relaxed text-lg font-light max-w-3xl">
                 {property.description || 'Properti eksklusif yang dirancang untuk kenyamanan keluarga Anda. Terletak di lokasi yang sangat strategis dengan akses mudah ke fasilitas publik utama.'}
@@ -131,8 +131,8 @@ export default async function DetailPropertiPage({
 
             {/* Features Section */}
             <div>
-              <h2 className="text-xl font-display font-bold text-text-dark mb-6 flex items-center gap-3">
-                <Shield size={20} className="text-brand-blue" /> Premium Facilities
+              <h2 className="text-xl font-display font-semibold text-text-dark mb-6 flex items-center gap-3">
+                <Shield size={20} className="text-brand-blue" /> Fasilitas Premium
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {(property.features || ['Keamanan 24 Jam', 'Area Taman', 'Smart Gateway', 'Internet Dedicated']).map((feat) => (
@@ -147,20 +147,20 @@ export default async function DetailPropertiPage({
             {/* Mini Mortgage Calculator */}
             <div className="bg-gradient-to-br from-brand-blue/5 via-white-pure to-transparent p-10 rounded-[40px] border border-brand-blue/10 relative overflow-hidden">
                <div className="relative z-10">
-                 <h2 className="text-2xl font-display font-bold text-text-dark mb-2">Simulasi Cicilan KPR</h2>
+                 <h2 className="text-2xl font-display font-semibold text-text-dark mb-2">Simulasi Cicilan KPR</h2>
                  <p className="text-text-gray mb-8 text-sm">Wujudkan hunian impian Anda dengan skema pembayaran yang fleksibel.</p>
                  
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                    <div className="space-y-2">
-                     <label className="text-[10px] font-black uppercase tracking-widest text-text-gray">Uang Muka (DP)</label>
+                     <label className="text-[10px] font-semibold uppercase tracking-widest text-text-gray">Uang Muka (DP)</label>
                      <div className="relative group">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-dark font-bold text-sm">Rp</span>
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-dark font-semibold text-sm">Rp</span>
                         <input type="text" className="w-full bg-white-pure border-2 border-border-line/40 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-brand-blue shadow-sm group-hover:border-border-line transition-all" defaultValue="150.000.000" />
                      </div>
                    </div>
                    <div className="space-y-2">
-                     <label className="text-[10px] font-black uppercase tracking-widest text-text-gray">Tenor (Tahun)</label>
-                     <select className="w-full bg-white-pure border-2 border-border-line/40 rounded-2xl py-4 px-4 focus:outline-none focus:border-brand-blue shadow-sm appearance-none font-bold text-text-dark" defaultValue="15">
+                     <label className="text-[10px] font-semibold uppercase tracking-widest text-text-gray">Tenor (Tahun)</label>
+                     <select className="w-full bg-white-pure border-2 border-border-line/40 rounded-2xl py-4 px-4 focus:outline-none focus:border-brand-blue shadow-sm appearance-none font-semibold text-text-dark" defaultValue="15">
                        <option value="10">10 Tahun</option>
                        <option value="15">15 Tahun</option>
                        <option value="20">20 Tahun</option>
@@ -171,9 +171,9 @@ export default async function DetailPropertiPage({
                  <div className="flex items-center justify-between bg-white-pure/60 backdrop-blur-md p-6 rounded-3xl border border-white/40 shadow-premium">
                     <div>
                       <div className="text-[10px] text-text-gray font-black uppercase tracking-widest mb-1">Estimasi Cicilan Ke-1</div>
-                      <div className="text-3xl font-black text-brand-blue font-display">{property.price.includes('Miliar') ? 'Rp 8.450.000' : 'Rp 3.120.000'}<span className="text-sm font-bold text-text-gray/50 ml-1">/ bulan</span></div>
+                      <div className="text-3xl font-black text-brand-blue font-display">{property.price.includes('Miliar') ? 'Rp 8.450.000' : 'Rp 3.120.000'}<span className="text-sm font-semibold text-text-gray/50 ml-1">/ bulan</span></div>
                     </div>
-                    <Link href="#" className="bg-brand-blue text-white-pure font-bold text-xs px-6 py-3 rounded-xl hover:bg-brand-blue-deep transition-all shadow-md hover:shadow-lg active:scale-95">
+                    <Link href="#" className="bg-brand-blue text-white-pure font-semibold text-xs px-6 py-3 rounded-xl hover:bg-brand-blue-deep transition-all shadow-md hover:shadow-lg active:scale-95">
                       Lihat Detail
                     </Link>
                  </div>

@@ -9,10 +9,10 @@ export default function Footer() {
           {/* Logo & Description */}
           <div className="lg:col-span-4">
             <Link href="/" className="flex items-center gap-2 mb-6">
-              <div className="w-8 h-8 rounded-lg bg-brand-blue text-white-pure flex items-center justify-center font-display font-bold text-lg">
+              <div className="w-8 h-8 rounded-lg bg-brand-blue text-white-pure flex items-center justify-center font-display font-semibold text-lg">
                 PJ
               </div>
-              <span className="font-display font-bold text-lg tracking-tight text-white-pure">
+              <span className="font-display font-semibold text-lg tracking-tight text-white-pure">
                 PropNest<span className="text-brand-blue">.</span>
               </span>
             </Link>
@@ -26,7 +26,7 @@ export default function Footer() {
 
           {/* Links: Jelajahi */}
           <div className="lg:col-span-2">
-            <h4 className="font-bold text-white-pure mb-5">Jelajahi</h4>
+            <h4 className="font-semibold text-white-pure mb-5">Jelajahi</h4>
             <ul className="space-y-3">
               <li><Link href="/" className="hover:text-white-pure transition-colors">Beli Rumah</Link></li>
               <li><Link href="/" className="hover:text-white-pure transition-colors">Sewa Properti</Link></li>
@@ -37,7 +37,7 @@ export default function Footer() {
 
           {/* Links: Layanan */}
           <div className="lg:col-span-2">
-            <h4 className="font-bold text-white-pure mb-5">Layanan</h4>
+            <h4 className="font-semibold text-white-pure mb-5">Layanan</h4>
             <ul className="space-y-3">
               <li><Link href="/" className="hover:text-white-pure transition-colors">Kalkulator KPR</Link></li>
               <li><Link href="/" className="hover:text-white-pure transition-colors">AI Matching</Link></li>
@@ -48,7 +48,7 @@ export default function Footer() {
 
           {/* Links: Perusahaan */}
           <div className="lg:col-span-2">
-            <h4 className="font-bold text-white-pure mb-5">Perusahaan</h4>
+            <h4 className="font-semibold text-white-pure mb-5">Perusahaan</h4>
             <ul className="space-y-3">
               <li><Link href="/" className="hover:text-white-pure transition-colors">Tentang Kami</Link></li>
               <li><Link href="/" className="hover:text-white-pure transition-colors">Karir</Link></li>

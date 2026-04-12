@@ -64,15 +64,15 @@ export default function HomePage() {
             {/* Big Heading */}
             <div className="max-w-3xl">
               <h1 className="font-display font-light text-3xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight text-white-pure drop-shadow-md">
-                Find Your Dream Home <br className="hidden md:block" />
-                With <span className="text-brand-blue font-medium">PropNest</span>
+                Temukan Rumah Impian <br className="hidden md:block" />
+                Bersama <span className="text-brand-blue font-medium">PropNest</span>
               </h1>
             </div>
 
             {/* Subtext on the right */}
             <div className="hidden lg:block">
               <p className="text-white/60 text-sm leading-relaxed max-w-xs border-l-2 border-brand-blue pl-6">
-                Discover the most exclusive properties in Central Java with AI-powered analytics and real-time market data.
+                Temukan properti paling eksklusif di Jawa Tengah dengan analitik bertenaga AI dan data pasar real-time.
               </p>
             </div>
           </div>
@@ -81,11 +81,11 @@ export default function HomePage() {
           {/* ── SEARCH CONTAINER (THE WHITE BOX) ── */}
           <div className="bg-white-pure rounded-[2.5rem] py-5 lg:py-7 px-6 lg:px-10 shadow-xl max-w-full mx-auto -mb-48 relative z-30 border border-gray-100">
             <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-5">
-              <h2 className="text-xl md:text-2xl font-display font-medium text-text-dark max-w-xl">Find The Perfect Place To Call Home</h2>
+              <h2 className="text-xl md:text-2xl font-display font-medium text-text-dark max-w-xl">Temukan Tempat Sempurna untuk Menetap</h2>
 
               {/* Buy/Sell/Rent Toggle */}
               <div className="flex bg-[#F1F1F3] p-1 rounded-full self-start xl:self-center">
-                {['Buy', 'Sell', 'Rent'].map((tab, idx) => (
+                {['Beli', 'Jual', 'Sewa'].map((tab, idx) => (
                   <button
                     key={tab}
                     className={`px-7 py-2 rounded-full text-xs font-semibold transition-all ${idx === 0
@@ -102,11 +102,11 @@ export default function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_180px] gap-4 items-end">
               {/* Looking For */}
               <div className="space-y-2">
-                <label className="text-[10px] font-medium text-text-gray uppercase tracking-widest block ml-1 opacity-60">Property Type</label>
+                <label className="text-[10px] font-medium text-text-gray uppercase tracking-widest block ml-1 opacity-60">Tipe Properti</label>
                 <div className="flex items-center justify-between p-5 bg-[#F1F1F3] rounded-[2rem] cursor-pointer group hover:bg-gray-200 transition-all">
                   <div className="flex items-center gap-3">
                     <Home size={18} className="text-brand-blue" />
-                    <span className="text-sm font-semibold text-text-dark">Modern House</span>
+                    <span className="text-sm font-semibold text-text-dark">Rumah Modern</span>
                   </div>
                   <ChevronDown size={14} className="text-text-gray" />
                 </div>
@@ -114,7 +114,7 @@ export default function HomePage() {
 
               {/* Price */}
               <div className="space-y-2">
-                <label className="text-[10px] font-medium text-text-gray uppercase tracking-widest block ml-1 opacity-60">Budget Range</label>
+                <label className="text-[10px] font-medium text-text-gray uppercase tracking-widest block ml-1 opacity-60">Rentang Harga</label>
                 <div className="flex items-center justify-between p-5 bg-[#F1F1F3] rounded-[2rem] cursor-pointer group hover:bg-gray-200 transition-all">
                   <div className="flex items-center gap-3">
                     <DollarSign size={18} className="text-brand-blue" />
@@ -126,7 +126,7 @@ export default function HomePage() {
 
               {/* Locations */}
               <div className="space-y-2">
-                <label className="text-[10px] font-medium text-text-gray uppercase tracking-widest block ml-1 opacity-60">Location</label>
+                <label className="text-[10px] font-medium text-text-gray uppercase tracking-widest block ml-1 opacity-60">Lokasi</label>
                 <div className="flex items-center justify-between p-5 bg-[#F1F1F3] rounded-[2rem] cursor-pointer group hover:bg-gray-200 transition-all">
                   <div className="flex items-center gap-3">
                     <MapPin size={18} className="text-brand-blue" />
@@ -139,7 +139,7 @@ export default function HomePage() {
               {/* Search Button Integrated */}
               <button className="h-[64px] bg-black-pure hover:bg-gray-800 text-white-pure font-medium rounded-[2rem] flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg group">
                 <Search size={18} className="group-hover:scale-110 transition-transform" />
-                <span className="text-sm">Search</span>
+                <span className="text-sm">Cari</span>
               </button>
             </div>
 
@@ -246,8 +246,8 @@ export default function HomePage() {
 
                 {/* Quick Specs (Compact) */}
                 <div className="mt-3 pt-3 border-t border-border-line/30 flex items-center gap-4 text-[10px] font-medium text-text-gray/80">
-                  <span className="flex items-center gap-1.5"><BedDouble size={14} className="text-brand-blue/60" /> {item.specs.beds} Bed</span>
-                  <span className="flex items-center gap-1.5"><Bath size={14} className="text-brand-blue/60" /> {item.specs.baths} Bath</span>
+                  <span className="flex items-center gap-1.5"><BedDouble size={14} className="text-brand-blue/60" /> {item.specs.beds} Kamar Tidur</span>
+                  <span className="flex items-center gap-1.5"><Bath size={14} className="text-brand-blue/60" /> {item.specs.baths} Kamar Mandi</span>
                   <span className="flex items-center gap-1.5"><Scaling size={14} className="text-brand-blue/60" /> {item.specs.size}m²</span>
                 </div>
               </div>

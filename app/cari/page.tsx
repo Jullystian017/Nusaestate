@@ -150,7 +150,7 @@ export default function CariPage() {
 
               {activePopover === 'tipe' && (
                 <div className="absolute top-full left-0 mt-3 w-60 bg-white-pure rounded-[2rem] shadow-premium border border-border-line/50 p-5 z-50 animate-in fade-in slide-in-from-top-2">
-                  <h4 className="text-[10px] font-bold text-text-gray mb-4 uppercase tracking-widest">Tipe Properti</h4>
+                  <h4 className="text-[10px] font-semibold text-text-gray mb-4 uppercase tracking-widest">Tipe Properti</h4>
                   <div className="space-y-1">
                     {['Rumah', 'Apartemen', 'Ruko', 'Vila'].map((t) => (
                       <label key={t} className="flex items-center gap-3 p-2.5 hover:bg-surface-gray rounded-xl cursor-pointer transition-colors group">
@@ -159,7 +159,7 @@ export default function CariPage() {
                       </label>
                     ))}
                   </div>
-                  <button onClick={closePopovers} className="w-full mt-4 py-2.5 bg-brand-blue text-white-pure text-xs font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-soft">Terapkan</button>
+                  <button onClick={closePopovers} className="w-full mt-4 py-2.5 bg-brand-blue text-white-pure text-xs font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-soft">Terapkan</button>
                 </div>
               )}
             </div>
@@ -175,15 +175,15 @@ export default function CariPage() {
 
               {activePopover === 'kamar' && (
                 <div className="absolute top-full right-0 lg:left-0 mt-3 w-60 bg-white-pure rounded-[2rem] shadow-premium border border-border-line/50 p-5 z-50 animate-in fade-in slide-in-from-top-2">
-                  <h4 className="text-[10px] font-bold text-text-gray mb-4 uppercase tracking-widest">Kamar Tidur</h4>
+                  <h4 className="text-[10px] font-semibold text-text-gray mb-4 uppercase tracking-widest">Kamar Tidur</h4>
                   <div className="flex items-center justify-between gap-1 p-1 bg-surface-gray rounded-xl mb-4">
                     {['Semua', '1+', '2+', '3+', '4+'].map((k) => (
-                      <button key={k} className={`flex-1 py-2 text-[11px] font-bold rounded-lg transition-all ${k === 'Semua' ? 'bg-white-pure shadow-sm text-brand-blue' : 'text-text-gray hover:text-text-dark'}`}>
+                      <button key={k} className={`flex-1 py-2 text-[11px] font-semibold rounded-lg transition-all ${k === 'Semua' ? 'bg-white-pure shadow-sm text-brand-blue' : 'text-text-gray hover:text-text-dark'}`}>
                         {k}
                       </button>
                     ))}
                   </div>
-                  <button onClick={closePopovers} className="w-full py-2.5 bg-brand-blue text-white-pure text-xs font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-soft">Terapkan</button>
+                  <button onClick={closePopovers} className="w-full py-2.5 bg-brand-blue text-white-pure text-xs font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-soft">Terapkan</button>
                 </div>
               )}
             </div>
@@ -205,13 +205,13 @@ export default function CariPage() {
           <div className="flex bg-white border border-border-line/60 p-1 rounded-full">
             <button
               onClick={() => setViewMode('list')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-300 ${viewMode === 'list' ? 'bg-white-pure shadow-sm text-brand-blue' : 'text-text-gray/60 hover:text-text-dark'}`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-300 ${viewMode === 'list' ? 'bg-white-pure shadow-sm text-brand-blue' : 'text-text-gray/60 hover:text-text-dark'}`}
             >
-              <LayoutGrid size={14} /> <span className="hidden xl:inline">Grid</span>
+              <LayoutGrid size={14} /> <span className="hidden xl:inline">Kotak</span>
             </button>
             <button
               onClick={() => setViewMode('split')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-300 ${viewMode === 'split' ? 'bg-white-pure shadow-sm text-brand-blue' : 'text-text-gray/60 hover:text-text-dark'}`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-300 ${viewMode === 'split' ? 'bg-white-pure shadow-sm text-brand-blue' : 'text-text-gray/60 hover:text-text-dark'}`}
             >
               <MapIcon size={14} /> <span className="hidden xl:inline">Peta</span>
             </button>
@@ -233,7 +233,7 @@ export default function CariPage() {
                 <p className="text-sm text-text-gray">Menampilkan 1-6 dari 145 hasil</p>
               </div>
               <div className="relative">
-                <div className="flex items-center gap-2 text-xs font-bold text-text-gray">
+                <div className="flex items-center gap-2 text-xs font-semibold text-text-gray">
                   Urutkan:
                   <button
                     onClick={() => togglePopover('sort')}
@@ -254,7 +254,7 @@ export default function CariPage() {
                       <button
                         key={item}
                         onClick={() => { setSortBy(item); setActivePopover(null); }}
-                        className={`w-full text-left px-3 py-2.5 text-xs font-bold rounded-xl transition-colors ${sortBy === item ? 'bg-blue-50 text-brand-blue' : 'text-text-gray hover:bg-surface-gray hover:text-text-dark'}`}
+                        className={`w-full text-left px-3 py-2.5 text-xs font-semibold rounded-xl transition-colors ${sortBy === item ? 'bg-blue-50 text-brand-blue' : 'text-text-gray hover:bg-surface-gray hover:text-text-dark'}`}
                       >
                         {item}
                       </button>
@@ -278,7 +278,7 @@ export default function CariPage() {
                       <div className="relative w-[180px] sm:w-[240px] aspect-[4/3] shrink-0 rounded-xl overflow-hidden shadow-sm">
                         <div className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-1000" style={{ backgroundImage: `url(${item.image})` }}></div>
                         {/* Premium White Badge (Split View) */}
-                        <div className="absolute top-3 left-3 backdrop-blur-md bg-white-pure/90 px-2.5 py-1 rounded-full shadow-premium border border-white/20 text-[9px] font-extrabold flex items-center gap-1.5 z-20">
+                        <div className="absolute top-3 left-3 backdrop-blur-md bg-white-pure/90 px-2.5 py-1 rounded-full shadow-premium border border-white/20 text-[9px] font-semibold flex items-center gap-1.5 z-20">
                           <span className="w-1.5 h-1.5 rounded-full bg-brand-blue animate-pulse"></span>
                           <span className="text-brand-blue">{item.badge}</span>
                         </div>
@@ -293,8 +293,8 @@ export default function CariPage() {
                           <MapIcon size={12} className="shrink-0" /> {item.location}
                         </p>
                         <div className="mt-3.5 flex items-center gap-4 text-[11px] font-medium text-text-gray">
-                          <span className="flex items-center gap-1"><BedDouble size={15} className="text-brand-blue/70" /> {item.specs.beds} Bed</span>
-                          <span className="flex items-center gap-1"><Bath size={15} className="text-brand-blue/70" /> {item.specs.baths} Bath</span>
+                          <span className="flex items-center gap-1"><BedDouble size={15} className="text-brand-blue/70" /> {item.specs.beds} K. Tidur</span>
+                          <span className="flex items-center gap-1"><Bath size={15} className="text-brand-blue/70" /> {item.specs.baths} K. Mandi</span>
                           <span className="flex items-center gap-1"><Scaling size={15} className="text-brand-blue/70" /> {item.specs.size}m²</span>
                         </div>
                         <p className="hidden sm:block text-[11px] text-text-gray leading-relaxed pt-2 line-clamp-2">
@@ -355,8 +355,8 @@ export default function CariPage() {
 
                       {/* Quick Specs (Compact) */}
                       <div className="mt-3 pt-3 border-t border-border-line/30 flex items-center gap-4 text-[10px] font-medium text-text-gray/80">
-                        <span className="flex items-center gap-1.5"><BedDouble size={14} className="text-brand-blue/60" /> {item.specs.beds} Bed</span>
-                        <span className="flex items-center gap-1.5"><Bath size={14} className="text-brand-blue/60" /> {item.specs.baths} Bath</span>
+                        <span className="flex items-center gap-1.5"><BedDouble size={14} className="text-brand-blue/60" /> {item.specs.beds} K. Tidur</span>
+                        <span className="flex items-center gap-1.5"><Bath size={14} className="text-brand-blue/60" /> {item.specs.baths} K. Mandi</span>
                         <span className="flex items-center gap-1.5"><Scaling size={14} className="text-brand-blue/60" /> {item.specs.size}m²</span>
                       </div>
                     </div>

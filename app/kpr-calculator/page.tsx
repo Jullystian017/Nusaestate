@@ -29,7 +29,7 @@ export default function KPRCalculatorPage() {
            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-100 text-brand-blue mb-4">
              <Calculator size={32} />
            </div>
-           <h1 className="text-3xl md:text-5xl font-display font-bold text-text-dark mb-4">
+           <h1 className="text-3xl md:text-5xl font-display font-medium text-text-dark mb-4">
              Kalkulator KPR Pintar
            </h1>
            <p className="text-text-gray max-w-2xl mx-auto text-lg leading-relaxed">
