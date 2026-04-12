@@ -49,12 +49,12 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-blue text-white-pure font-bold rounded-lg transition-all duration-200 active:scale-95 disabled:opacity-50 hover:bg-brand-blue-hover shadow-soft hover:shadow-md;
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-blue text-white-pure font-medium rounded-lg transition-all duration-200 active:scale-95 disabled:opacity-50 hover:bg-brand-blue-hover shadow-soft hover:shadow-md;
   }
 
   /* Alias for backward compatibility if needed, but styled blue */
   .btn-orange {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-blue text-white-pure font-bold rounded-lg transition-all duration-200 active:scale-95 disabled:opacity-50 hover:bg-brand-blue-hover shadow-soft hover:shadow-md;
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-blue text-white-pure font-medium rounded-lg transition-all duration-200 active:scale-95 disabled:opacity-50 hover:bg-brand-blue-hover shadow-soft hover:shadow-md;
   }
 
   .btn-white {
@@ -91,7 +91,7 @@
 }
 
 .price-marker-inner {
-  @apply bg-brand-blue text-white-pure px-3 py-1.5 rounded-full text-xs font-bold shadow-premium border-2 border-white-pure flex items-center justify-center whitespace-nowrap transition-all duration-300;
+  @apply bg-brand-blue text-white-pure px-3 py-1.5 rounded-full text-xs font-semibold shadow-premium border-2 border-white-pure flex items-center justify-center whitespace-nowrap transition-all duration-300;
   min-width: 50px;
 }
 

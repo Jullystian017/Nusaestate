@@ -4,11 +4,29 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Menu, X, LogIn, ChevronDown } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+import { User as UserType } from '@supabase/supabase-js';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<UserType | null>(null);
   const pathname = usePathname();
+  const supabase = createClient();
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,7 +59,7 @@ export default function Navbar() {
           {/* Logo - Fixed width for symmetry */}
           <div className="flex-1 flex justify-start">
             <Link href="/" className="flex items-center gap-1.5 group shrink-0">
-              <span className={`font-display font-bold text-2xl tracking-tight transition-colors duration-300 ${
+              <span className={`font-display font-semibold text-2xl tracking-tight transition-colors duration-300 ${
                 isScrolled || pathname !== '/' ? 'text-text-dark' : 'text-white-pure'
               }`}>
                 Prop<span className="text-brand-blue">Nest</span>
@@ -57,7 +75,7 @@ export default function Navbar() {
           }`}>
             <Link 
               href="/" 
-              className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
                 pathname === '/' 
                   ? 'bg-brand-blue text-white-pure shadow-sm' 
                   : (isScrolled || pathname !== '/' ? 'text-text-gray hover:text-text-dark' : 'text-white-pure/80 hover:text-white-pure')
@@ -65,11 +83,11 @@ export default function Navbar() {
             >
               Home
             </Link>
-            {NAV_LINKS.slice(1, 2).map((link) => ( // Only show Properties in center for now or adjust as needed
+            {NAV_LINKS.slice(1, 2).map((link) => ( 
               <Link
                 key={link.label}
                 href={link.href}
-                className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${
+                className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
                   pathname === link.href 
                     ? 'bg-brand-blue text-white-pure shadow-sm' 
                     : (isScrolled || pathname !== '/' ? 'text-text-gray hover:text-text-dark' : 'text-white-pure/80 hover:text-white-pure')
@@ -84,7 +102,7 @@ export default function Navbar() {
                 href={link.href}
                 className={`px-5 py-2 text-sm font-medium transition-colors flex items-center gap-1 ${
                   pathname === link.href
-                    ? 'text-brand-blue font-bold'
+                    ? 'text-brand-blue font-semibold'
                     : (isScrolled || pathname !== '/' ? 'text-text-gray hover:text-text-dark' : 'text-white-pure/80 hover:text-white-pure')
                 }`}
               >
@@ -101,10 +119,16 @@ export default function Navbar() {
              }`}>
                Contact Us
              </Link>
-             <Link href="/login" className="bg-brand-blue hover:bg-brand-blue-hover text-white-pure text-sm font-bold px-6 py-2.5 rounded-full flex items-center gap-2 transition-all shadow-md active:scale-95">
-               Sign In
-               <LogIn size={16} />
-             </Link>
+             {user ? (
+               <Link href="/dashboard" className="bg-brand-blue hover:bg-brand-blue-hover text-white-pure text-sm font-medium px-6 py-2.5 rounded-full flex items-center gap-2 transition-all shadow-md active:scale-95">
+                 Dashboard
+               </Link>
+             ) : (
+               <Link href="/login" className="bg-brand-blue hover:bg-brand-blue-hover text-white-pure text-sm font-medium px-6 py-2.5 rounded-full flex items-center gap-2 transition-all shadow-md active:scale-95">
+                 Masuk
+                 <LogIn size={16} />
+               </Link>
+             )}
 
              {/* Mobile Menu Toggle */}
              <button
@@ -133,7 +157,7 @@ export default function Navbar() {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="p-6 flex items-center justify-between border-b border-border-line">
-            <span className="font-display font-bold text-xl text-text-dark">Menu</span>
+            <span className="font-display font-semibold text-xl text-text-dark">Menu</span>
             <button
               onClick={() => setMobileMenuOpen(false)}
               className="p-2 bg-surface-gray rounded-full text-text-dark"
@@ -147,7 +171,7 @@ export default function Navbar() {
               <Link
                 key={link.label}
                 href={link.href}
-                className={`text-lg font-bold p-3 rounded-2xl transition-colors ${
+                className={`text-lg font-medium p-3 rounded-2xl transition-colors ${
                   pathname === link.href ? 'bg-blue-50 text-brand-blue' : 'text-text-dark hover:bg-surface-gray'
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
@@ -158,13 +182,24 @@ export default function Navbar() {
           </div>
 
           <div className="p-6 border-t border-border-line flex flex-col gap-3">
-            <Link
-              href="/login"
-              className="btn-primary w-full rounded-2xl"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Sign In
-            </Link>
+            {!user && (
+              <Link
+                href="/login"
+                className="btn-primary w-full rounded-2xl"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Masuk
+              </Link>
+            )}
+            {user && (
+              <Link
+                href="/dashboard"
+                className="btn-primary w-full rounded-2xl"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Dashboard
+              </Link>
+            )}
           </div>
         </div>
       </div>

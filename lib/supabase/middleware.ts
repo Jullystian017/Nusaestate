@@ -36,15 +36,15 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/dashboard')
   ) {
     const url = request.nextUrl.clone();
-    url.pathname = '/masuk';
+    url.pathname = '/login';
     return NextResponse.redirect(url);
   }
 
   // Redirect authenticated users away from auth pages
   if (
     user &&
-    (request.nextUrl.pathname === '/masuk' ||
-      request.nextUrl.pathname === '/daftar')
+    (request.nextUrl.pathname === '/login' ||
+      request.nextUrl.pathname === '/register')
   ) {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
