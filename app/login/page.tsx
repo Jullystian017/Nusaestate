@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { createClient } from '@/lib/supabase/client';
@@ -62,55 +62,35 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center p-4 md:p-8 font-sans">
       <div className="w-full max-w-[1200px] bg-white-pure rounded-[2.5rem] shadow-premium overflow-hidden flex flex-col md:flex-row h-full md:min-h-[750px] border border-white">
         
-        {/* Left Side: Visual Hero */}
-        <div className="relative w-full md:w-[45%] h-[300px] md:h-auto overflow-hidden">
-          <img 
-            src="/images/auth-hero.png" 
-            alt="Luxury Property" 
-            className="absolute inset-0 w-full h-full object-cover p-3 rounded-[3rem]"
-          />
-          <div className="absolute inset-0 p-3">
-             <div className="w-full h-full rounded-[2.5rem] bg-black-pure/30 flex flex-col justify-end p-10">
-                <div className="mb-6 flex items-center gap-2 bg-white/10 backdrop-blur-md w-fit px-4 py-2 rounded-full border border-white/20">
-                    <div className="w-6 h-6 bg-brand-blue rounded-lg flex items-center justify-center">
-                        <span className="text-white-pure text-[10px] font-bold">P</span>
-                    </div>
-                    <span className="text-white-pure text-xs font-medium tracking-wide">PropNest AI</span>
-                </div>
-                <h2 className="text-3xl lg:text-4xl font-display font-semibold text-white-pure leading-tight mb-4">
-                  Manage Properties <br /> Efficiently
-                </h2>
-                <p className="text-white-pure/80 text-sm font-medium max-w-sm leading-relaxed">
-                  Easily track rent payments, maintenance requests, and tenant communications in one place. Say goodbye to manual management.
-                </p>
-                <div className="flex gap-2 mt-8">
-                    <div className="w-8 h-1 bg-white-pure rounded-full opacity-100"></div>
-                    <div className="w-4 h-1 bg-white/30 rounded-full"></div>
-                    <div className="w-4 h-1 bg-white/30 rounded-full"></div>
-                </div>
-             </div>
-          </div>
-        </div>
-
-        {/* Right Side: Form Area */}
-        <div className="flex-1 flex flex-col p-8 md:p-12 lg:p-16 relative">
+        {/* Left Side: Form Area */}
+        <div className="flex-1 flex flex-col p-8 md:p-12 lg:p-16 relative order-2 md:order-1">
           
+          {/* Back Button */}
+          <div className="absolute top-8 left-8 md:top-12 md:left-12">
+            <Link href="/" className="inline-flex items-center gap-2 text-text-gray/60 hover:text-brand-blue transition-colors group">
+              <div className="w-10 h-10 rounded-full border border-border-line/20 flex items-center justify-center bg-white shadow-sm group-hover:border-brand-blue/30 group-active:scale-95 transition-all">
+                <ArrowLeft size={18} />
+              </div>
+              <span className="text-sm font-medium">Kembali</span>
+            </Link>
+          </div>
+
           <div className="flex-1 flex flex-col justify-center max-w-[420px] mx-auto w-full">
-            <div className="mb-10 pt-8 md:pt-0">
+            <div className="mb-10 pt-16 md:pt-0">
               <h1 className="text-3xl font-display font-semibold text-text-dark mb-3 tracking-tight">
-                Welcome Back to PropNest!
+                Selamat Datang di PropNest!
               </h1>
               <p className="text-text-gray font-medium text-sm">
-                Sign in to your account
+                Masuk ke akun Anda
               </p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-4">
                 <Input
-                  label="Your Email"
+                  label="Email Anda"
                   type="email"
-                  placeholder="name@email.com"
+                  placeholder="nama@email.com"
                   icon={Mail}
                   required
                   value={email}
@@ -119,7 +99,7 @@ export default function LoginPage() {
 
                 <div className="relative group">
                   <Input
-                    label="Password"
+                    label="Kata Sandi"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
                     icon={Lock}
@@ -146,10 +126,10 @@ export default function LoginPage() {
                         <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </div>
-                  <span className="text-xs font-medium text-text-gray">Remember Me</span>
+                  <span className="text-xs font-medium text-text-gray">Ingat Saya</span>
                 </label>
-                <Link href="/forgot-password" title="Lupa Password" className="text-xs font-semibold text-text-gray/50 hover:text-brand-blue transition-colors">
-                  Forgot Password?
+                <Link href="/lupa-sandi" className="text-xs font-semibold text-text-gray/50 hover:text-brand-blue transition-colors">
+                  Lupa Kata Sandi?
                 </Link>
               </div>
 
@@ -164,7 +144,7 @@ export default function LoginPage() {
                 className="w-full py-4 text-sm shadow-xl shadow-brand-blue/10" 
                 isLoading={isLoading}
               >
-                Login
+                Masuk
               </Button>
             </form>
 
@@ -173,7 +153,7 @@ export default function LoginPage() {
                 <div className="w-full border-t border-border-line/20"></div>
               </div>
               <div className="relative flex justify-center text-[10px] uppercase tracking-widest text-text-gray/50 bg-white-pure px-4 font-medium">
-                Instan Login
+                Masuk Instan
               </div>
             </div>
 
@@ -184,16 +164,46 @@ export default function LoginPage() {
                 onClick={handleGoogleLogin}
                 leftIcon={<GoogleIcon />}
               >
-                Sign in with Google
+                Masuk dengan Google
               </Button>
             </div>
 
-            <p className="mt-10 text-center text-xs text-text-gray font-medium">
-              Don't have any account?{' '}
+            <p className="mt-10 text-center text-sm text-text-gray font-medium">
+              Belum punya akun?{' '}
               <Link href="/register" className="text-brand-blue hover:underline font-semibold">
-                Register
+                Daftar Gratis
               </Link>
             </p>
+          </div>
+        </div>
+
+        {/* Right Side: Visual Hero */}
+        <div className="relative w-full md:w-[45%] h-[300px] md:h-auto overflow-hidden order-1 md:order-2">
+          <img 
+            src="/images/auth-hero.png" 
+            alt="Properti mewah" 
+            className="absolute inset-0 w-full h-full object-cover p-3 rounded-[3rem]"
+          />
+          <div className="absolute inset-0 p-3">
+             <div className="w-full h-full rounded-[2.5rem] bg-black-pure/30 flex flex-col justify-end p-10">
+                <div className="mb-6 flex items-center gap-2 bg-white/10 backdrop-blur-md w-fit px-4 py-2 rounded-full border border-white/20">
+                    <div className="w-6 h-6 bg-brand-blue rounded-lg flex items-center justify-center">
+                        <span className="text-white-pure text-[10px] font-bold">P</span>
+                    </div>
+                    <span className="text-white-pure text-xs font-medium tracking-wide">PropNest AI</span>
+                </div>
+                <h2 className="text-3xl lg:text-4xl font-display font-semibold text-white-pure leading-tight mb-4">
+                  Kelola Properti <br /> Lebih Efisien
+                </h2>
+                <p className="text-white-pure/80 text-sm font-medium max-w-sm leading-relaxed">
+                  Lacak pembayaran sewa, permintaan pemeliharaan, dan komunikasi penyewa dengan mudah di satu tempat.
+                </p>
+                <div className="flex gap-2 mt-8">
+                    <div className="w-8 h-1 bg-white-pure rounded-full opacity-100"></div>
+                    <div className="w-4 h-1 bg-white/30 rounded-full"></div>
+                    <div className="w-4 h-1 bg-white/30 rounded-full"></div>
+                </div>
+             </div>
           </div>
         </div>
       </div>
