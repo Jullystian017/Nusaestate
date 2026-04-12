@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useState, use } from 'react';
 import Navbar from '@/components/ui/Navbar';
 import Footer from '@/components/ui/Footer';
 import { 
@@ -6,31 +8,74 @@ import {
   Phone, CalendarHeart, Share2, Bookmark, Award,
   Zap, MessageSquare, ChevronRight, Star, Shield, TrendingUp,
   Box, Eye, Info, FileText, Layout, Navigation, HelpCircle,
-  Home, TrainFront, School, Hospital, ShoppingBag, ArrowUpRight
+  Home, TrainFront, School, Hospital, ShoppingBag, ArrowUpRight,
+  Car, Map as MapIcon, Church, GraduationCap
 } from 'lucide-react';
 import Link from 'next/link';
 import { MOCK_PROPERTIES } from '@/lib/mock-data';
 import { notFound } from 'next/navigation';
 import MapContainer from '@/components/maps/MapContainer';
 
-export default async function DetailPropertiPage({ 
+// --- DATA UNTUK NEAREST FACILITIES ---
+const NEAREST_DATA = {
+  transport: [
+    { name: 'Stasiun MRT Arjuna Selatan', time: '2 Menit', dist: '809 m' },
+    { name: 'Stasiun MRT Tanjung Duren', time: '2 Menit', dist: '818 m' },
+    { name: 'Cititrans Central Park', time: '2 Menit', dist: '1 km' },
+    { name: 'Stasiun MRT Tomang', time: '2 Menit', dist: '1,1 km' },
+    { name: 'Pangkalan Blue Bird Central Park Lobby Laguna', time: '2 Menit', dist: '1,2 km' },
+  ],
+  school: [
+    { name: 'SD Negeri 01 Ungaran', time: '5 Menit', dist: '1.2 km' },
+    { name: 'SMP Negeri 1 Ungaran', time: '8 Menit', dist: '2.5 km' },
+    { name: 'SMA Negeri 1 Ungaran', time: '10 Menit', dist: '3.1 km' },
+  ],
+  shopping: [
+    { name: 'Mall Ciputra Semarang', time: '15 Menit', dist: '12 km' },
+    { name: 'Pasar Bandarjo', time: '5 Menit', dist: '2.2 km' },
+    { name: 'Indomaret Fresh', time: '2 Menit', dist: '400 m' },
+  ],
+  health: [
+    { name: 'RSUD dr. Gondo Suwarno', time: '12 Menit', dist: '4.5 km' },
+    { name: 'Puskesmas Ungaran', time: '5 Menit', dist: '1.8 km' },
+  ],
+  tourism: [
+    { name: 'Watu Gunung Ungaran', time: '15 Menit', dist: '6 km' },
+    { name: 'The Fountain Water Park', time: '10 Menit', dist: '4.2 km' },
+  ],
+  worship: [
+    { name: 'Masjid Agung Al-Mabrur', time: '5 Menit', dist: '1.5 km' },
+    { name: 'Gereja Kristus Raja', time: '7 Menit', dist: '2 km' },
+  ]
+};
+
+export default function DetailPropertiPage({ 
   params 
 }: { 
   params: Promise<{ id: string }> 
 }) {
-  const { id } = await params;
+  const { id } = use(params);
   const property = MOCK_PROPERTIES.find(p => p.id === id);
+
+  const [activeTab, setActiveTab] = useState<'transport' | 'school' | 'shopping' | 'health' | 'tourism' | 'worship'>('transport');
 
   if (!property) {
     notFound();
   }
 
-  // Related properties (excluding current)
   const relatedProperties = MOCK_PROPERTIES.filter(p => p.id !== id).slice(0, 3);
+
+  const tabs = [
+    { id: 'transport', label: 'Transportation', icon: <TrainFront size={18} /> },
+    { id: 'school', label: 'School', icon: <GraduationCap size={18} /> },
+    { id: 'shopping', label: 'Shopping Center', icon: <ShoppingBag size={18} /> },
+    { id: 'health', label: 'Healthcare', icon: <Hospital size={18} /> },
+    { id: 'tourism', label: 'Tourism', icon: <MapIcon size={18} /> },
+    { id: 'worship', label: 'Worship', icon: <Church size={18} /> },
+  ];
 
   return (
     <div className="bg-white-pure min-h-screen pt-24 font-sans selection:bg-brand-blue/10 relative">
-      {/* Background Decorative Elements Wrapper */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-brand-blue/5 rounded-full blur-[120px] -mr-96 -mt-96"></div>
         <div className="absolute top-1/2 left-0 w-[600px] h-[600px] bg-brand-blue/3 rounded-full blur-[100px] -ml-48"></div>
@@ -39,7 +84,6 @@ export default async function DetailPropertiPage({
       <Navbar />
 
       <main className="container-standard py-6 relative z-10">
-        {/* Navigation & Breadcrumb */}
         <div className="mb-6">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-text-gray/60 font-medium">
             <Link href="/" className="hover:text-brand-blue transition-colors">Beranda</Link>
@@ -50,14 +94,10 @@ export default async function DetailPropertiPage({
           </div>
         </div>
 
-        {/* Custom Bento Gallery - 1 Large, 1 Medium, 2 Small */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10 h-[500px] md:h-[650px] relative z-10">
-           {/* Left: Large vertical */}
            <div className="relative rounded-[2.5rem] overflow-hidden group h-full shadow-2xl border border-white-pure/20">
              <div className="absolute inset-0 bg-cover bg-center hover:scale-105 transition-transform duration-[5s] ease-out" style={{ backgroundImage: `url('${property.image}')` }}></div>
              <div className="absolute inset-0 bg-gradient-to-t from-black-pure/30 to-transparent"></div>
-             
-             {/* Virtual Tour Floating Button */}
              <button className="absolute bottom-8 left-8 flex items-center gap-3 bg-white-pure/10 backdrop-blur-xl border border-white-pure/30 px-6 py-3 rounded-2xl text-white-pure text-sm font-semibold hover:bg-white-pure/20 transition-all shadow-xl group/btn">
                 <div className="p-1.5 bg-brand-blue rounded-lg shadow-blue-glow group-hover/btn:scale-110 transition-transform">
                   <Box size={16} />
@@ -66,22 +106,17 @@ export default async function DetailPropertiPage({
              </button>
            </div>
            
-           {/* Right side wrap */}
            <div className="flex-col gap-4 h-full hidden md:flex">
-             {/* Top right: Medium horizontal */}
              <div className="relative rounded-[2rem] overflow-hidden group h-[60%] shadow-lg border border-white-pure/20">
                <div className="absolute inset-0 bg-cover bg-center hover:scale-110 transition-transform duration-[5s] ease-out" style={{ backgroundImage: `url('${property.gallery?.[0] || property.image}')` }}></div>
              </div>
              
-             {/* Bottom right: 2 Small images */}
              <div className="flex gap-4 h-[40%]">
                <div className="relative rounded-[1.5rem] overflow-hidden group flex-1 shadow-lg border border-white-pure/20">
                  <div className="absolute inset-0 bg-cover bg-center hover:scale-110 transition-transform duration-[5s] ease-out" style={{ backgroundImage: `url('${property.gallery?.[1] || property.image}')` }}></div>
                </div>
                <div className="relative rounded-[1.5rem] overflow-hidden group flex-1 shadow-lg border border-white-pure/20">
                  <div className="absolute inset-0 bg-cover bg-center hover:scale-110 transition-transform duration-[5s] ease-out" style={{ backgroundImage: `url('${property.gallery?.[2] || property.image}')` }}></div>
-                 
-                 {/* See all photos overlay */}
                  <div className="absolute inset-0 bg-black-pure/40 backdrop-blur-[1px] flex items-center justify-center cursor-pointer hover:bg-black-pure/60 transition-all duration-500">
                    <div className="text-center group-hover:scale-110 transition-transform flex flex-col items-center">
                      <div className="bg-white-pure/20 backdrop-blur-md px-4 py-2 rounded-xl flex items-center gap-2 border border-white-pure/30">
@@ -95,7 +130,6 @@ export default async function DetailPropertiPage({
            </div>
         </div>
 
-        {/* Property Identity Header */}
         <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
             <div className="relative z-10 text-left">
@@ -129,13 +163,10 @@ export default async function DetailPropertiPage({
           </div>
         </div>
 
-        {/* Two Column Content */}
         <div className="flex flex-col lg:flex-row gap-16">
           
-          {/* Left Column (Main) */}
           <div className="flex-1 space-y-10">
             
-            {/* Specs Highlight Dashboard - Refined Size */}
             <div className="relative p-[1px] rounded-[2rem] bg-gradient-to-br from-brand-blue/15 via-white-pure/5 to-transparent shadow-xl">
               <div className="bg-white-pure/80 backdrop-blur-2xl p-6 md:p-8 rounded-[2rem] flex flex-wrap justify-between items-center text-text-dark relative overflow-hidden">
                  <div className="absolute top-0 right-0 w-48 h-48 bg-brand-blue/10 rounded-full -mr-24 -mt-24 blur-3xl opacity-30"></div>
@@ -166,7 +197,6 @@ export default async function DetailPropertiPage({
               </div>
             </div>
 
-            {/* Overview Section - New */}
             <div className="bg-surface-gray/30 rounded-3xl p-6 border border-border-line/30">
               <h2 className="text-lg font-display font-semibold text-text-dark mb-5 flex items-center gap-3">
                 <Info size={18} className="text-brand-blue" /> Ringkasan Properti
@@ -188,7 +218,6 @@ export default async function DetailPropertiPage({
               </div>
             </div>
 
-            {/* Description Section */}
             <div>
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-1 h-8 bg-brand-blue rounded-full"></div>
@@ -204,7 +233,6 @@ export default async function DetailPropertiPage({
               </div>
             </div>
 
-            {/* Information House / Technical Detail */}
             <div>
               <h2 className="text-lg font-display font-semibold text-text-dark mb-5 flex items-center gap-3">
                 <FileText size={18} className="text-brand-blue" /> Spesifikasi Teknis
@@ -226,7 +254,6 @@ export default async function DetailPropertiPage({
               </div>
             </div>
 
-            {/* Features Section */}
             <div>
               <h2 className="text-lg font-display font-semibold text-text-dark mb-5 flex items-center gap-3">
                 <Shield size={18} className="text-brand-blue" /> Fasilitas Premium
@@ -241,7 +268,6 @@ export default async function DetailPropertiPage({
               </div>
             </div>
 
-            {/* Property Location & Interactive Map */}
             <div className="space-y-4">
                 <h2 className="text-lg font-display font-semibold text-text-dark flex items-center gap-3">
                   <MapPin size={18} className="text-brand-blue" /> Lokasi Properti
@@ -254,61 +280,57 @@ export default async function DetailPropertiPage({
                 </div>
             </div>
 
-            {/* Nearest Facilities Section - New */}
+            {/* NEAREST LOCATION - REPLICATING USER IMAGE UI */}
             <div>
-              <h2 className="text-lg font-display font-semibold text-text-dark mb-5 flex items-center gap-3">
-                <Navigation size={18} className="text-brand-blue" /> Fasilitas Sekitar
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                {/* Transport & Education */}
-                <div className="space-y-4">
-                  <div className="bg-white-pure p-4 rounded-2xl border border-border-line/30 shadow-sm">
-                    <div className="flex items-center gap-2 text-brand-blue mb-3">
-                      <TrainFront size={16} /> <span className="text-xs font-bold uppercase tracking-wider">Transportasi</span>
-                    </div>
-                    <ul className="space-y-3">
-                      <li className="flex justify-between text-xs"><span className="text-text-gray">Stasiun Kereta Utama</span> <span className="font-semibold text-text-dark">15 Menit</span></li>
-                      <li className="flex justify-between text-xs"><span className="text-text-gray">Gerbang Tol Terdekat</span> <span className="font-semibold text-text-dark">8 Menit</span></li>
-                    </ul>
-                  </div>
-                  <div className="bg-white-pure p-4 rounded-2xl border border-border-line/30 shadow-sm">
-                    <div className="flex items-center gap-2 text-brand-blue mb-3">
-                      <School size={16} /> <span className="text-xs font-bold uppercase tracking-wider">Pendidikan</span>
-                    </div>
-                    <ul className="space-y-3">
-                      <li className="flex justify-between text-xs"><span className="text-text-gray">SD Negeri Favorit</span> <span className="font-semibold text-text-dark">5 Menit</span></li>
-                      <li className="flex justify-between text-xs"><span className="text-text-gray">Universitas Negeri</span> <span className="font-semibold text-text-dark">12 Menit</span></li>
-                    </ul>
-                  </div>
-                </div>
+              <h2 className="text-lg font-semibold text-text-dark mb-6">Nearest Location</h2>
+              
+              {/* Category Tabs (Scrollable) */}
+              <div className="flex items-center gap-3 overflow-x-auto py-4 -mx-4 px-4 scrollbar-hide no-scrollbar">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`flex items-center gap-2.5 px-6 py-2.5 rounded-full border-2 whitespace-nowrap transition-all duration-300 ${
+                      activeTab === tab.id 
+                      ? 'border-brand-blue bg-white-pure text-brand-blue font-semibold scale-105 shadow-md shadow-brand-blue/5' 
+                      : 'border-border-line/40 text-text-gray/70 font-medium hover:border-border-line hover:text-text-dark shadow-sm bg-white-pure'
+                    }`}
+                  >
+                    <span className={activeTab === tab.id ? 'text-brand-blue' : 'text-text-gray/60'}>
+                      {tab.icon}
+                    </span>
+                    <span className="text-sm">{tab.label}</span>
+                  </button>
+                ))}
+              </div>
 
-                {/* Health & Commercial */}
-                <div className="space-y-4">
-                  <div className="bg-white-pure p-4 rounded-2xl border border-border-line/30 shadow-sm">
-                    <div className="flex items-center gap-2 text-brand-blue mb-3">
-                      <Hospital size={16} /> <span className="text-xs font-bold uppercase tracking-wider">Kesehatan</span>
+              {/* Facility List */}
+              <div className="bg-white-pure rounded-3xl border border-border-line/20 overflow-hidden">
+                {NEAREST_DATA[activeTab].map((item, idx) => (
+                  <div 
+                    key={idx} 
+                    className="flex items-center justify-between p-5 border-b border-border-line/30 last:border-0 hover:bg-surface-gray/30 transition-colors animate-in fade-in slide-in-from-bottom-2 duration-300"
+                    style={{ animationDelay: `${idx * 50}ms` }}
+                  >
+                    <div className="text-[15px] font-medium text-text-dark pr-4">{item.name}</div>
+                    <div className="flex items-center gap-6 shrink-0">
+                      <div className="flex items-center gap-2 text-text-gray/70">
+                        <Car size={16} />
+                        <span className="text-sm font-medium">{item.time}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-text-gray/40">
+                        <span className="w-1 h-1 rounded-full bg-current"></span>
+                      </div>
+                      <div className="flex items-center gap-2 text-text-gray/70">
+                        <MapPin size={16} />
+                        <span className="text-sm font-medium">{item.dist}</span>
+                      </div>
                     </div>
-                    <ul className="space-y-3">
-                      <li className="flex justify-between text-xs"><span className="text-text-gray">Rumah Sakit Umum</span> <span className="font-semibold text-text-dark">10 Menit</span></li>
-                      <li className="flex justify-between text-xs"><span className="text-text-gray">Apotek 24 Jam</span> <span className="font-semibold text-text-dark">3 Menit</span></li>
-                    </ul>
                   </div>
-                  <div className="bg-white-pure p-4 rounded-2xl border border-border-line/30 shadow-sm">
-                    <div className="flex items-center gap-2 text-brand-blue mb-3">
-                      <ShoppingBag size={16} /> <span className="text-xs font-bold uppercase tracking-wider">Pusat Belanja</span>
-                    </div>
-                    <ul className="space-y-3">
-                      <li className="flex justify-between text-xs"><span className="text-text-gray">Mall & Lifestyle Center</span> <span className="font-semibold text-text-dark">10 Menit</span></li>
-                      <li className="flex justify-between text-xs"><span className="text-text-gray">Pasar Tradisional</span> <span className="font-semibold text-text-dark">5 Menit</span></li>
-                    </ul>
-                  </div>
-                </div>
-
+                ))}
               </div>
             </div>
 
-            {/* Buying Guide Section - Based on Proposal */}
             <div className="bg-gradient-to-br from-brand-blue/5 to-white-pure border border-brand-blue/10 p-8 rounded-[2.5rem] relative overflow-hidden">
                <div className="relative z-10">
                  <h2 className="text-xl font-display font-semibold text-text-dark mb-2 flex items-center gap-3">
@@ -337,7 +359,6 @@ export default async function DetailPropertiPage({
 
           </div>
 
-          {/* Right Column (Sticky Sidebar) - Refined Scaling */}
           <aside className="w-full lg:w-[380px] shrink-0">
              <div className="bg-white-pure rounded-[2.5rem] border border-border-line/40 p-6 shadow-premium sticky top-24 ring-1 ring-border-line/20">
                
@@ -350,7 +371,6 @@ export default async function DetailPropertiPage({
                   </div>
                 </div>
 
-               {/* Smart Reminder Widget */}
                <div className="bg-brand-blue/5 border border-brand-blue/10 text-brand-blue p-4 rounded-xl flex items-start gap-3 mb-6">
                  <div className="bg-white-pure p-1.5 rounded-lg shadow-sm">
                    <Zap size={16} fill="currentColor" />
@@ -370,7 +390,6 @@ export default async function DetailPropertiPage({
                  </button>
                </div>
 
-               {/* Verified Agent Badge */}
                <div className="bg-white-pure border border-border-line/40 p-4 rounded-2xl flex items-center gap-4 hover:bg-surface-gray transition-colors group">
                  <div className="relative">
                    <div className="w-12 h-12 rounded-xl bg-cover bg-center shadow-md grow-0 shrink-0 border border-white-pure group-hover:scale-110 transition-transform duration-300" style={{ backgroundImage: `url('${property.agent?.avatar || 'https://ui-avatars.com/api/?name=Agent+PropNest&background=random'}')`}}></div>
@@ -389,7 +408,6 @@ export default async function DetailPropertiPage({
 
         </div>
 
-        {/* Other Properties Section - Bottom */}
         <section className="mt-24 pt-20 border-t border-border-line/40">
            <div className="flex items-center justify-between mb-10">
               <div>
@@ -408,7 +426,6 @@ export default async function DetailPropertiPage({
                   href={`/properti/${item.id}`}
                   className="group relative flex flex-col transition-all duration-500 hover:-translate-y-2"
                 >
-                  {/* Image Area */}
                   <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-soft group-hover:shadow-md transition-all duration-700">
                     <div className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-[3s]" style={{ backgroundImage: `url(${item.image})` }}></div>
                     <div className="absolute top-4 left-4 backdrop-blur-md bg-white-pure/90 px-3 py-1.5 rounded-full shadow-premium border border-white/20 text-[10px] font-semibold flex items-center gap-2 text-brand-blue">
@@ -417,7 +434,6 @@ export default async function DetailPropertiPage({
                     </div>
                   </div>
 
-                  {/* Floating Content Box */}
                   <div className="relative -mt-10 mx-3 bg-white-pure rounded-xl p-4 shadow-premium border border-border-line/20 group-hover:border-brand-blue/30 transition-all duration-500 z-10">
                     <h3 className="text-[15px] font-semibold text-text-dark truncate mb-1 pr-2">{item.name}</h3>
                     <p className="flex items-center gap-1.5 text-[10px] text-text-gray font-medium">
