@@ -50,8 +50,8 @@ export default function Navbar() {
       <header
         className={`${pathname === '/cari' ? 'absolute' : 'fixed'} top-0 inset-x-0 z-50 transition-all duration-500 ${
           isScrolled || pathname !== '/'
-            ? 'py-3 bg-white/80 backdrop-blur-md border-b border-black/5 shadow-sm'
-            : 'py-6 bg-transparent'
+            ? 'py-4 bg-white/80 backdrop-blur-md border-b border-black/5 shadow-sm'
+            : 'py-4 bg-transparent'
         }`}
       >
         <div className="max-w-[1440px] mx-auto px-6 md:px-10 flex items-center w-full">
