@@ -15,6 +15,13 @@ import Link from 'next/link';
 import { MOCK_PROPERTIES } from '@/lib/mock-data';
 import { notFound } from 'next/navigation';
 import MapContainer from '@/components/maps/MapContainer';
+import { createClient } from '@supabase/supabase-js';
+
+// --- SUPABASE CLIENT ---
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 // --- KPR CALCULATOR COMPONENT ---
 const KPRCalculator = ({ propertyPrice }: { propertyPrice: string }) => {
@@ -238,6 +245,217 @@ const NEAREST_DATA = {
   ]
 };
 
+// --- INQUIRY MODAL COMPONENT ---
+const InquiryModal = ({ isOpen, onClose, propertyName, propertyId }: { isOpen: boolean, onClose: () => void, propertyName: string, propertyId: string }) => {
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [formData, setFormData] = useState({ name: '', phone: '', email: '', message: `Halo, saya tertarik dengan unit ${propertyName}. Bisakah saya mendapatkan info lebih lanjut?` });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      const { error } = await supabase.from('leads').insert([{
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        property_id: propertyId,
+        message: formData.message,
+        status: 'new'
+      }]);
+
+      if (error) throw error;
+      setSuccess(true);
+      setTimeout(() => {
+        onClose();
+        setSuccess(false);
+      }, 3000);
+    } catch (err) {
+      console.error(err);
+      alert('Gagal mengirim pesan. Silakan coba lagi.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black-pure/40 backdrop-blur-md" onClick={onClose}></div>
+      <div className="relative bg-white-pure w-full max-w-lg rounded-[2.5rem] shadow-2xl border border-white-pure/20 overflow-hidden animate-in zoom-in-95 duration-300">
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-blue to-brand-blue-deep"></div>
+        
+        <div className="p-8">
+          {success ? (
+            <div className="text-center py-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500">
+                <CheckCircle2 size={40} />
+              </div>
+              <h3 className="text-2xl font-display font-medium text-text-dark mb-2">Terima Kasih!</h3>
+              <p className="text-text-gray/70 text-sm">Ketertarikan Anda telah kami catat di CRM Developer. Tim kami akan segera menghubungi Anda.</p>
+            </div>
+          ) : (
+            <>
+              <div className="flex justify-between items-start mb-8">
+                <div>
+                  <h3 className="text-xl font-display font-medium text-text-dark mb-1">Dapatkan Info Detail</h3>
+                  <p className="text-xs text-text-gray">Lengkapi form di bawah untuk kami kirimkan brosur & pricelist terbaru.</p>
+                </div>
+                <button onClick={onClose} className="p-2 hover:bg-surface-gray rounded-full transition-colors text-text-gray/40">
+                  <Box size={20} className="rotate-45" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-text-gray/60 px-2">Nama Lengkap</label>
+                  <input 
+                    required type="text" placeholder="Masukkan nama Anda" 
+                    className="w-full bg-surface-gray/50 border border-border-line/30 rounded-xl px-4 py-3.5 text-sm focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/5 outline-none transition-all"
+                    value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-text-gray/60 px-2">WhatsApp / HP</label>
+                    <input 
+                      required type="tel" placeholder="08..." 
+                      className="w-full bg-surface-gray/50 border border-border-line/30 rounded-xl px-4 py-3.5 text-sm focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/5 outline-none transition-all"
+                      value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-text-gray/60 px-2">Email</label>
+                    <input 
+                      type="email" placeholder="nama@email.com" 
+                      className="w-full bg-surface-gray/50 border border-border-line/30 rounded-xl px-4 py-3.5 text-sm focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/5 outline-none transition-all"
+                      value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-text-gray/60 px-2">Pesan (Opsional)</label>
+                  <textarea 
+                    rows={3}
+                    className="w-full bg-surface-gray/50 border border-border-line/30 rounded-xl px-4 py-3.5 text-sm focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/5 outline-none transition-all resize-none"
+                    value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})}
+                  />
+                </div>
+
+                <button 
+                  disabled={loading}
+                  className="w-full bg-brand-blue text-white-pure py-4 rounded-xl font-bold text-sm shadow-xl shadow-brand-blue/20 hover:bg-brand-blue-deep transition-all mt-6 flex items-center justify-center gap-3 active:scale-95 disabled:opacity-70"
+                >
+                  {loading ? (
+                    <div className="w-5 h-5 border-2 border-white-pure border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      <FileText size={18} />
+                      Kirim Inquiry CRM
+                    </>
+                  )}
+                </button>
+              </form>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- CHATBOT COMPONENT ---
+const AIChatbot = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (v: boolean) => void }) => {
+  const [messages, setMessages] = useState([
+    { role: 'ai', text: 'Halo! Saya PropNest AI. Ada yang bisa saya bantu tentang properti ini?' }
+  ]);
+  const [input, setInput] = useState('');
+
+  const handleSend = () => {
+    if (!input.trim()) return;
+    const userMsg = input;
+    setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+    setInput('');
+    
+    // Simple mock response logic
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        role: 'ai', 
+        text: 'Terima kasih atas pertanyaannya! Berdasarkan data kami, unit ini memiliki prospek investasi yang sangat baik karena lokasinya yang strategis.' 
+      }]);
+    }, 1000);
+  };
+
+  return (
+    <>
+      {/* FAB */}
+      <button 
+        onClick={() => setIsOpen(true)}
+        className="fixed bottom-8 right-8 z-[900] w-16 h-16 bg-brand-blue text-white-pure rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all group overflow-hidden"
+      >
+        <div className="absolute inset-0 bg-brand-blue-deep scale-0 group-hover:scale-100 transition-transform duration-500 rounded-full"></div>
+        <Zap size={24} className="relative z-10 animate-pulse" fill="currentColor" />
+        <div className="absolute top-0 left-0 w-full h-full border-4 border-brand-blue/30 rounded-full animate-ping"></div>
+      </button>
+
+      {/* Chat Drawer */}
+      <div className={`fixed bottom-28 right-8 z-[900] w-full max-w-[360px] bg-white-pure rounded-[2rem] shadow-2xl border border-border-line/30 flex flex-col transition-all duration-500 origin-bottom-right ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}`}>
+        <div className="p-6 border-b border-border-line/20 bg-gradient-to-r from-brand-blue to-brand-blue-deep text-white-pure rounded-t-[2rem]">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white-pure/20 backdrop-blur-md rounded-xl flex items-center justify-center">
+                <Zap size={20} fill="currentColor" />
+              </div>
+              <div>
+                <div className="font-bold text-sm tracking-tight">PropNest AI</div>
+                <div className="flex items-center gap-1.5 text-[9px] uppercase tracking-widest opacity-70">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                  Online Assistant
+                </div>
+              </div>
+            </div>
+            <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-white-pure/10 rounded-lg">
+              <Box size={18} className="rotate-45" />
+            </button>
+          </div>
+        </div>
+
+        <div className="h-96 overflow-y-auto p-4 space-y-4 bg-surface-gray/30">
+          {messages.map((m, i) => (
+            <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-xs font-medium leading-relaxed ${
+                m.role === 'user' 
+                  ? 'bg-brand-blue text-white-pure rounded-tr-none' 
+                  : 'bg-white-pure text-text-dark border border-border-line/20 rounded-tl-none shadow-sm'
+              }`}>
+                {m.text}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="p-4 bg-white-pure rounded-b-[2rem]">
+          <div className="relative">
+            <input 
+              type="text" 
+              placeholder="Tanya info properti..."
+              className="w-full bg-surface-gray/50 border border-border-line/30 rounded-xl pl-4 pr-12 py-3 text-xs outline-none focus:border-brand-blue/50 transition-all font-medium"
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSend()}
+            />
+            <button onClick={handleSend} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-brand-blue text-white-pure rounded-lg hover:bg-brand-blue-deep transition-all">
+              <ArrowUpRight size={16} />
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
 export default function DetailPropertiPage({
   params
 }: {
@@ -247,6 +465,8 @@ export default function DetailPropertiPage({
   const property = MOCK_PROPERTIES.find(p => p.id === id);
 
   const [activeTab, setActiveTab] = useState<'transport' | 'school' | 'shopping' | 'health' | 'tourism' | 'worship'>('transport');
+  const [isInquiryOpen, setIsInquiryOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   if (!property) {
     notFound();
@@ -342,11 +562,11 @@ export default function DetailPropertiPage({
             </div>
 
             <div className="flex gap-2.5 relative z-10">
-              <button className="flex items-center gap-2 px-5 py-3 bg-white-pure border border-border-line/60 rounded-xl text-xs font-medium text-text-dark hover:bg-surface-gray transition-all shadow-sm active:scale-95 ring-1 ring-border-line/5">
+              <button className="flex items-center gap-2 px-5 py-3 bg-white-pure border border-border-line/60 rounded-xl text-xs font-medium text-text-dark hover:bg-blue-50 hover:text-brand-blue hover:border-brand-blue/30 transition-all shadow-sm active:scale-95 ring-1 ring-border-line/5">
                 <Share2 size={16} className="text-brand-blue" /> Bagikan
               </button>
               <button className="flex items-center gap-2 px-5 py-3 bg-white-pure border border-border-line/60 rounded-xl text-xs font-semibold text-text-dark hover:bg-blue-50 hover:text-brand-blue hover:border-brand-blue/30 transition-all shadow-sm active:scale-95 ring-1 ring-border-line/5">
-                <Bookmark size={16} /> Simpan
+                <Bookmark size={16} className="text-brand-blue" /> Simpan
               </button>
             </div>
           </div>
@@ -481,32 +701,6 @@ export default function DetailPropertiPage({
               </div>
             </div>
 
-            {/* 6. Buying Guide */}
-            <div className="bg-gradient-to-br from-brand-blue/5 to-white-pure border border-brand-blue/10 p-8 rounded-[2.5rem] relative overflow-hidden">
-              <div className="relative z-10">
-                <h2 className="text-xl font-display font-semibold text-text-dark mb-2 flex items-center gap-3">
-                  <HelpCircle size={20} className="text-brand-blue" /> Panduan Pembelian Properti
-                </h2>
-                <p className="text-xs text-text-gray mb-8">Langkah cerdas mewujudkan rumah impian Anda di PropNest AI.</p>
-
-                <div className="space-y-6 relative ml-4 border-l-2 border-brand-blue/10 pl-8">
-                  {[
-                    { title: 'Survei & Konsultasi', desc: 'Jadwalkan kunjungan unit dan konsultasi gratis dengan agen ahli kami untuk mengenal lingkungan lebih dekat.' },
-                    { title: 'Booking & Administrasi', desc: 'Amankan unit pilihan Anda dengan booking fee yang transparan dan pengumpulan berkas identitas awal.' },
-                    { title: 'Verifikasi & Pengajuan KPR', desc: 'Sistem AI kami akan membantu memverifikasi kelayakan bank dan mempercepat proses appraisal dokumen.' },
-                    { title: 'Akad & Penyerahan Kunci', desc: 'Proses penandatanganan AJB/Akad Kredit dengan pendampingan notaris hingga unit siap serah terima.' },
-                  ].map((step, idx) => (
-                    <div key={idx} className="relative group">
-                      <div className="absolute -left-[41px] top-0 w-6 h-6 rounded-full bg-white-pure border-2 border-brand-blue flex items-center justify-center text-[10px] font-bold text-brand-blue group-hover:scale-125 transition-transform">
-                        {idx + 1}
-                      </div>
-                      <h4 className="text-sm font-semibold text-text-dark mb-1">{step.title}</h4>
-                      <p className="text-xs text-text-gray leading-relaxed pr-4 opacity-70">{step.desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
 
             {/* 7. KPR Calculator (Simulasi Cicilan) */}
             <KPRCalculator propertyPrice={property.price} />
@@ -535,15 +729,23 @@ export default function DetailPropertiPage({
               </div>
 
               <div className="space-y-3 mb-8">
-                <button className="w-full bg-brand-blue text-white-pure py-4 rounded-xl font-semibold text-sm shadow-xl hover:bg-brand-blue-deep hover:shadow-2xl transition-all flex items-center justify-center gap-3 active:scale-95">
-                  <MessageSquare size={18} /> Hubungi Agen
+                <button 
+                  onClick={() => setIsInquiryOpen(true)}
+                  className="w-full bg-brand-blue text-white-pure py-4 rounded-xl font-semibold text-sm shadow-xl hover:bg-brand-blue-deep hover:shadow-2xl transition-all flex items-center justify-center gap-3 active:scale-95 group/cta"
+                >
+                  <MessageSquare size={18} className="group-hover/cta:scale-110 transition-transform" /> 
+                  Hubungi Agen
                 </button>
-                <button className="w-full bg-white-pure border-2 border-brand-blue text-brand-blue hover:bg-blue-50 py-4 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-3 active:scale-95">
-                  <CalendarHeart size={18} /> Atur Jadwal Survei
+                <button 
+                  onClick={() => setIsInquiryOpen(true)}
+                  className="w-full bg-white-pure border-2 border-brand-blue text-brand-blue hover:bg-blue-50 py-4 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-3 active:scale-95 group/cta"
+                >
+                  <CalendarHeart size={18} className="group-hover/cta:scale-110 transition-transform" /> 
+                  Atur Jadwal Survei
                 </button>
               </div>
 
-              <div className="bg-white-pure border border-border-line/40 p-4 rounded-2xl flex items-center gap-4 hover:bg-surface-gray transition-colors group">
+              <div className="bg-white-pure border border-border-line/40 p-4 rounded-2xl flex items-center gap-4 hover:bg-surface-gray transition-colors group mb-6">
                 <div className="relative">
                   <div className="w-12 h-12 rounded-xl bg-cover bg-center shadow-md grow-0 shrink-0 border border-white-pure group-hover:scale-110 transition-transform duration-300" style={{ backgroundImage: `url('${property.agent?.avatar || 'https://ui-avatars.com/api/?name=Agent+PropNest&background=random'}')` }}></div>
                   <div className="absolute -bottom-1 -right-1 bg-green-500 text-white-pure p-1 rounded-full border-2 border-white-pure">
@@ -553,6 +755,48 @@ export default function DetailPropertiPage({
                 <div>
                   <div className="font-semibold text-text-dark text-sm tracking-tight">{property.agent?.name || 'Agen PropNest Resmi'}</div>
                   <div className="text-[9px] text-text-gray font-black uppercase tracking-widest mt-0.5">{property.agent?.type || 'Senior Consultant'}</div>
+                </div>
+              </div>
+
+              {/* Buying Guide - Replicated in Sidebar */}
+              <div className="border-t border-border-line/30 pt-6 mt-2">
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="p-2 bg-brand-blue/5 rounded-lg text-brand-blue">
+                    <HelpCircle size={14} />
+                  </div>
+                  <h3 className="text-sm font-bold text-text-dark uppercase tracking-wide">Panduan Pembelian</h3>
+                </div>
+
+                <div className="space-y-8 relative ml-3 border-l-2 border-brand-blue/10 pl-6">
+                  {[
+                    { title: 'Survei & Konsultasi', desc: 'Cek unit & lingkungan langsung.' },
+                    { title: 'Booking', desc: 'Amankan unit pilihan Anda.' },
+                    { title: 'Pengajuan KPR', desc: 'Verifikasi kelayakan bank.' },
+                    { title: 'Serah Terima', desc: 'Akad & penyerahan kunci.' },
+                  ].map((step, idx) => (
+                    <div key={idx} className="relative group/step">
+                      <div className="absolute -left-[35px] top-0 w-6 h-6 rounded-full bg-white-pure border-2 border-brand-blue flex items-center justify-center text-[10px] font-bold text-brand-blue group-hover/step:bg-brand-blue group-hover/step:text-white-pure transition-all">
+                        {idx + 1}
+                      </div>
+                      <h4 className="text-[12px] font-bold text-text-dark mb-0.5 group-hover/step:text-brand-blue transition-colors">{step.title}</h4>
+                      <p className="text-[10px] text-text-gray/70 leading-normal">{step.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* AIChatbot Sidebar Card */}
+              <div className="mt-8 p-6 bg-gradient-to-br from-brand-blue to-brand-blue-deep rounded-3xl text-white-pure relative overflow-hidden group shadow-lg">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-white-pure/10 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150 duration-700"></div>
+                <div className="relative z-10">
+                  <div className="w-10 h-10 bg-white-pure/20 backdrop-blur-md rounded-xl flex items-center justify-center mb-4">
+                    <Zap size={20} fill="currentColor" />
+                  </div>
+                  <h3 className="text-sm font-bold mb-2">Punya pertanyaan?</h3>
+                  <p className="text-[10px] opacity-80 mb-4 leading-relaxed">Tanyakan langsung ke PropNest AI untuk info detail properti ini.</p>
+                  <button onClick={() => setIsChatOpen(true)} className="w-full bg-white-pure text-brand-blue py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-opacity-90 transition-all">
+                    Mulai Chat AI
+                  </button>
                 </div>
               </div>
 
@@ -612,6 +856,15 @@ export default function DetailPropertiPage({
       <div className="mt-20">
         <Footer />
       </div>
+
+      {/* NEW COMPONENTS */}
+      <InquiryModal 
+        isOpen={isInquiryOpen} 
+        onClose={() => setIsInquiryOpen(false)} 
+        propertyName={property.name}
+        propertyId={property.id}
+      />
+      <AIChatbot isOpen={isChatOpen} setIsOpen={setIsChatOpen} />
     </div>
   );
 }
