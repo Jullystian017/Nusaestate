@@ -58,15 +58,19 @@ export default function LeadsChart() {
         >
           <defs>
             <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#2563EB" stopOpacity={0.15}/>
-              <stop offset="95%" stopColor="#2563EB" stopOpacity={0}/>
+              <stop offset="5%" stopColor="#2563EB" stopOpacity={0.8}/>
+              <stop offset="95%" stopColor="#2563EB" stopOpacity={0.1}/>
+            </linearGradient>
+            <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#93C5FD" stopOpacity={0.4}/>
+              <stop offset="95%" stopColor="#93C5FD" stopOpacity={0}/>
             </linearGradient>
           </defs>
           <CartesianGrid 
             strokeDasharray="3 3" 
             vertical={false} 
             stroke="#E2E8F0" 
-            strokeOpacity={0.5} 
+            strokeOpacity={0.3} 
           />
           <XAxis 
             dataKey="day" 
@@ -81,23 +85,27 @@ export default function LeadsChart() {
             tick={{ fill: '#94A3B8', fontSize: 12, fontWeight: 600 }}
           />
           <Tooltip content={<CustomTooltip />} />
+          
+          {/* Top Layer - Click Area (Lighter) */}
+          <Area 
+            type="monotone" 
+            dataKey="click" 
+            stroke="#BFDBFE" 
+            strokeWidth={2}
+            fillOpacity={1} 
+            fill="url(#colorClicks)" 
+            animationDuration={2000}
+          />
+
+          {/* Bottom Layer - Leads Area (Darker/Main) */}
           <Area 
             type="monotone" 
             dataKey="leads" 
-            stroke="#2563EB" 
+            stroke="#1D4ED8" 
             strokeWidth={3}
             fillOpacity={1} 
             fill="url(#colorLeads)" 
             animationDuration={1500}
-          />
-          <Area 
-            type="monotone" 
-            dataKey="click" 
-            stroke="#94A3B8" 
-            strokeWidth={2}
-            strokeDasharray="5 5"
-            fill="transparent" 
-            animationDuration={2000}
           />
         </AreaChart>
       </ResponsiveContainer>
