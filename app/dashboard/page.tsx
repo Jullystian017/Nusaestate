@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { TrendingUp, Users, Home, MousePointerClick, ArrowUpRight, ArrowRight } from 'lucide-react';
+import { TrendingUp, Users, Home, MousePointerClick, ArrowUpRight, ArrowRight, ChevronDown, Check } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import LeadsChart from '@/components/dashboard/LeadsChart';
 
@@ -9,6 +9,8 @@ export default function DashboardPage() {
   const supabase = createClient();
   const [leads, setLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [timeRange, setTimeRange] = useState('7 Hari');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     async function fetchLeads() {
@@ -37,6 +39,12 @@ export default function DashboardPage() {
     { label: 'Klik Chatbot', value: '432', change: '+45%', isPositive: true, icon: MousePointerClick, color: 'text-orange-500', bgColor: 'bg-orange-500/10' },
   ];
 
+  const timeRanges = [
+    { label: 'Last 7 days', value: '7 Hari' },
+    { label: 'Last 30 days', value: '30 Hari' },
+    { label: 'Last 3 months', value: '3 Bulan' },
+  ];
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
       {/* Stat Cards */}
@@ -62,18 +70,56 @@ export default function DashboardPage() {
       </div>
 
       {/* Analytics Chart Section */}
-      <div className="bg-white-pure p-8 rounded-[2rem] border border-border-line/40 shadow-sm">
+      <div className="bg-white-pure p-8 rounded-[2rem] border border-border-line/40 shadow-sm overflow-visible">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
             <h2 className="text-xl font-bold text-text-dark mb-1">Tren Leads & Interaksi AI</h2>
-            <p className="text-sm font-medium text-text-gray">Visualisasi performa marketing kamu dalam 7 hari terakhir</p>
+            <p className="text-sm font-medium text-text-gray">Visualisasi performa marketing kamu dalam {timeRange.toLowerCase()}</p>
           </div>
-          <div className="flex items-center gap-3 bg-surface-gray p-1 rounded-xl">
-             <button className="px-4 py-1.5 bg-white-pure shadow-sm rounded-lg text-xs font-bold text-brand-blue">7 Hari</button>
-             <button className="px-4 py-1.5 text-xs font-bold text-text-gray hover:text-text-dark">30 Hari</button>
+          
+          <div className="relative">
+            <button 
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-surface-gray border border-border-line/30 rounded-xl text-sm font-bold text-text-dark hover:bg-white-pure hover:shadow-md transition-all min-w-[160px] justify-between group"
+            >
+              <span>{timeRanges.find(r => r.value === timeRange)?.label}</span>
+              <ChevronDown size={16} className={`text-text-gray/50 group-hover:text-brand-blue transition-all duration-300 ${isDropdownOpen ? 'rotate-180 text-brand-blue' : ''}`} />
+            </button>
+
+            {isDropdownOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)}></div>
+                <div className="absolute right-0 mt-2 w-[220px] bg-white-pure border-2 border-border-line/60 rounded-2xl shadow-premium overflow-hidden z-20 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="p-2 space-y-1.5 bg-white-pure">
+                    {timeRanges.map((range, idx) => {
+                      const isActive = timeRange === range.value;
+                      return (
+                        <button
+                          key={range.value}
+                          onClick={() => {
+                            setTimeRange(range.value);
+                            setIsDropdownOpen(false);
+                          }}
+                          className={`flex items-center justify-between w-full px-4 py-3 text-sm font-bold rounded-xl transition-all border-2 ${
+                            isActive 
+                              ? 'bg-brand-blue text-white-pure border-brand-blue shadow-lg shadow-brand-blue/20' 
+                              : 'text-text-gray hover:bg-surface-gray border-border-line/20 hover:border-border-line/40 hover:text-text-dark'
+                          }`}
+                        >
+                          {range.label}
+                          {isActive && <Check size={16} strokeWidth={3} />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
-        <LeadsChart />
+        <div className="border border-border-line/10 rounded-[1.5rem] p-4 bg-[#F8F9FA]/30">
+          <LeadsChart />
+        </div>
       </div>
 
       {/* Main Content Area */}
