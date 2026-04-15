@@ -27,18 +27,18 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white-pure p-4 rounded-2xl shadow-premium border border-border-line/20 backdrop-blur-md">
-        <p className="text-xs font-bold text-text-gray/50 uppercase tracking-widest mb-2">{label}</p>
+        <p className="text-[10px] font-medium text-text-gray/50 uppercase tracking-widest mb-2">{label}</p>
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
             <div className="w-2.5 h-2.5 rounded-full bg-brand-blue"></div>
-            <p className="text-sm font-bold text-text-dark">
-              {payload[0].value} <span className="text-text-gray font-medium">Leads Baru</span>
+            <p className="text-sm font-medium text-text-dark">
+              {payload[0].value} <span className="text-text-gray font-normal">Leads Baru</span>
             </p>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2.5 h-2.5 rounded-full bg-brand-blue/30"></div>
-            <p className="text-sm font-bold text-text-dark">
-              {payload[1].value} <span className="text-text-gray font-medium">Klik Chatbot</span>
+            <p className="text-sm font-medium text-text-dark">
+              {payload[1].value} <span className="text-text-gray font-normal">Klik Chatbot</span>
             </p>
           </div>
         </div>
@@ -76,13 +76,13 @@ export default function LeadsChart() {
             dataKey="day" 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fill: '#94A3B8', fontSize: 12, fontWeight: 600 }}
+            tick={{ fill: '#94A3B8', fontSize: 12, fontWeight: 500 }}
             dy={10}
           />
           <YAxis 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fill: '#94A3B8', fontSize: 12, fontWeight: 600 }}
+            tick={{ fill: '#94A3B8', fontSize: 12, fontWeight: 500 }}
           />
           <Tooltip content={<CustomTooltip />} />
           
