@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { TrendingUp, Users, Home, MousePointerClick, ArrowUpRight, ArrowRight } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import LeadsChart from '@/components/dashboard/LeadsChart';
 
 export default function DashboardPage() {
   const supabase = createClient();
@@ -58,6 +59,21 @@ export default function DashboardPage() {
             </div>
           );
         })}
+      </div>
+
+      {/* Analytics Chart Section */}
+      <div className="bg-white-pure p-8 rounded-[2rem] border border-border-line/40 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div>
+            <h2 className="text-xl font-bold text-text-dark mb-1">Tren Leads & Interaksi AI</h2>
+            <p className="text-sm font-medium text-text-gray">Visualisasi performa marketing kamu dalam 7 hari terakhir</p>
+          </div>
+          <div className="flex items-center gap-3 bg-surface-gray p-1 rounded-xl">
+             <button className="px-4 py-1.5 bg-white-pure shadow-sm rounded-lg text-xs font-bold text-brand-blue">7 Hari</button>
+             <button className="px-4 py-1.5 text-xs font-bold text-text-gray hover:text-text-dark">30 Hari</button>
+          </div>
+        </div>
+        <LeadsChart />
       </div>
 
       {/* Main Content Area */}
