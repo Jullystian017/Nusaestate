@@ -40,9 +40,9 @@ export default function DashboardPage() {
   ];
 
   const timeRanges = [
-    { label: 'Last 7 days', value: '7 Hari' },
-    { label: 'Last 30 days', value: '30 Hari' },
-    { label: 'Last 3 months', value: '3 Bulan' },
+    { label: '7 Hari Terakhir', value: '7 Hari' },
+    { label: '30 Hari Terakhir', value: '30 Hari' },
+    { label: '3 Bulan Terakhir', value: '3 Bulan' },
   ];
 
   return (
@@ -80,7 +80,7 @@ export default function DashboardPage() {
           <div className="relative">
             <button 
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-surface-gray border border-border-line/30 rounded-xl text-sm font-bold text-text-dark hover:bg-white-pure hover:shadow-md transition-all min-w-[160px] justify-between group"
+              className="flex items-center gap-2 px-4 py-2.5 bg-surface-gray border border-border-line/30 rounded-xl text-sm font-bold text-text-dark hover:bg-white-pure hover:shadow-md transition-all min-w-[180px] justify-between group"
             >
               <span>{timeRanges.find(r => r.value === timeRange)?.label}</span>
               <ChevronDown size={16} className={`text-text-gray/50 group-hover:text-brand-blue transition-all duration-300 ${isDropdownOpen ? 'rotate-180 text-brand-blue' : ''}`} />
@@ -89,7 +89,7 @@ export default function DashboardPage() {
             {isDropdownOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)}></div>
-                <div className="absolute right-0 mt-2 w-[220px] bg-white-pure border-2 border-border-line/60 rounded-2xl shadow-premium overflow-hidden z-20 animate-in fade-in zoom-in-95 duration-200">
+                <div className="absolute right-0 mt-2 w-[240px] bg-white-pure border-2 border-border-line/60 rounded-2xl shadow-premium overflow-hidden z-20 animate-in fade-in zoom-in-95 duration-200">
                   <div className="p-2 space-y-1.5 bg-white-pure">
                     {timeRanges.map((range, idx) => {
                       const isActive = timeRange === range.value;
@@ -157,7 +157,7 @@ export default function DashboardPage() {
                   <tr className="bg-[#F8F9FA] text-xs uppercase tracking-wider text-text-gray/70 font-bold border-b border-border-line/20">
                     <th className="p-4 pl-6 font-semibold">Nama Prospek</th>
                     <th className="p-4 font-semibold">Kontak</th>
-                    <th className="p-4 font-semibold">Intent / Info</th>
+                    <th className="p-4 font-semibold">Maksud / Info</th>
                     <th className="p-4 font-semibold">Status</th>
                   </tr>
                 </thead>
@@ -165,7 +165,7 @@ export default function DashboardPage() {
                   {leads.map((lead) => (
                     <tr key={lead.id} className="hover:bg-blue-50/30 transition-colors">
                       <td className="p-4 pl-6">
-                        <div className="font-bold text-text-dark text-sm">{lead.name || 'Anonymous'}</div>
+                        <div className="font-bold text-text-dark text-sm">{lead.name || 'Anonim'}</div>
                         <div className="text-xs text-text-gray mt-0.5">{new Date(lead.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'})}</div>
                       </td>
                       <td className="p-4">

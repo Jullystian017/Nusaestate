@@ -40,7 +40,7 @@ export default function DashboardLayout({
   };
 
   const navItems = [
-    { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Listing Properti', href: '/dashboard/listing', icon: Building2 },
     { name: 'CRM Leads', href: '/dashboard/leads', icon: Users },
     { name: 'Content Studio', href: '/dashboard/content', icon: Sparkles },
@@ -68,7 +68,7 @@ export default function DashboardLayout({
               {companyName ? companyName.charAt(0) : 'D'}
             </div>
             <div className="overflow-hidden">
-               <p className="text-xs font-bold text-text-gray/50 uppercase tracking-widest leading-none mb-1">Company</p>
+               <p className="text-xs font-bold text-text-gray/50 uppercase tracking-widest leading-none mb-1">Perusahaan</p>
                <p className="text-sm font-bold text-text-dark truncate">{companyName}</p>
             </div>
           </div>
@@ -124,7 +124,12 @@ export default function DashboardLayout({
 
           <div className="hidden lg:block">
             <h1 className="text-xl font-display font-semibold text-text-dark capitalize">
-              {pathname === '/dashboard' ? 'Overview' : pathname.split('/').pop()?.replace('-', ' ')}
+              {pathname === '/dashboard' ? 'Dashboard' : 
+               pathname.includes('listing') ? 'Listing Properti' :
+               pathname.includes('leads') ? 'CRM Leads' :
+               pathname.includes('content') ? 'AI Content Studio' :
+               pathname.includes('settings') ? 'Pengaturan' :
+               pathname.split('/').pop()?.replace('-', ' ')}
             </h1>
           </div>
 
