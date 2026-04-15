@@ -17,18 +17,28 @@ import {
   CheckCircle2,
   Clock,
   ArrowUpDown,
-  ExternalLink
+  ExternalLink,
+  Map as MapIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import MapContainer from '@/components/maps/MapContainer';
 
 export default function ListingPage() {
   const supabase = createClient();
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'map'>('grid');
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('Semua');
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      maximumFractionDigits: 0
+    }).format(price);
+  };
 
   // Logic to fetch properties
   useEffect(() => {
@@ -48,7 +58,7 @@ export default function ListingPage() {
       }
     }
     fetchProperties();
-  }, []);
+  }, [supabase]);
 
   // Mock data for demonstration if empty
   const displayProperties = properties.length > 0 ? properties : [
@@ -63,6 +73,7 @@ export default function ListingPage() {
       bathrooms: 2,
       land_area: 200,
       building_area: 150,
+      coords: { lat: -7.025, lng: 110.320 },
       images: ['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80']
     },
     {
@@ -76,6 +87,7 @@ export default function ListingPage() {
       bathrooms: 1,
       land_area: 120,
       building_area: 90,
+      coords: { lat: -7.048, lng: 110.438 },
       images: ['https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80']
     },
     {
@@ -89,17 +101,19 @@ export default function ListingPage() {
       bathrooms: 2,
       land_area: 100,
       building_area: 180,
+      coords: { lat: -7.062, lng: 110.425 },
       images: ['https://images.unsplash.com/photo-1582034951913-a66f1ed124c0?auto=format&fit=crop&w=800&q=80']
     }
   ];
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      maximumFractionDigits: 0
-    }).format(price);
-  };
+  // Helper for map view
+  const mapData = displayProperties.map(p => ({
+    ...p,
+    name: p.title,
+    image: p.images?.[0],
+    coords: p.coords || { lat: -7.025 + (Math.random() - 0.5) * 0.1, lng: 110.320 + (Math.random() - 0.5) * 0.1 },
+    price: formatPrice(p.price).replace('Rp', 'Rp ')
+  }));
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-700">
@@ -116,14 +130,23 @@ export default function ListingPage() {
                 <button 
                   onClick={() => setViewMode('grid')}
                   className={`p-2 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-white-pure text-brand-blue shadow-sm' : 'text-text-gray/40 hover:text-text-gray'}`}
+                  title="Grid View"
                 >
                   <LayoutGrid size={18} strokeWidth={1.5} />
                 </button>
                 <button 
                   onClick={() => setViewMode('list')}
                   className={`p-2 rounded-xl transition-all ${viewMode === 'list' ? 'bg-white-pure text-brand-blue shadow-sm' : 'text-text-gray/40 hover:text-text-gray'}`}
+                  title="List View"
                 >
                   <List size={18} strokeWidth={1.5} />
+                </button>
+                <button 
+                  onClick={() => setViewMode('map')}
+                  className={`p-2 rounded-xl transition-all ${viewMode === 'map' ? 'bg-white-pure text-brand-blue shadow-sm' : 'text-text-gray/40 hover:text-text-gray'}`}
+                  title="Map View"
+                >
+                  <MapIcon size={18} strokeWidth={1.5} />
                 </button>
             </div>
             <button className="px-5 py-3 bg-brand-blue text-white-pure rounded-2xl text-sm font-medium shadow-lg shadow-brand-blue/10 hover:bg-brand-blue-deep transition-all flex items-center gap-2 active:scale-95">
@@ -186,29 +209,22 @@ export default function ListingPage() {
               href={`/properti/${prop.id}`}
               className="group relative flex flex-col transition-all duration-500 hover:-translate-y-2"
             >
-              {/* Image Area */}
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-soft group-hover:shadow-md transition-all duration-700">
                 <img 
                   src={prop.images?.[0] || 'https://via.placeholder.com/400x300'} 
                   alt={prop.title}
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[3s]"
                 />
-
-                {/* Status Badge (Top Left) */}
                 <div className="absolute top-4 left-4 backdrop-blur-md bg-white-pure/90 px-3 py-1.5 rounded-full shadow-premium border border-white/20 text-[10px] font-medium flex items-center gap-2">
                   <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${prop.status === 'Aktif' ? 'bg-emerald-500' : 'bg-brand-blue'}`}></span>
                   <span className={prop.status === 'Aktif' ? 'text-emerald-600' : 'text-brand-blue'}>
                     {prop.status}
                   </span>
                 </div>
-
-                {/* Type Badge (Top Right) */}
                 <div className="absolute top-4 right-4 backdrop-blur-md bg-white-pure/90 px-3 py-1.5 rounded-full shadow-premium border border-white/20 text-[9px] font-medium text-text-gray/60 uppercase tracking-widest">
                   {prop.type}
                 </div>
               </div>
-
-              {/* Floating Content Box */}
               <div className="relative -mt-14 mx-3 bg-white-pure rounded-[1.5rem] p-5 shadow-premium border border-border-line/20 group-hover:border-brand-blue/30 transition-all duration-500 z-10">
                 <div className="flex justify-between items-start mb-1">
                   <div className="min-w-0 flex-1">
@@ -220,21 +236,16 @@ export default function ListingPage() {
                       <span className="truncate">{prop.location}</span>
                     </p>
                   </div>
-
                   <div className="p-2.5 bg-surface-gray/50 text-text-gray/40 rounded-full hover:bg-brand-blue hover:text-white-pure transition-all duration-300 active:scale-95">
                     <MoreVertical size={16} strokeWidth={1.5} />
                   </div>
                 </div>
-
                 <div className="my-3 border-t border-border-line/5 w-full"></div>
-
                 <div className="flex items-center justify-between">
                   <p className="text-lg font-medium text-text-dark tracking-tight">
                     {formatPrice(prop.price).replace('Rp', 'Rp ')}
                   </p>
                 </div>
-
-                {/* Quick Specs (Compact) */}
                 <div className="mt-4 pt-4 border-t border-border-line/5 flex items-center justify-between text-[10px] font-medium text-text-gray/40">
                   <div className="flex items-center gap-4">
                     <span className="flex items-center gap-1.5"><Bed size={14} strokeWidth={1.5} className="text-brand-blue/40" /> {prop.bedrooms} KT</span>
@@ -249,9 +260,7 @@ export default function ListingPage() {
             </Link>
           ))}
         </div>
-
-      ) : (
-        /* List View Mode */
+      ) : viewMode === 'list' ? (
         <div className="bg-white-pure rounded-[2rem] border border-border-line/20 shadow-sm overflow-hidden">
             <table className="w-full text-left border-collapse">
                 <thead>
@@ -283,7 +292,7 @@ export default function ListingPage() {
                                 <div className="text-xs text-text-gray/60">{prop.bedrooms}KT • {prop.bathrooms}KM • {prop.land_area}m²</div>
                             </td>
                             <td className="p-6">
-                                <div className="font-medium text-text-dark text-xs">{formatPrice(prop.price)}</div>
+                                <div className="font-medium text-text-dark text-xs">{formatPrice(prop.price).replace('Rp', 'Rp ')}</div>
                             </td>
                             <td className="p-6">
                                 <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-medium border ${
@@ -303,6 +312,51 @@ export default function ListingPage() {
                     ))}
                 </tbody>
             </table>
+        </div>
+      ) : (
+        <div className="bg-white-pure rounded-[2rem] border border-border-line/20 shadow-sm overflow-hidden h-[600px] flex animate-in fade-in zoom-in-95 duration-500">
+            <div className="w-full md:w-[350px] lg:w-[400px] flex-none border-r border-border-line/10 overflow-hidden flex flex-col">
+                <div className="p-6 border-b border-border-line/10">
+                    <div className="text-sm font-medium text-text-dark">{displayProperties.length} Unit Ditemukan</div>
+                    <div className="text-[10px] text-text-gray/40 font-normal mt-0.5">Gulir untuk melihat daftar lengkap</div>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
+                    {displayProperties.map((prop) => (
+                        <Link 
+                            key={prop.id}
+                            href={`/properti/${prop.id}`}
+                            className="flex gap-4 p-3 rounded-2xl border border-border-line/10 hover:border-brand-blue/30 hover:bg-brand-blue/[0.02] transition-all group"
+                        >
+                            <div className="w-24 h-20 rounded-xl overflow-hidden flex-none shadow-sm">
+                                <img src={prop.images?.[0]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
+                            </div>
+                            <div className="min-w-0 py-1">
+                                <h4 className="text-sm font-medium text-text-dark truncate group-hover:text-brand-blue transition-colors">{prop.title}</h4>
+                                <div className="flex items-center gap-1 text-[10px] text-text-gray/50 mt-1 truncate">
+                                    <MapPin size={10} className="text-brand-blue" /> {prop.location}
+                                </div>
+                                <div className="text-xs font-medium text-brand-blue mt-2">
+                                    {formatPrice(prop.price).replace('Rp', 'Rp ')}
+                                </div>
+                            </div>
+                        </Link>
+                    ))}
+                </div>
+            </div>
+            <div className="flex-1 h-full relative">
+                <MapContainer properties={mapData} />
+                <div className="absolute top-6 left-6 z-[400] bg-white-pure p-4 rounded-2xl shadow-premium border border-border-line/20 backdrop-blur-md bg-white/90">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-brand-blue/5 text-brand-blue rounded-xl flex items-center justify-center">
+                            <MapIcon size={18} strokeWidth={1.5} />
+                        </div>
+                        <div>
+                            <div className="text-xs font-medium text-text-dark">Peta Interaktif</div>
+                            <div className="text-[10px] text-text-gray/40">Area Jawa Tengah</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
       )}
 
