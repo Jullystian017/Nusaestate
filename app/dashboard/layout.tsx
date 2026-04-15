@@ -11,7 +11,9 @@ import {
   Settings, 
   LogOut,
   Bell,
-  Menu
+  Menu,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -24,6 +26,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const supabase = createClient();
   const [user, setUser] = React.useState<any>(null);
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
 
   React.useEffect(() => {
     async function getUser() {
@@ -51,22 +54,43 @@ export default function DashboardLayout({
   const companyName = user?.user_metadata?.company_name || 'PropNest Developer';
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] font-sans flex">
+    <div className="min-h-screen bg-[#F8F9FA] font-sans flex transition-all duration-300">
       {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 w-64 bg-white-pure border-r border-border-line/30 z-50 flex flex-col hidden lg:flex">
+      <aside className={`fixed inset-y-0 left-0 bg-white-pure border-r border-border-line/30 z-50 flex flex-col hidden lg:flex transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-60'}`}>
         {/* Logo Section */}
-        <div className="h-20 flex items-center px-10">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 bg-brand-blue rounded-xl flex items-center justify-center shadow-lg shadow-brand-blue/10 group-hover:scale-105 transition-transform">
-              <span className="text-white-pure font-medium text-xs">P</span>
+        <div className={`h-20 flex items-center border-b border-border-line/5 ${isCollapsed ? 'justify-center px-0' : 'justify-between px-6'}`}>
+          <Link href="/" className="flex items-center gap-2.5 group overflow-hidden">
+            <div className="w-9 h-9 bg-brand-blue rounded-xl flex items-center justify-center shadow-lg shadow-brand-blue/10 group-hover:scale-105 transition-all shrink-0">
+              <span className="text-white-pure font-medium text-sm">P</span>
             </div>
-            <span className="font-display font-medium text-lg text-text-dark tracking-tight">PropNest</span>
+            {!isCollapsed && (
+              <span className="font-display font-medium text-base text-text-dark tracking-tight animate-in fade-in slide-in-from-left-2 duration-300">PropNest</span>
+            )}
           </Link>
+          {!isCollapsed && (
+            <button 
+              onClick={() => setIsCollapsed(true)}
+              className="p-2 text-text-gray/40 hover:text-brand-blue hover:bg-surface-gray rounded-xl transition-all"
+            >
+              <ChevronLeft size={18} strokeWidth={1.5} />
+            </button>
+          )}
         </div>
 
+        {isCollapsed && (
+            <div className="flex justify-center py-4 border-b border-border-line/5">
+                <button 
+                    onClick={() => setIsCollapsed(false)}
+                    className="p-2 text-text-gray/40 hover:text-brand-blue hover:bg-surface-gray rounded-xl transition-all"
+                >
+                    <ChevronRight size={18} strokeWidth={1.5} />
+                </button>
+            </div>
+        )}
+
         {/* Navigation - Pill Style */}
-        <div className="flex-1 overflow-y-auto py-8 px-5">
-          <div className="text-[10px] font-medium text-text-gray/40 uppercase tracking-[0.2em] mb-6 px-4">Menu Utama</div>
+        <div className={`flex-1 overflow-y-auto py-8 ${isCollapsed ? 'px-3' : 'px-5'}`}>
+          <div className={`text-[9px] font-medium text-text-gray/30 uppercase tracking-[0.2em] mb-6 px-4 truncate ${isCollapsed ? 'hidden' : 'block'}`}>Menu Utama</div>
           <nav className="space-y-2">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
@@ -75,7 +99,10 @@ export default function DashboardLayout({
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-sm font-medium transition-all group ${
+                  title={isCollapsed ? item.name : ''}
+                  className={`flex items-center rounded-full text-xs font-medium transition-all group ${
+                    isCollapsed ? 'justify-center h-10 w-full p-0' : 'gap-2.5 px-4 py-2.5'
+                  } ${
                     isActive 
                       ? 'bg-brand-blue text-white-pure shadow-lg shadow-brand-blue/15' 
                       : 'text-text-gray/80 hover:bg-surface-gray hover:text-text-dark'
@@ -86,27 +113,31 @@ export default function DashboardLayout({
                     strokeWidth={isActive ? 2 : 1.5} 
                     className={isActive ? 'text-white-pure' : 'text-text-gray/50 group-hover:text-brand-blue transition-colors'} 
                   />
-                  {item.name}
+                  {!isCollapsed && (
+                    <span className="truncate animate-in fade-in slide-in-from-left-1 duration-300">{item.name}</span>
+                  )}
                 </Link>
               );
             })}
           </nav>
         </div>
 
-        {/* Bottom Actions */}
-        <div className="p-6 border-t border-border-line/10 mt-auto">
+        <div className={`p-4 border-t border-border-line/10 mt-auto ${isCollapsed ? 'flex justify-center' : ''}`}>
           <button 
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-5 py-3.5 rounded-2xl text-sm font-medium text-red-500/70 hover:text-red-500 hover:bg-red-50 transition-all"
+            title={isCollapsed ? 'Keluar Akun' : ''}
+            className={`flex items-center text-red-500/70 hover:text-red-500 hover:bg-red-50 transition-all rounded-full ${
+                isCollapsed ? 'h-10 w-10 justify-center' : 'w-full px-4 py-2.5 gap-2.5 text-xs font-medium'
+            }`}
           >
             <LogOut size={18} strokeWidth={1.5} />
-            Keluar Akun
+            {!isCollapsed && <span>Keluar Akun</span>}
           </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 lg:pl-64 flex flex-col min-h-screen relative">
+      <div className={`flex-1 flex flex-col min-h-screen relative transition-all duration-300 ease-in-out ${isCollapsed ? 'lg:pl-20' : 'lg:pl-60'}`}>
         {/* Topbar */}
         <header className="h-20 bg-white-pure/60 backdrop-blur-xl border-b border-border-line/30 sticky top-0 z-40 flex items-center justify-between px-6 lg:px-10">
           <div className="flex items-center gap-4 lg:hidden">
