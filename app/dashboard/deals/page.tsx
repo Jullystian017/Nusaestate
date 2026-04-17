@@ -194,34 +194,21 @@ export default function DealsPipelinePage() {
 
       {/* Toolbar */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white-pure/50 backdrop-blur-md p-4 rounded-[2.5rem] border border-border-line/10 shadow-sm sticky top-4 z-20">
-        <div className="flex items-center gap-4 w-full md:w-auto">
-          <button 
-            onClick={() => setActiveModal('new')}
-            className="group relative px-6 py-3.5 bg-brand-blue text-white-pure rounded-full text-sm font-semibold shadow-xl shadow-brand-blue/20 hover:bg-brand-blue-deep hover:shadow-brand-blue/30 transition-all duration-300 flex items-center gap-2.5 active:scale-95 overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-            <PlusCircle size={20} strokeWidth={2} />
-            <span>Buat Deal Baru</span>
-          </button>
+        <div className="relative w-full md:w-72 group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-gray/30 group-focus-within:text-brand-blue transition-colors" size={18} strokeWidth={1.5} />
+          <input 
+            type="text" 
+            placeholder="Cari deal, properti, atau klien..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-surface-gray/40 border border-transparent rounded-full py-3.5 pl-12 pr-4 text-sm focus:bg-white-pure focus:border-brand-blue/20 outline-none transition-all shadow-inner"
+          />
         </div>
 
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="relative flex-1 md:w-72 group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-gray/30 group-focus-within:text-brand-blue transition-colors" size={18} strokeWidth={1.5} />
-            <input 
-              type="text" 
-              placeholder="Cari deal, properti, atau klien..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-surface-gray/40 border border-transparent rounded-full py-3.5 pl-12 pr-4 text-sm focus:bg-white-pure focus:border-brand-blue/20 outline-none transition-all shadow-inner"
-            />
-          </div>
-          
-          <div className="h-10 w-[1px] bg-border-line/10 mx-1 hidden md:block"></div>
-
           <button 
             onClick={() => setActiveModal('sort')}
-            className="flex items-center gap-2.5 px-6 py-3.5 bg-white-pure border border-border-line/20 rounded-full text-sm font-medium text-text-dark hover:bg-surface-gray hover:border-brand-blue/10 transition-all duration-300 shadow-sm active:scale-95"
+            className="flex items-center justify-center gap-2.5 px-6 py-3.5 bg-white-pure border border-border-line/20 rounded-full text-sm font-medium text-text-dark hover:bg-surface-gray hover:border-brand-blue/10 transition-all duration-300 shadow-sm active:scale-95"
           >
               <ArrowUpDown size={18} strokeWidth={1.5} className="text-text-gray/40" />
               <span>Urutkan</span>
@@ -230,7 +217,7 @@ export default function DealsPipelinePage() {
           
           <button 
             onClick={() => setActiveModal('filter')}
-            className="flex items-center gap-2.5 px-6 py-3.5 bg-white-pure border border-border-line/20 rounded-full text-sm font-medium text-text-dark hover:bg-surface-gray hover:border-brand-blue/10 transition-all duration-300 shadow-sm active:scale-95"
+            className="flex items-center justify-center gap-2.5 px-6 py-3.5 bg-white-pure border border-border-line/20 rounded-full text-sm font-medium text-text-dark hover:bg-surface-gray hover:border-brand-blue/10 transition-all duration-300 shadow-sm active:scale-95"
           >
               <FilterIcon size={18} strokeWidth={1.5} className="text-text-gray/40" />
               <span>Filter</span>
@@ -334,10 +321,6 @@ export default function DealsPipelinePage() {
                   </div>
                 ))}
                 
-                <button className="w-full py-4 border-2 border-dashed border-border-line/20 rounded-[2rem] flex flex-col items-center justify-center text-text-gray/20 hover:border-brand-blue/20 hover:text-brand-blue/30 transition-all group">
-                  <PlusCircle size={24} strokeWidth={1.5} className="mb-1" />
-                  <span className="text-[10px] font-semibold uppercase tracking-widest">Tambah Deal</span>
-                </button>
               </div>
             </div>
           );
@@ -367,26 +350,6 @@ export default function DealsPipelinePage() {
 
             {/* Modal Content */}
             <div className="p-8 pt-6 space-y-6">
-              {activeModal === 'new' && (
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold text-text-gray/60 flex items-center gap-2"><Briefcase size={14} /> Nama Deal / Unit</label>
-                    <input type="text" placeholder="Contoh: Modern House Unit A1" className="w-full bg-surface-gray/50 border border-border-line/10 rounded-2xl py-3 px-4 text-sm focus:ring-2 focus:ring-brand-blue/10 outline-none" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-text-gray/60 flex items-center gap-2"><User size={14} /> Klien</label>
-                      <input type="text" placeholder="Nama Klien" className="w-full bg-surface-gray/50 border border-border-line/10 rounded-2xl py-3 px-4 text-sm focus:ring-2 focus:ring-brand-blue/10 outline-none" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-text-gray/60 flex items-center gap-2"><Hash size={14} /> Harga (Rp)</label>
-                      <input type="number" placeholder="1.200.000.000" className="w-full bg-surface-gray/50 border border-border-line/10 rounded-2xl py-3 px-4 text-sm focus:ring-2 focus:ring-brand-blue/10 outline-none" />
-                    </div>
-                  </div>
-                  <button onClick={() => setActiveModal(null)} className="w-full py-4 bg-brand-blue text-white-pure rounded-2xl font-semibold shadow-lg shadow-brand-blue/20 hover:bg-brand-blue-deep transition-all mt-4">Simpan Deal</button>
-                </div>
-              )}
-
               {activeModal === 'sort' && (
                 <div className="grid grid-cols-1 gap-3">
                   {[
