@@ -34,6 +34,7 @@ import {
 } from 'recharts';
 import { MOCK_LEADS } from '@/lib/leads-mock';
 import { generateExecutiveReport } from '@/lib/reports/actions';
+import { exportToPDF, exportToWord } from '@/lib/reports/export-utils';
 
 export default function AnalyticsPage() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -122,8 +123,17 @@ export default function AnalyticsPage() {
   const handleGenerateReport = async () => {
     setIsGenerating(true);
     setReport(null);
+    // Prepare data for AI analysis
+    const analyticsData = {
+      totalLeads: MOCK_LEADS.length,
+      sourceStats: sourceData.reduce((acc: any, item) => ({ ...acc, [item.name]: item.value }), {}),
+      propertyStats: propertyData.reduce((acc: any, item) => ({ ...acc, [item.name]: item.value }), {}),
+      qualityStats: MOCK_LEADS.reduce((acc: any, lead) => ({ ...acc, [lead.temperature]: (acc[lead.temperature] || 0) + 1 }), {}),
+      trendSummary: `Tertinggi di akhir pekan dengan puncak ${trendData[trendData.length-1].leads} leads per hari.`
+    };
+
     try {
-      const result = await generateExecutiveReport();
+      const result = await generateExecutiveReport(analyticsData);
       if (result.success) {
         setReport(result.report!);
       } else {
@@ -134,6 +144,16 @@ export default function AnalyticsPage() {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleExportPDF = () => {
+    if (!report) return;
+    exportToPDF('report-viewer-content', `PropNest_Executive_Report_${new Date().toLocaleDateString()}.pdf`);
+  };
+
+  const handleExportWord = () => {
+    if (!report) return;
+    exportToWord(report, `PropNest_Executive_Report_${new Date().toLocaleDateString()}.docx`);
   };
 
   const onPieEnter = (_: any, index: number) => {
@@ -428,9 +448,23 @@ export default function AnalyticsPage() {
               </button>
               
               {report && (
-                <button className="h-14 w-14 flex items-center justify-center bg-surface-gray border border-border-line/10 rounded-2xl text-text-gray hover:text-brand-blue transition-all shadow-sm">
-                  <Download size={18} />
-                </button>
+                <div className="flex gap-3">
+                  <button 
+                    onClick={handleExportPDF}
+                    className="h-14 w-14 flex items-center justify-center bg-surface-gray border border-border-line/10 rounded-2xl text-text-gray hover:text-brand-blue transition-all shadow-sm"
+                    title="Export as PDF"
+                  >
+                    <Download size={18} />
+                  </button>
+                  <button 
+                    onClick={handleExportWord}
+                    className="h-14 px-6 flex items-center justify-center bg-surface-gray border border-border-line/10 rounded-2xl text-text-gray hover:text-brand-blue transition-all shadow-sm gap-2 font-bold text-xs"
+                    title="Export as Word"
+                  >
+                    <FileText size={18} />
+                    DOCX
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -441,13 +475,13 @@ export default function AnalyticsPage() {
             
             <div className="relative h-full min-h-[400px] bg-white-pure rounded-3xl border border-border-line/20 shadow-xl shadow-brand-blue/5 flex flex-col overflow-hidden">
               {report ? (
-                <div className="flex-1 flex flex-col h-full animate-in fade-in zoom-in-95 duration-500">
+                <div id="report-viewer-content" className="flex-1 flex flex-col h-full animate-in fade-in zoom-in-95 duration-500 bg-white-pure">
                   <div className="flex items-center justify-between p-6 border-b border-border-line/10 bg-white-pure/50 backdrop-blur-md">
                     <div className="flex items-center gap-2.5">
                       <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-sm"></div>
                       <span className="text-[10px] font-bold text-text-gray uppercase tracking-widest">Strategy Briefing</span>
                     </div>
-                    <button className="p-2 text-text-gray/40 hover:text-brand-blue transition-colors">
+                    <button onClick={() => window.print()} className="p-2 text-text-gray/40 hover:text-brand-blue transition-colors">
                       <Printer size={16} />
                     </button>
                   </div>

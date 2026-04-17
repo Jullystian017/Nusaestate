@@ -13,46 +13,59 @@ const MODEL = 'llama-3.3-70b-versatile';
  * Generates an AI-powered executive report based on current leads data.
  * This analyzes sources, property popularity, and conversion potential.
  */
-export async function generateExecutiveReport() {
+export async function generateExecutiveReport(analyticsData?: {
+  totalLeads: number;
+  sourceStats: any;
+  propertyStats: any;
+  qualityStats: any;
+  trendSummary?: string;
+}) {
   // 1. Data Aggregation for AI Context
-  const totalLeads = MOCK_LEADS.length;
-  const sourceStats = MOCK_LEADS.reduce((acc: any, lead) => {
+  // Use provided data or fallback to MOCK_LEADS
+  const totalLeads = analyticsData?.totalLeads || MOCK_LEADS.length;
+  const sourceStats = analyticsData?.sourceStats || MOCK_LEADS.reduce((acc: any, lead) => {
     acc[lead.source] = (acc[lead.source] || 0) + 1;
     return acc;
   }, {});
 
-  const propertyStats = MOCK_LEADS.reduce((acc: any, lead) => {
+  const propertyStats = analyticsData?.propertyStats || MOCK_LEADS.reduce((acc: any, lead) => {
     acc[lead.property] = (acc[lead.property] || 0) + 1;
     return acc;
   }, {});
 
-  const tempStats = MOCK_LEADS.reduce((acc: any, lead) => {
+  const tempStats = analyticsData?.qualityStats || MOCK_LEADS.reduce((acc: any, lead) => {
     acc[lead.temperature] = (acc[lead.temperature] || 0) + 1;
     return acc;
   }, {});
 
+  const trendText = analyticsData?.trendSummary ? `\nTren Terakhir: ${analyticsData.trendSummary}` : "";
+
   // 2. Performance Breakdown string for Prompt
   const promptData = `
-    DATA RINGKASAN MARKETING:
-    - Total Leads Bulan Ini: ${totalLeads}
-    - Distribusi Sumber: ${JSON.stringify(sourceStats)}
-    - Properti Paling Banyak Diminati: ${JSON.stringify(propertyStats)}
-    - Kualitas Lead (Temperature): ${JSON.stringify(tempStats)}
+    DATA REAL-TIME ANALYTICS:
+    - Total Volume Leads: ${totalLeads}
+    - Distribusi Channel: ${JSON.stringify(sourceStats)}
+    - Properti Terpopuler: ${JSON.stringify(propertyStats)}
+    - Kualitas Prospek (Temperature): ${JSON.stringify(tempStats)}${trendText}
   `;
 
   const prompt = `
-    Kamu adalah Direktur Marketing Properti (Chief Marketing Officer) yang sangat berpengalaman. 
-    Berdasarkan DATA RINGKASAN MARKETING berikut, buatlah LAPORAN EKSEKUTIF yang tajam, strategis, dan profesional untuk pemilik developer perumahan.
-
+    Kamu adalah Direktur Marketing Properti (CMO) senior. 
+    Berdasarkan DATA REAL-TIME ANALYTICS berikut, buatlah LAPORAN STRATEGIS yang tajam dan profesional untuk developer perumahan.
+    
     ${promptData}
 
-    STRUKTUR LAPORAN (Gunakan Markdown):
-    1. **Ringkasan Performa**: (Tinjauan singkat ttg performa bulan ini).
-    2. **Analisis Saluran (Channel Insight)**: (Berikan insight mana platform yang paling bagus dan mana yang wasting money).
-    3. **Rekomendasi Strategis**: (Langkah konkrit apa yang harus diambil hari ini untuk meningkatkan closing).
-    4. **Catatan Khusus**: (Berikan 1 motivasi atau insight tren pasar).
+    INSTRUKSI KHUSUS:
+    1. Jangan sekadar mendeskripsikan angka, berikan ANALISIS MENDALAM. (Contoh: "Meskipun Instagram membawa banyak lead, kualitasnya rendah dibanding WhatsApp, tandanya tim konten harus lebih selektif...").
+    2. Identifikasi properti mana yang "Winner" (paling laku) dan berikan saran optimasi.
+    3. Gunakan Markdown yang rapi dengan heading, bullet points, dan penekanan (bold).
+    4. Gunakan Bahasa Indonesia yang Executive, Elegan, dan Powerful.
 
-    Gunakan bahasa Indonesia yang sangat berkelas (Executive Tone), lugas, namun tetap memotivasi.
+    STRUKTUR LAPORAN:
+    1. **Data Highlights**: Ringkasan performa berbasis angka.
+    2. **Strategic Deep Dive**: Analisis tajam per channel dan properti.
+    3. **Action Plan (7-Day Focus)**: 3-5 langkah konkrit yang bisa dilakukan minggu ini.
+    4. **Executive Insight**: Prediksi atau motivasi penutup.
   `;
 
   try {
