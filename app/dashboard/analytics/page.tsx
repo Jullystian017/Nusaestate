@@ -39,6 +39,7 @@ export default function AnalyticsPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [report, setReport] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState('30 Hari');
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   // --- Data Processing for Charts ---
   
@@ -48,18 +49,59 @@ export default function AnalyticsPage() {
       acc[lead.source] = (acc[lead.source] || 0) + 1;
       return acc;
     }, {});
-    return Object.keys(counts).map(key => ({ name: key, value: counts[key] }));
+    return Object.keys(counts).map(key => ({ 
+      name: key, 
+      value: counts[key],
+      percentage: Math.round((counts[key] / MOCK_LEADS.length) * 100)
+    }));
   }, []);
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
-
-  // 2. Leads Trend (Area Chart - Mocked based on dates)
-  const trendData = [
-    { name: 'Minggu 1', leads: 42, clicks: 120 },
-    { name: 'Minggu 2', leads: 58, clicks: 180 },
-    { name: 'Minggu 3', leads: 48, clicks: 150 },
-    { name: 'Minggu 4', leads: 72, clicks: 240 },
+  const GRADIENTS = [
+    { start: '#3b82f6', end: '#2563eb' },
+    { start: '#10b981', end: '#059669' },
+    { start: '#f59e0b', end: '#d97706' },
+    { start: '#ef4444', end: '#dc2626' },
+    { start: '#8b5cf6', end: '#7c3aed' },
   ];
+
+  // 2. Leads Trend (Area Chart - Mocked based on daily data)
+  const trendData = [
+    { name: 'Sen', leads: 12, click: 40 },
+    { name: 'Sel', leads: 18, click: 55 },
+    { name: 'Rab', leads: 15, click: 48 },
+    { name: 'Kam', leads: 25, click: 70 },
+    { name: 'Jum', leads: 32, click: 85 },
+    { name: 'Sab', leads: 28, click: 75 },
+    { name: 'Min', leads: 40, click: 95 },
+  ];
+
+  const AnalyticsTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-4 rounded-2xl shadow-xl border border-border-line/10 backdrop-blur-xl">
+          <p className="text-[10px] font-bold text-text-gray/40 uppercase tracking-[0.2em] mb-3">{label}</p>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-8">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-brand-blue"></div>
+                <span className="text-xs font-medium text-text-gray">Leads Baru</span>
+              </div>
+              <span className="text-xs font-bold text-text-dark">{payload[1]?.value || 0}</span>
+            </div>
+            <div className="flex items-center justify-between gap-8">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-brand-blue/30"></div>
+                <span className="text-xs font-medium text-text-gray">Klik Chatbot</span>
+              </div>
+              <span className="text-xs font-bold text-text-dark">{payload[0]?.value || 0}</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
 
   // 3. Property Performance (Bar Chart)
   const propertyData = useMemo(() => {
@@ -68,13 +110,18 @@ export default function AnalyticsPage() {
       return acc;
     }, {});
     return Object.keys(counts)
-      .map(key => ({ name: key.split(' ').slice(-2).join(' '), full: key, value: counts[key] }))
+      .map(key => ({ 
+        name: key.split(' ').slice(-2).join(' '), 
+        full: key, 
+        value: counts[key] 
+      }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 5);
   }, []);
 
   const handleGenerateReport = async () => {
     setIsGenerating(true);
+    setReport(null);
     try {
       const result = await generateExecutiveReport();
       if (result.success) {
@@ -89,31 +136,39 @@ export default function AnalyticsPage() {
     }
   };
 
+  const onPieEnter = (_: any, index: number) => {
+    setActiveIndex(index);
+  };
+
+  const onPieLeave = () => {
+    setActiveIndex(null);
+  };
+
   return (
-    <div className="max-w-7xl mx-auto space-y-10 pb-20 animate-in fade-in duration-700">
+    <div className="max-w-7xl mx-auto space-y-10 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
       
       {/* Header & Filter */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-display font-medium text-text-dark tracking-tight">Market Analytics</h1>
-          <p className="text-text-gray font-normal text-sm mt-1">Pantau performa kampanye dan konversi leads secara real-time.</p>
+          <h1 className="text-4xl font-display font-medium text-text-dark tracking-tight">Market Intelligence</h1>
+          <p className="text-text-gray font-normal text-base mt-2">Dapatkan pandangan 360 derajat terhadap ekosistem pemasaran Anda.</p>
         </div>
         
         <div className="flex items-center gap-3">
-          <div className="bg-white-pure border border-border-line/10 rounded-2xl p-1 flex shadow-sm">
+          <div className="bg-white/40 backdrop-blur-xl border border-white/20 rounded-2xl p-1.5 flex shadow-sm">
             {['7 Hari', '30 Hari', '90 Hari'].map((range) => (
               <button
                 key={range}
                 onClick={() => setTimeRange(range)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  timeRange === range ? 'bg-brand-blue text-white-pure shadow-md shadow-brand-blue/20' : 'text-text-gray hover:text-text-dark'
+                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 ${
+                  timeRange === range ? 'bg-brand-blue text-white-pure shadow-xl shadow-brand-blue/25' : 'text-text-gray hover:text-text-dark hover:bg-white/50'
                 }`}
               >
                 {range}
               </button>
             ))}
           </div>
-          <button className="p-3 bg-white-pure border border-border-line/10 rounded-2xl text-text-gray hover:text-brand-blue transition-all shadow-sm">
+          <button className="h-12 w-12 flex items-center justify-center bg-white-pure border border-border-line/10 rounded-2xl text-text-gray hover:text-brand-blue transition-all shadow-sm hover:shadow-md active:scale-90">
             <Download size={18} />
           </button>
         </div>
@@ -122,23 +177,26 @@ export default function AnalyticsPage() {
       {/* KPI Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'Total Leads', value: MOCK_LEADS.length, change: '+12.5%', isPos: true, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
-          { label: 'Conversion Rate', value: '4.8%', change: '+0.4%', isPos: true, icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          { label: 'Chatbot Clicks', value: '1,284', change: '-2.1%', isPos: false, icon: MousePointerClick, color: 'text-orange-600', bg: 'bg-orange-50' },
-          { label: 'Estimated Revenue', value: 'Rp 8,4M', change: '+5.2%', isPos: true, icon: BarChart3, color: 'text-violet-600', bg: 'bg-violet-50' },
+          { label: 'Total Leads', value: MOCK_LEADS.length, change: '+12.5%', isPos: true, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50', gradient: 'from-blue-500/10 to-transparent' },
+          { label: 'Conversion Rate', value: '4.8%', change: '+0.4%', isPos: true, icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50', gradient: 'from-emerald-500/10 to-transparent' },
+          { label: 'Chatbot Clicks', value: '1,284', change: '-2.1%', isPos: false, icon: MousePointerClick, color: 'text-orange-600', bg: 'bg-orange-50', gradient: 'from-orange-500/10 to-transparent' },
+          { label: 'Projected Revenue', value: 'Rp 8,4M', change: '+5.2%', isPos: true, icon: BarChart3, color: 'text-violet-600', bg: 'bg-violet-50', gradient: 'from-violet-500/10 to-transparent' },
         ].map((stat, i) => (
-          <div key={i} className="bg-white-pure p-6 rounded-[2rem] border border-border-line/10 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-12 h-12 rounded-xl ${stat.bg} ${stat.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-500`}>
-                <stat.icon size={22} />
+          <div key={i} className="bg-white-pure p-7 rounded-[2.5rem] border border-border-line/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden relative">
+            <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-700`}></div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-6">
+                <div className={`w-14 h-14 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-inner`}>
+                  <stat.icon size={24} />
+                </div>
+                <div className={`flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full ${stat.isPos ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'} border border-current/10`}>
+                  {stat.isPos ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+                  {stat.change}
+                </div>
               </div>
-              <div className={`flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full ${stat.isPos ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
-                {stat.isPos ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
-                {stat.change}
-              </div>
+              <p className="text-[10px] uppercase font-semibold text-text-gray/50 tracking-[0.1em]">{stat.label}</p>
+              <h3 className="text-2xl font-medium text-text-dark mt-1 tracking-tight group-hover:translate-x-1 transition-transform duration-300">{stat.value}</h3>
             </div>
-            <p className="text-[10px] uppercase font-bold text-text-gray tracking-widest">{stat.label}</p>
-            <h3 className="text-2xl font-display font-bold text-text-dark mt-1">{stat.value}</h3>
           </div>
         ))}
       </div>
@@ -147,72 +205,138 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Leads Trend - Area Chart */}
-        <div className="lg:col-span-2 bg-white-pure p-8 rounded-[2.5rem] border border-border-line/10 shadow-sm">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-lg font-bold text-text-dark flex items-center gap-2">
-              <TrendingUp size={20} className="text-brand-blue" />
-              Tren Pertumbuhan Leads
-            </h3>
-            <button className="text-text-gray hover:text-text-dark">
-              <RefreshCcw size={16} />
-            </button>
-          </div>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={trendData}>
-                <defs>
-                  <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#64748b'}} />
-                <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#64748b'}} />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                  labelStyle={{ fontWeight: 'bold', marginBottom: '4px' }}
-                />
-                <Area type="monotone" dataKey="leads" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorLeads)" />
-              </AreaChart>
-            </ResponsiveContainer>
+        <div className="lg:col-span-2 bg-white-pure p-10 rounded-[3rem] border border-border-line/10 shadow-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-brand-blue/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-16">
+              <div>
+                <h3 className="text-xl font-bold text-text-dark flex items-center gap-3">
+                  <div className="w-1.5 h-6 bg-brand-blue rounded-full"></div>
+                  Tren Pertumbuhan Leads
+                </h3>
+                <p className="text-xs text-text-gray mt-1">Pergerakan traffic dan konversi selama 7 hari terakhir.</p>
+              </div>
+              <button className="p-2.5 text-text-gray hover:text-brand-blue hover:bg-brand-blue/5 rounded-xl transition-all">
+                <RefreshCcw size={18} />
+              </button>
+            </div>
+            <div className="h-[350px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={trendData} margin={{ top: 30, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#2563EB" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#2563EB" stopOpacity={0.1}/>
+                    </linearGradient>
+                    <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#93C5FD" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#93C5FD" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" strokeOpacity={0.3} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 500, fill: '#94a3b8'}} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 500, fill: '#94a3b8'}} dx={-10} />
+                  <Tooltip content={<AnalyticsTooltip />} />
+                  
+                  {/* Click Area (Lighter Layer) */}
+                  <Area 
+                    type="monotone" 
+                    dataKey="click" 
+                    stroke="#BFDBFE" 
+                    strokeWidth={2}
+                    fillOpacity={1} 
+                    fill="url(#colorClicks)" 
+                    animationDuration={2000}
+                  />
+
+                  {/* Leads Area (Darker/Main Layer) */}
+                  <Area 
+                    type="monotone" 
+                    dataKey="leads" 
+                    stroke="#1D4ED8" 
+                    strokeWidth={3}
+                    fillOpacity={1} 
+                    fill="url(#colorLeads)" 
+                    animationDuration={1500}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
 
         {/* Source Distribution - Donut Chart */}
-        <div className="bg-white-pure p-8 rounded-[2.5rem] border border-border-line/10 shadow-sm">
-          <h3 className="text-lg font-bold text-text-dark mb-8 flex items-center gap-2">
-            <PieChartIcon size={20} className="text-brand-blue" />
-            Lead Sources
-          </h3>
-          <div className="h-[220px] w-full">
+        <div className="bg-white-pure p-10 rounded-[3rem] border border-border-line/10 shadow-sm relative overflow-hidden flex flex-col items-center">
+          <div className="w-full">
+            <h3 className="text-xl font-bold text-text-dark mb-2 flex items-center gap-3">
+              <PieChartIcon size={20} className="text-brand-blue" />
+              Lead Channels
+            </h3>
+            <p className="text-xs text-text-gray mb-10">Distribusi sumber leads berdasarkan platform.</p>
+          </div>
+          
+          <div className="h-[280px] w-full relative">
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
+              <PieChart onMouseLeave={onPieLeave}>
                 <Pie
                   data={sourceData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
+                  innerRadius={75}
+                  outerRadius={100}
+                  paddingAngle={8}
                   dataKey="value"
+                  stroke="none"
+                  onMouseEnter={onPieEnter}
                 >
                   {sourceData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={COLORS[index % COLORS.length]} 
+                      style={{ 
+                        filter: activeIndex === index ? 'drop-shadow(0 0 8px rgba(0,0,0,0.1))' : 'none',
+                        transition: 'all 0.3s ease'
+                      }}
+                    />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip 
+                   content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="bg-white px-4 py-2 rounded-xl shadow-xl border border-border-line/5 text-xs font-bold text-text-dark">
+                          {payload[0].name}: {payload[0].value} Leads
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
+            
+            {/* Center Text */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-3xl font-display font-bold text-text-dark">{MOCK_LEADS.length}</span>
+              <span className="text-[10px] font-bold text-text-gray uppercase tracking-widest mt-1">Total Leads</span>
+            </div>
           </div>
-          <div className="mt-4 space-y-2">
+
+          <div className="w-full mt-8 grid grid-cols-2 gap-3">
             {sourceData.map((item, i) => (
-              <div key={i} className="flex items-center justify-between text-xs font-semibold">
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }}></div>
-                  <span className="text-text-gray">{item.name}</span>
+              <div 
+                key={i} 
+                className={`flex items-center justify-between p-3 rounded-2xl border transition-all duration-300 ${
+                  activeIndex === i ? 'bg-surface-gray border-border-line/20 scale-105' : 'bg-transparent border-transparent'
+                }`}
+                onMouseEnter={() => setActiveIndex(i)}
+                onMouseLeave={onPieLeave}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: COLORS[i % COLORS.length] }}></div>
+                  <span className="text-[11px] font-bold text-text-gray truncate max-w-[70px]">{item.name}</span>
                 </div>
-                <span className="text-text-dark">{Math.round((item.value / MOCK_LEADS.length) * 100)}%</span>
+                <span className="text-xs font-bold text-text-dark">{item.percentage}%</span>
               </div>
             ))}
           </div>
@@ -220,18 +344,42 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Property Performance Chart */}
-      <div className="bg-white-pure p-8 rounded-[2.5rem] border border-border-line/10 shadow-sm">
-        <h3 className="text-lg font-bold text-text-dark mb-8">Top 5 Properti Paling Diminati</h3>
-        <div className="h-[300px] w-full">
+      <div className="bg-white-pure p-10 rounded-[3rem] border border-border-line/10 shadow-sm group">
+        <div className="flex items-center justify-between mb-10">
+          <div>
+            <h3 className="text-xl font-bold text-text-dark">Heatmap Properti Populer</h3>
+            <p className="text-xs text-text-gray mt-1">Unit yang paling sering memicu interaksi chatbot dan inquiries.</p>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 bg-surface-gray rounded-full text-[10px] font-bold text-text-gray uppercase tracking-widest">
+            <Info size={14} />
+            Unit View Trend
+          </div>
+        </div>
+        <div className="h-[350px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={propertyData} layout="vertical">
+            <BarChart data={propertyData} layout="vertical" margin={{ left: 20 }}>
               <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
               <XAxis type="number" hide />
-              <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} width={120} tick={{fontSize: 12, fontWeight: 700, fill: '#1e293b'}} />
-              <Tooltip cursor={{fill: 'transparent'}} />
-              <Bar dataKey="value" radius={[0, 10, 10, 0]} barSize={32}>
+              <YAxis 
+                dataKey="name" 
+                type="category" 
+                axisLine={false} 
+                tickLine={false} 
+                width={140} 
+                tick={{fontSize: 13, fontWeight: 700, fill: '#1e293b'}} 
+              />
+              <Tooltip 
+                cursor={{fill: 'rgba(59, 130, 246, 0.05)'}}
+                contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+              />
+              <Bar dataKey="value" radius={[0, 15, 15, 0]} barSize={35}>
                 {propertyData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} opacity={0.8} />
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={COLORS[index % COLORS.length]} 
+                    fillOpacity={0.8}
+                    className="hover:fill-opacity-100 transition-all duration-300"
+                  />
                 ))}
               </Bar>
             </BarChart>
@@ -239,88 +387,108 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* AI AI EXECUTIVE REPORT SECTION */}
-      <div className="bg-brand-blue-deep rounded-[3rem] p-10 md:p-14 text-white-pure relative overflow-hidden shadow-2xl shadow-brand-blue/30">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-brand-blue/10 rounded-full blur-[100px] -mr-48 -mt-48"></div>
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-violet-600/10 rounded-full blur-[100px] -ml-40 -mb-40"></div>
+      {/* AI EXECUTIVE REPORT SECTION - PREMIUM RE-DESIGN */}
+      <div className="bg-[#0f172a] rounded-[3.5rem] p-12 md:p-16 text-white-pure relative overflow-hidden shadow-2xl shadow-slate-900/40">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-blue/20 rounded-full blur-[120px] -mr-64 -mt-64 opacity-50"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-violet-600/20 rounded-full blur-[120px] -ml-48 -mb-48 opacity-50"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
         
-        <div className="relative z-10 flex flex-col lg:flex-row gap-12 items-start">
-          <div className="flex-1 space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white-pure/10 backdrop-blur-md rounded-full border border-white-pure/20 text-xs font-bold tracking-widest uppercase mb-4">
-              <Sparkles size={14} className="text-amber-300" />
-              AI Executive Power
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="space-y-8">
+            <div className="inline-flex items-center gap-2.5 px-5 py-2.5 bg-white/5 backdrop-blur-2xl rounded-full border border-white/10 text-[10px] font-bold tracking-[0.2em] uppercase text-brand-blue-light">
+              <Sparkles size={16} className="text-amber-400 animate-pulse" />
+              AI STRATEGY ENGINE v3.3
             </div>
             
-            <h2 className="text-4xl md:text-5xl font-display font-medium leading-tight tracking-tight">
-              Laporan Strategis <br /> <span className="text-white-pure/60 italic font-normal">Buatan AI.</span>
+            <h2 className="text-5xl md:text-6xl font-display font-medium leading-[1.1] tracking-tight">
+              Ubah Data <br /> Jadi <span className="bg-gradient-to-r from-brand-blue to-violet-400 bg-clip-text text-transparent italic font-semibold">Closing.</span>
             </h2>
             
-            <p className="text-lg text-white-pure/70 font-normal leading-relaxed max-w-xl">
-              Gunakan kecerdasan buatan untuk menganalisis ribuan data leads Bapak. Dapatkan insight eksklusif mana yang harus di-*follow up* dan platform mana yang paling menguntungkan.
+            <p className="text-xl text-slate-400 font-normal leading-relaxed max-w-lg">
+              Lewati proses analisis manual yang melelahkan. Biarkan AI kami membedah perilaku leads Bapak dan memberikan langkah taktis untuk mendominasi pasar properti.
             </p>
 
-            <div className="py-2">
+            <div className="flex flex-wrap gap-4 pt-4">
                <button 
                 onClick={handleGenerateReport}
                 disabled={isGenerating}
-                className="group relative px-10 py-5 bg-white-pure text-brand-blue-deep rounded-full font-bold text-base shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 disabled:opacity-50"
+                className="group relative px-10 py-5 bg-brand-blue text-white-pure rounded-full font-bold text-base shadow-2xl shadow-brand-blue/40 hover:shadow-brand-blue/60 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 disabled:opacity-50 disabled:scale-100"
                >
                  {isGenerating ? (
                    <>
-                     <RefreshCcw className="animate-spin" size={20} />
-                     <span>Menganalisis Data...</span>
+                     <RefreshCcw className="animate-spin" size={22} />
+                     <span className="tracking-tight">Mengolah Algoritma...</span>
                    </>
                  ) : (
                    <>
-                     <FileText size={20} />
-                     <span>Generate Laporan Eksekutif</span>
+                     <FileText size={22} className="group-hover:rotate-12 transition-transform" />
+                     <span className="tracking-tight">Generate Strategy Report</span>
                    </>
                  )}
                </button>
+               
+               {report && (
+                 <button className="h-16 w-16 flex items-center justify-center bg-white/5 border border-white/10 rounded-full text-slate-300 hover:text-white-pure hover:bg-white/10 transition-all shadow-xl backdrop-blur-xl">
+                   <Download size={22} />
+                 </button>
+               )}
             </div>
           </div>
 
-          <div className="w-full lg:w-[450px]">
-            <div className="bg-white-pure/[0.03] backdrop-blur-xl border border-white-pure/10 rounded-[2.5rem] p-4 min-h-[400px] flex flex-col">
+          <div className="relative group">
+            <div className="absolute -inset-4 bg-gradient-to-br from-brand-blue/20 to-violet-600/20 rounded-[3rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+            <div className="relative bg-[#1e293b]/50 backdrop-blur-3xl border border-white/10 rounded-[3rem] p-1 min-h-[500px] flex flex-col shadow-inner">
               {report ? (
-                <div className="flex-1 flex flex-col">
-                   <div className="flex items-center justify-between p-4 border-b border-white-pure/10 mb-4">
-                      <div className="flex items-center gap-2">
-                        <FileText size={16} className="text-white-pure/40" />
-                        <span className="text-[10px] font-bold text-white-pure/40 tracking-widest uppercase">Report Generated Successfully</span>
-                      </div>
-                      <button className="p-2 hover:bg-white-pure/10 rounded-full transition-colors">
-                        <Printer size={16} className="text-white-pure/60" />
-                      </button>
-                   </div>
-                   <div className="flex-1 max-h-[450px] overflow-y-auto px-4 prose prose-invert prose-sm">
-                      <div className="text-white-pure/90 text-sm leading-relaxed whitespace-pre-line font-medium">
-                        {report}
-                      </div>
-                   </div>
-                   <div className="mt-6 p-4 bg-white-pure/10 rounded-2xl flex items-center justify-between">
+                <div className="flex-1 flex flex-col h-full animate-in zoom-in-95 fade-in duration-500">
+                   <div className="flex items-center justify-between p-7 border-b border-white/5">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-brand-blue flex items-center justify-center border border-white-pure/20">
-                          <CheckCircle2 size={18} />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold text-white-pure/50 uppercase">Analysis Engine</p>
-                          <p className="text-xs font-bold">Llama 3.3 Versatile</p>
-                        </div>
+                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <span className="text-[11px] font-bold text-slate-400 tracking-[0.2em] uppercase">Intelligence Briefing</span>
                       </div>
-                      <button className="text-white-pure/60 hover:text-white-pure transition-colors">
-                        <Download size={18} />
-                      </button>
+                      <div className="flex gap-2">
+                        <button className="p-2.5 hover:bg-white/5 rounded-xl transition-colors text-slate-400 hover:text-white-pure">
+                          <Printer size={18} />
+                        </button>
+                      </div>
+                   </div>
+                   <div className="flex-1 max-h-[480px] overflow-y-auto px-10 py-8 scrollbar-hide">
+                      <div className="prose prose-invert prose-slate max-w-none">
+                         <div className="text-slate-200 text-sm leading-[1.8] whitespace-pre-line font-medium tracking-tight">
+                          {report}
+                         </div>
+                      </div>
+                   </div>
+                   <div className="p-10 mt-auto bg-gradient-to-t from-slate-900/80 to-transparent rounded-b-[3rem]">
+                      <div className="p-6 bg-white/5 border border-white/10 rounded-3xl flex items-center justify-between backdrop-blur-md">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-2xl bg-brand-blue flex items-center justify-center border border-white/20 shadow-lg shadow-brand-blue/20">
+                            <Sparkles size={22} />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Model Analysis</p>
+                            <p className="text-sm font-bold text-white-pure">Vision Engine L3.3</p>
+                          </div>
+                        </div>
+                        <div className="text-[10px] font-bold bg-white-pure text-slate-900 px-3 py-1.5 rounded-full uppercase tracking-tighter">Verified AI</div>
+                      </div>
                    </div>
                 </div>
               ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-8 space-y-6">
-                  <div className="w-20 h-20 rounded-3xl bg-white-pure/5 border border-white-pure/10 flex items-center justify-center text-white-pure/20">
-                    <BarChart3 size={40} strokeWidth={1} />
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-12 space-y-8">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-brand-blue/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
+                    <div className="relative w-28 h-28 rounded-[2.5rem] bg-slate-800/50 border border-white/10 flex items-center justify-center text-slate-600 shadow-2xl">
+                      <BarChart3 size={48} strokeWidth={1.5} />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <h4 className="text-lg font-bold">Belum Ada Laporan</h4>
-                    <p className="text-sm text-white-pure/40 font-normal">Klik tombol di samping untuk mulai membedah strategi marketing Anda hari ini.</p>
+                  <div className="space-y-3 max-w-sm">
+                    <h4 className="text-2xl font-bold text-white-pure tracking-tight">Sistem Siap Menganalisis</h4>
+                    <p className="text-base text-slate-400 font-normal leading-relaxed">
+                      Klik tombol untuk meluncurkan algoritma analisis taktis pada semua leads Bapak.
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    {[1, 2, 3].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-slate-700"></div>)}
                   </div>
                 </div>
               )}
