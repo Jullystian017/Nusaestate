@@ -224,7 +224,7 @@ export default function DealsPipelinePage() {
       </div>
 
       {/* Kanban Board - Grid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 min-h-[700px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[700px]">
         {columns.map((col, idx) => {
           const columnDeals = processedDeals.filter(d => d.status === col.status);
           return (
