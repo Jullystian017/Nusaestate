@@ -151,20 +151,20 @@ export default function LeadsPage() {
           { label: 'Prospek Hot', value: leads.filter(l => l.temperature === 'Hot').length.toString(), change: 'Hot', isPos: true, icon: Flame, color: 'text-red-600', bg: 'bg-red-50', gradient: 'from-red-500/10 to-transparent' },
           { label: 'Closing Terverifikasi', value: leads.filter(l => l.status === 'Closing').length.toString(), change: '+2', isPos: true, icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50', gradient: 'from-emerald-500/10 to-transparent' },
         ].map((stat, i) => (
-          <div key={i} className="bg-white-pure p-8 rounded-[2.5rem] border border-border-line/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden relative">
+          <div key={i} className="bg-white-pure p-6 rounded-[2.2rem] border border-border-line/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden relative">
             <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-700`}></div>
             <div className="relative z-10">
-              <div className="flex items-center justify-between mb-8">
-                <div className={`w-16 h-16 rounded-[1.5rem] ${stat.bg} ${stat.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-inner`}>
-                  <stat.icon size={28} />
+              <div className="flex items-center justify-between mb-5">
+                <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-inner`}>
+                  <stat.icon size={22} />
                 </div>
-                <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${stat.isPos ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'} border border-current/10`}>
-                  {stat.isPos ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+                <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold ${stat.isPos ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'} border border-current/5`}>
+                  {stat.isPos ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
                   {stat.change}
                 </div>
               </div>
-              <p className="text-xs uppercase font-semibold text-text-gray/50 tracking-[0.15em]">{stat.label}</p>
-              <h3 className="text-3xl font-medium text-text-dark mt-2 tracking-tight">{stat.value}</h3>
+              <p className="text-[10px] uppercase font-semibold text-text-gray/50 tracking-wider">{stat.label}</p>
+              <h3 className="text-2xl font-medium text-text-dark mt-1 tracking-tight">{stat.value}</h3>
             </div>
           </div>
         ))}
