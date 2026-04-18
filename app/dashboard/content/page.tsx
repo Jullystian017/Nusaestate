@@ -21,7 +21,9 @@ import {
   Clock3,
   BarChart3,
   CalendarDays,
-  Smartphone
+  Smartphone,
+  ArrowUpRight,
+  ArrowDownRight
 } from 'lucide-react';
 
 // --- Custom Brand Icons ---
@@ -161,22 +163,28 @@ export default function ContentStudioPage() {
         </div>
       </div>
 
+      {/* Stats - Premium Summary Design */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
-          { label: 'Konten di Antrean', value: queue.filter(i => i.status === 'scheduled').length, icon: CalendarDays, color: 'text-brand-blue', bg: 'bg-brand-blue/10' },
-          { label: 'Menunggu Approval', value: queue.filter(i => i.status === 'waiting').length, icon: Clock3, color: 'text-orange-500', bg: 'bg-orange-50/80' },
-          { label: 'Posting Berhasil', value: '124', icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50/80' },
-          { label: 'AI Health Status', value: '98%', icon: Sparkles, color: 'text-purple-500', bg: 'bg-purple-50/80' },
+          { label: 'Konten di Antrean', value: queue.filter(i => i.status === 'scheduled').length, change: '+4', isPos: true, icon: CalendarDays, color: 'text-brand-blue', bg: 'bg-brand-blue/5', gradient: 'from-blue-500/10 to-transparent' },
+          { label: 'Menunggu Approval', value: queue.filter(i => i.status === 'waiting').length, change: 'Urgent', isPos: false, icon: Clock3, color: 'text-orange-600', bg: 'bg-orange-50', gradient: 'from-orange-500/10 to-transparent' },
+          { label: 'Posting Berhasil', value: '124', change: '+12%', isPos: true, icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50', gradient: 'from-emerald-500/10 to-transparent' },
+          { label: 'AI Health Status', value: '98%', change: 'Optimum', isPos: true, icon: Sparkles, color: 'text-purple-600', bg: 'bg-purple-50', gradient: 'from-purple-500/10 to-transparent' },
         ].map((stat, i) => (
-          <div key={i} className="bg-white-pure/80 backdrop-blur-sm p-5 rounded-[2rem] border border-border-line/5 shadow-sm hover:shadow-md transition-all group">
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center transition-transform group-hover:scale-110 duration-300`}>
-                <stat.icon size={24} strokeWidth={1.5} />
+          <div key={i} className="bg-white-pure p-6 rounded-[2.5rem] border border-border-line/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden relative">
+            <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-700`}></div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-6">
+                <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-inner`}>
+                  <stat.icon size={22} />
+                </div>
+                <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold ${stat.isPos ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'} border border-current/5`}>
+                  {stat.isPos ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
+                  {stat.change}
+                </div>
               </div>
-              <div>
-                <p className="text-text-gray text-xs font-semibold uppercase tracking-wider">{stat.label}</p>
-                <p className="text-2xl font-bold text-text-dark mt-0.5">{stat.value}</p>
-              </div>
+              <p className="text-[10px] uppercase font-semibold text-text-gray/50 tracking-wider truncate">{stat.label}</p>
+              <h3 className="text-2xl font-medium text-text-dark mt-0.5 tracking-tight">{stat.value}</h3>
             </div>
           </div>
         ))}

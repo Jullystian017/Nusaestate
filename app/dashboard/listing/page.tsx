@@ -18,7 +18,9 @@ import {
   Clock,
   ArrowUpDown,
   ExternalLink,
-  Map as MapIcon
+  Map as MapIcon,
+  ArrowUpRight,
+  ArrowDownRight
 } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
@@ -156,20 +158,27 @@ export default function ListingPage() {
         </div>
       </div>
 
-      {/* Stats Quick Overview */}
+      {/* Stats Quick Overview - Premium Summary Design */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { label: 'Total Listing', value: '24 Unit', icon: Building2, bg: 'bg-blue-50 text-blue-600' },
-          { label: 'Listing Aktif', value: '18 Unit', icon: Clock, bg: 'bg-emerald-50 text-emerald-600' },
-          { label: 'Unit Terjual', value: '6 Unit', icon: CheckCircle2, bg: 'bg-indigo-50 text-indigo-600' }
+          { label: 'Total Portfolio Listing', value: '24 Unit', change: '+2', isPos: true, icon: Building2, color: 'text-blue-600', bg: 'bg-blue-50', gradient: 'from-blue-500/10 to-transparent' },
+          { label: 'Listing Aktif', value: '18 Unit', change: '+14%', isPos: true, icon: Clock, color: 'text-emerald-600', bg: 'bg-emerald-50', gradient: 'from-emerald-500/10 to-transparent' },
+          { label: 'Unit Terjual', value: '6 Unit', change: '85%', isPos: true, icon: CheckCircle2, color: 'text-indigo-600', bg: 'bg-indigo-50', gradient: 'from-indigo-500/10 to-transparent' }
         ].map((stat, i) => (
-          <div key={i} className="bg-white-pure p-6 rounded-[2rem] border border-border-line/20 shadow-sm flex items-center gap-5">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${stat.bg}`}>
-              <stat.icon size={22} strokeWidth={1.5} />
-            </div>
-            <div>
-              <p className="text-[10px] font-medium text-text-gray/40 uppercase tracking-widest">{stat.label}</p>
-              <h3 className="text-xl font-medium text-text-dark">{stat.value}</h3>
+          <div key={i} className="bg-white-pure p-8 rounded-[2.5rem] border border-border-line/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden relative">
+            <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-700`}></div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-8">
+                <div className={`w-16 h-16 rounded-[1.5rem] ${stat.bg} ${stat.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-inner`}>
+                  <stat.icon size={28} />
+                </div>
+                <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${stat.isPos ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'} border border-current/5`}>
+                  {stat.isPos ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+                  {stat.change}
+                </div>
+              </div>
+              <p className="text-xs uppercase font-semibold text-text-gray/50 tracking-[0.15em]">{stat.label}</p>
+              <h3 className="text-3xl font-medium text-text-dark mt-2 tracking-tight group-hover:translate-x-1 transition-transform duration-300">{stat.value}</h3>
             </div>
           </div>
         ))}
