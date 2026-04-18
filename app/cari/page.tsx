@@ -7,11 +7,10 @@ import MapContainer from '@/components/maps/MapContainer';
 import Footer from '@/components/ui/Footer';
 import {
   Heart, Search, Filter, BedDouble, Bath, Scaling,
-  Map as MapIcon, ChevronDown, LayoutGrid, X, House, Wifi, Car,
-  Bookmark, Star, ChevronLeft, ChevronRight, Navigation
+  Map as MapIcon, MapPin, ChevronDown, LayoutGrid, X, House, Wifi, Car,
+  Bookmark, Star, ChevronLeft, ChevronRight, Navigation, Loader2, Building2
 } from 'lucide-react';
-
-import { MOCK_PROPERTIES } from '@/lib/mock-data';
+import { usePublicProperties } from '@/hooks/useProperties';
 
 function CariContent() {
   const searchParams = useSearchParams();
@@ -38,6 +37,11 @@ function CariContent() {
     setRecentSearches(updated);
     localStorage.setItem('propnest_recent_searches', JSON.stringify(updated));
   };
+
+  // Live data from Supabase via TanStack Query
+  const { data: liveProperties = [], isLoading: propertiesLoading } = usePublicProperties({
+    search: searchQuery,
+  });
 
   const togglePopover = (type: 'harga' | 'tipe' | 'kamar' | 'sort') => {
     setActivePopover(activePopover === type ? null : type);
@@ -282,11 +286,54 @@ function CariContent() {
         <div className={`lg:pr-8 ${viewMode === 'split' ? 'lg:w-[50%] xl:w-[55%]' : 'w-full'}`}>
           <div className="py-8 px-0 max-w-full">
 
+            {/* Nearest Location Section */}
+            {searchQuery && liveProperties.length > 0 && (
+              <div className="mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-7 h-7 bg-brand-blue rounded-xl flex items-center justify-center">
+                    <Navigation size={14} className="text-white-pure" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-text-dark">Properti Terdekat dengan &ldquo;{searchQuery}&rdquo;</h3>
+                </div>
+                <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                  {liveProperties.slice(0, 3).map(p => (
+                    <Link
+                      key={p.id}
+                      href={`/properti/${p.id}`}
+                      className="flex-none w-56 bg-white-pure border border-border-line/20 rounded-2xl p-3 hover:border-brand-blue/40 hover:shadow-md transition-all group"
+                    >
+                      <div className="relative w-full h-28 rounded-xl overflow-hidden mb-3">
+                        <img
+                          src={p.images?.[0] || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=400&q=60'}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          alt={p.title}
+                        />
+                        <div className="absolute top-2 left-2 bg-brand-blue text-white-pure text-[9px] font-bold px-2 py-0.5 rounded-full">
+                          {p.type}
+                        </div>
+                      </div>
+                      <h4 className="text-xs font-semibold text-text-dark group-hover:text-brand-blue transition-colors line-clamp-1">{p.title}</h4>
+                      <p className="text-[10px] text-text-gray/60 flex items-center gap-1 mt-0.5">
+                        <MapPin size={9} className="text-brand-blue" /> {p.location}
+                      </p>
+                      <p className="text-xs font-bold text-brand-blue mt-2">
+                        {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(p.price).replace('Rp', 'Rp ')}
+                      </p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Results Info */}
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h1 className="text-xl font-semibold text-text-dark">Properti di Jawa Tengah</h1>
-                <p className="text-sm text-text-gray">Menampilkan 1-6 dari 145 hasil</p>
+                <h1 className="text-xl font-semibold text-text-dark">
+                  {searchQuery ? `Hasil untuk "${searchQuery}"` : 'Properti di Jawa Tengah'}
+                </h1>
+                <p className="text-sm text-text-gray">
+                  {propertiesLoading ? 'Memuat...' : `Menampilkan ${liveProperties.length} hasil`}
+                </p>
               </div>
               <div className="relative">
                 <div className="flex items-center gap-2 text-xs font-semibold text-text-gray">
@@ -320,11 +367,29 @@ function CariContent() {
               </div>
             </div>
 
-            {/* PRODUCT GRID - 1 Column when split, 3 Columns when list */}
+            {/* PRODUCT GRID */}
+            {propertiesLoading ? (
+              <div className="flex flex-col items-center justify-center py-24 text-text-gray/40">
+                <Loader2 size={36} className="animate-spin mb-4 text-brand-blue/40" />
+                <p className="text-sm font-medium">Memuat properti...</p>
+              </div>
+            ) : liveProperties.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-24 text-center">
+                <div className="w-20 h-20 bg-brand-blue/5 rounded-3xl flex items-center justify-center mb-5">
+                  <Building2 size={32} className="text-brand-blue/30" />
+                </div>
+                <h3 className="text-lg font-display font-medium text-text-dark mb-2">Belum ada properti</h3>
+                <p className="text-sm text-text-gray/50 max-w-xs">
+                  {searchQuery ? `Tidak ditemukan properti untuk "${searchQuery}".` : 'Belum ada listing aktif saat ini. Coba lagi nanti.'}
+                </p>
+              </div>
+            ) : (
             <div className={`grid gap-x-8 gap-y-12 ${viewMode === 'split' ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
-              {MOCK_PROPERTIES.map((item) => {
+              {liveProperties.map((item) => {
+                const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(p).replace('Rp', 'Rp ');
+                const imageUrl = item.images?.[0] || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80';
+
                 if (viewMode === 'split') {
-                  // STYLE FOR SPLIT VIEW (Original Horizontal Card restored)
                   return (
                     <Link
                       key={item.id}
@@ -332,94 +397,84 @@ function CariContent() {
                       className="group flex gap-5 items-start border-b border-border-line/40 pb-6 last:border-0 hover:bg-surface-gray/30 -mx-4 px-4 rounded-xl transition-all duration-300"
                     >
                       <div className="relative w-[180px] sm:w-[240px] aspect-[4/3] shrink-0 rounded-xl overflow-hidden shadow-sm">
-                        <div className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-1000" style={{ backgroundImage: `url(${item.image})` }}></div>
-                        {/* Premium White Badge (Split View) */}
+                        <div className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-1000" style={{ backgroundImage: `url(${imageUrl})` }} />
                         <div className="absolute top-3 left-3 backdrop-blur-md bg-white-pure/90 px-2.5 py-1 rounded-full shadow-premium border border-white/20 text-[9px] font-semibold flex items-center gap-1.5 z-20">
-                          <span className="w-1.5 h-1.5 rounded-full bg-brand-blue animate-pulse"></span>
-                          <span className="text-brand-blue">{item.badge}</span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          <span className="text-emerald-600">{item.type}</span>
                         </div>
                       </div>
-
                       <div className="flex-1 min-w-0 pt-1">
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                          <h3 className="text-[15px] font-semibold text-text-dark group-hover:text-brand-blue transition-colors pr-2 leading-snug">{item.name}</h3>
-                          <span className="text-sm font-extrabold text-text-dark whitespace-nowrap pt-0.5">{item.price}</span>
+                          <h3 className="text-[15px] font-semibold text-text-dark group-hover:text-brand-blue transition-colors pr-2 leading-snug">{item.title}</h3>
+                          <span className="text-sm font-extrabold text-text-dark whitespace-nowrap pt-0.5">{formatPrice(item.price)}</span>
                         </div>
                         <p className="text-xs text-text-gray flex items-center gap-1 mt-1.5">
                           <MapIcon size={12} className="shrink-0" /> {item.location}
                         </p>
                         <div className="mt-3.5 flex items-center gap-4 text-[11px] font-medium text-text-gray">
-                          <span className="flex items-center gap-1"><BedDouble size={15} className="text-brand-blue/70" /> {item.specs.beds} K. Tidur</span>
-                          <span className="flex items-center gap-1"><Bath size={15} className="text-brand-blue/70" /> {item.specs.baths} K. Mandi</span>
-                          <span className="flex items-center gap-1"><Scaling size={15} className="text-brand-blue/70" /> {item.specs.size}m²</span>
+                          <span className="flex items-center gap-1"><BedDouble size={15} className="text-brand-blue/70" /> {item.bedrooms} K. Tidur</span>
+                          <span className="flex items-center gap-1"><Bath size={15} className="text-brand-blue/70" /> {item.bathrooms} K. Mandi</span>
+                          <span className="flex items-center gap-1"><Scaling size={15} className="text-brand-blue/70" /> {item.land_area}m²</span>
                         </div>
-                        <p className="hidden sm:block text-[11px] text-text-gray leading-relaxed pt-2 line-clamp-2">
-                          Properti premium dengan desain modern yang terletak di lokasi strategis. Fasilitas lengkap dengan keamanan 24 jam...
-                        </p>
+                        {item.description && (
+                          <p className="hidden sm:block text-[11px] text-text-gray leading-relaxed pt-2 line-clamp-2">{item.description}</p>
+                        )}
                       </div>
                     </Link>
                   );
                 }
 
-                // STYLE FOR LIST VIEW (New Premium Floating Card - Precise Version)
                 return (
                   <Link
                     key={item.id}
                     href={`/properti/${item.id}`}
-                    className={`group relative flex flex-col transition-all duration-500 hover:-translate-y-2`}
+                    className="group relative flex flex-col transition-all duration-500 hover:-translate-y-2"
                   >
-                    {/* Image Area */}
                     <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-soft group-hover:shadow-md transition-all duration-700">
-                      <div className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-[3s]" style={{ backgroundImage: `url(${item.image})` }}></div>
-
-                      {/* Premium White Badge (Grid View) */}
+                      <div className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-[3s]" style={{ backgroundImage: `url(${imageUrl})` }} />
                       <div className="absolute top-4 left-4 backdrop-blur-md bg-white-pure/90 px-3 py-1.5 rounded-full shadow-premium border border-white/20 text-[10px] font-medium flex items-center gap-2">
-                        <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${item.badge === 'Baru' ? 'bg-brand-blue' : 'bg-brand-blue-light'}`}></span>
-                        <span className={item.badge === 'Baru' ? 'text-brand-blue' : 'text-brand-blue-deep'}>
-                          {item.badge === 'Baru' ? 'Home' : item.badge}
-                        </span>
+                        <span className="w-1.5 h-1.5 rounded-full animate-pulse bg-emerald-500" />
+                        <span className="text-emerald-600">{item.type}</span>
+                      </div>
+                      <div className="absolute top-4 right-4 backdrop-blur-md bg-white-pure/90 px-2.5 py-1 rounded-full text-[9px] font-semibold text-brand-blue uppercase tracking-widest">
+                        {item.price_type}
                       </div>
                     </div>
-
-                    {/* Floating Content Box */}
                     <div className="relative -mt-14 mx-3 bg-white-pure rounded-xl p-4 shadow-premium border border-border-line/20 group-hover:border-brand-blue/30 transition-all duration-500 z-10">
                       <div className="flex justify-between items-start mb-1">
                         <div className="min-w-0 flex-1">
-                          <h3 className="text-base font-medium text-text-dark group-hover:text-brand-blue transition-colors truncate">
-                            {item.name}
-                          </h3>
+                          <h3 className="text-base font-medium text-text-dark group-hover:text-brand-blue transition-colors truncate">{item.title}</h3>
                           <p className="flex items-center gap-1.5 text-[11px] text-text-gray font-medium mt-0.5">
                             <MapIcon size={12} className="text-brand-blue" />
                             <span className="truncate">{item.location}</span>
                           </p>
                         </div>
-
-                        <button className="p-2.5 bg-blue-50/80 text-brand-blue rounded-full hover:bg-brand-blue hover:text-white-pure transition-all duration-300 shadow-sm overflow-hidden active:scale-95 group-hover:shadow-soft">
-                          <Bookmark size={16} fill="currentColor" className="fill-transparent hover:fill-current" />
+                        <button className="p-2.5 bg-blue-50/80 text-brand-blue rounded-full hover:bg-brand-blue hover:text-white-pure transition-all duration-300 shadow-sm active:scale-95">
+                          <Bookmark size={16} className="fill-transparent" />
                         </button>
                       </div>
 
                       <div className="my-2.5 border-t border-border-line/30 w-full"></div>
 
                       <div className="flex items-center justify-between">
-                        <div className="flex flex-col">
-                          <p className="text-lg font-semibold text-text-dark">
-                            Rp{item.price.replace('Rp ', '').replace(' Juta', 'jt').replace(' Miliar', 'M')}
-                          </p>
-                        </div>
+                        <p className="text-lg font-semibold text-text-dark">
+                          {formatPrice(item.price)}
+                        </p>
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-brand-blue/60 bg-brand-blue/5 px-2 py-1 rounded-full">{item.price_type}</span>
                       </div>
 
-                      {/* Quick Specs (Compact) */}
+                      {/* Quick Specs */}
                       <div className="mt-3 pt-3 border-t border-border-line/30 flex items-center gap-4 text-[10px] font-medium text-text-gray/80">
-                        <span className="flex items-center gap-1.5"><BedDouble size={14} className="text-brand-blue/60" /> {item.specs.beds} K. Tidur</span>
-                        <span className="flex items-center gap-1.5"><Bath size={14} className="text-brand-blue/60" /> {item.specs.baths} K. Mandi</span>
-                        <span className="flex items-center gap-1.5"><Scaling size={14} className="text-brand-blue/60" /> {item.specs.size}m²</span>
+                        <span className="flex items-center gap-1.5"><BedDouble size={14} className="text-brand-blue/60" /> {item.bedrooms} K. Tidur</span>
+                        <span className="flex items-center gap-1.5"><Bath size={14} className="text-brand-blue/60" /> {item.bathrooms} K. Mandi</span>
+                        <span className="flex items-center gap-1.5"><Scaling size={14} className="text-brand-blue/60" /> {item.land_area}m²</span>
                       </div>
                     </div>
                   </Link>
                 );
               })}
             </div>
+            )}
 
             {/* Pagination */}
             <div className="mt-16 pt-8 border-t border-border-line/40 flex items-center justify-center gap-2">
@@ -445,7 +500,15 @@ function CariContent() {
         {viewMode === 'split' && (
           <div className="hidden lg:block lg:w-[50%] xl:w-[45%] h-[calc(100vh-80px)] sticky top-[80px] p-4 lg:pr-0 self-start">
             <div className="relative w-full h-full rounded-[2rem] overflow-hidden border border-border-line/50 shadow-premium bg-surface-dim">
-              <MapContainer properties={MOCK_PROPERTIES} />
+              <MapContainer properties={liveProperties.map(p => ({
+                ...p,
+                name: p.title,
+                image: p.images?.[0],
+                coords: p.lat && p.lng
+                  ? { lat: p.lat, lng: p.lng }
+                  : { lat: -7.025 + (Math.random() - 0.5) * 0.1, lng: 110.320 + (Math.random() - 0.5) * 0.1 },
+                price: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(p.price).replace('Rp', 'Rp '),
+              }))} />
 
               {/* Map Info Overlay */}
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[400] bg-white-pure/90 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-white/20 text-xs font-medium text-brand-blue flex items-center gap-2 pointer-events-none">

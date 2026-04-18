@@ -1,383 +1,371 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
-  Plus, 
-  Search, 
-  LayoutGrid, 
-  List, 
-  Filter, 
-  MapPin, 
-  Bed, 
-  Bath, 
-  Maximize, 
-  MoreVertical, 
-  ChevronDown,
-  Building2,
-  CheckCircle2,
-  Clock,
-  ArrowUpDown,
-  ExternalLink,
-  Map as MapIcon,
-  ArrowUpRight,
-  ArrowDownRight
+  Plus, Search, LayoutGrid, List, MapPin, Bed, Bath, Maximize,
+  Building2, CheckCircle2, Clock, ArrowUpDown, ExternalLink,
+  Map as MapIcon, ArrowUpRight, Pencil, Trash2, ChevronDown,
+  Loader2, AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
+import { useMyProperties, Property } from '@/hooks/useProperties';
+import PropertyFormModal from '@/components/listing/PropertyFormModal';
+import DeleteConfirmModal from '@/components/listing/DeleteConfirmModal';
 import MapContainer from '@/components/maps/MapContainer';
 
+const formatPrice = (price: number) =>
+  new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(price);
+
 export default function ListingPage() {
-  const supabase = createClient();
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'map'>('grid');
-  const [properties, setProperties] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('Semua');
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editData, setEditData] = useState<Property | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Property | null>(null);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      maximumFractionDigits: 0
-    }).format(price);
-  };
+  const { data: properties = [], isLoading, isError } = useMyProperties();
 
-  // Logic to fetch properties
-  useEffect(() => {
-    async function fetchProperties() {
-      try {
-        const { data, error } = await supabase
-          .from('properties')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        setProperties(data || []);
-      } catch (err) {
-        console.error('Error fetching properties:', err);
-      } finally {
-        setLoading(false);
-      }
+  const filtered = useMemo(() => {
+    let list = properties;
+    if (statusFilter !== 'Semua') list = list.filter(p => p.status === statusFilter);
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(p => p.title.toLowerCase().includes(q) || p.location.toLowerCase().includes(q));
     }
-    fetchProperties();
-  }, [supabase]);
+    return list;
+  }, [properties, statusFilter, searchQuery]);
 
-  // Mock data for demonstration if empty
-  const displayProperties = properties.length > 0 ? properties : [
-    {
-      id: '1',
-      title: 'Vila Tropis Ungaran',
-      location: 'Ungaran, Semarang',
-      price: 2500000000,
-      type: 'Vila',
-      status: 'Aktif',
-      bedrooms: 3,
-      bathrooms: 2,
-      land_area: 200,
-      building_area: 150,
-      coords: { lat: -7.025, lng: 110.320 },
-      images: ['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80']
-    },
-    {
-      id: '2',
-      title: 'Modern Minimalis Tembalang',
-      location: 'Tembalang, Semarang',
-      price: 1200000000,
-      type: 'Rumah',
-      status: 'Terjual',
-      bedrooms: 2,
-      bathrooms: 1,
-      land_area: 120,
-      building_area: 90,
-      coords: { lat: -7.048, lng: 110.438 },
-      images: ['https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80']
-    },
-    {
-      id: '3',
-      title: 'Ruko Sentra Bisnis',
-      location: 'Banyumanik, Semarang',
-      price: 3500000000,
-      type: 'Ruko',
-      status: 'Aktif',
-      bedrooms: 0,
-      bathrooms: 2,
-      land_area: 100,
-      building_area: 180,
-      coords: { lat: -7.062, lng: 110.425 },
-      images: ['https://images.unsplash.com/photo-1582034951913-a66f1ed124c0?auto=format&fit=crop&w=800&q=80']
-    }
-  ];
+  const stats = useMemo(() => ({
+    total: properties.length,
+    aktif: properties.filter(p => p.status === 'Aktif').length,
+    terjual: properties.filter(p => p.status === 'Terjual').length,
+  }), [properties]);
 
-  // Helper for map view
-  const mapData = displayProperties.map(p => ({
+  const mapData = filtered.map(p => ({
     ...p,
     name: p.title,
     image: p.images?.[0],
-    coords: p.coords || { lat: -7.025 + (Math.random() - 0.5) * 0.1, lng: 110.320 + (Math.random() - 0.5) * 0.1 },
-    price: formatPrice(p.price).replace('Rp', 'Rp ')
+    coords: p.lat && p.lng ? { lat: p.lat, lng: p.lng } : { lat: -7.025, lng: 110.320 },
+    price: formatPrice(p.price).replace('Rp', 'Rp '),
   }));
 
+  const handleAddNew = () => { setEditData(null); setIsFormOpen(true); };
+  const handleEdit = (prop: Property) => { setEditData(prop); setIsFormOpen(true); };
+  const handleDelete = (prop: Property) => setDeleteTarget(prop);
+  const handleCloseForm = () => { setIsFormOpen(false); setEditData(null); };
+
   return (
-    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-700">
-      
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-display font-medium text-text-dark tracking-tight">Manajemen Properti</h1>
-          <p className="text-sm font-normal text-text-gray/50">Kelola dan pantau semua unit properti Anda di sini.</p>
-        </div>
-        
-        <div className="flex items-center gap-3">
+    <>
+      <PropertyFormModal isOpen={isFormOpen} onClose={handleCloseForm} editData={editData} />
+      <DeleteConfirmModal property={deleteTarget} onClose={() => setDeleteTarget(null)} />
+
+      <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-700">
+
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-display font-medium text-text-dark tracking-tight">Manajemen Properti</h1>
+            <p className="text-sm font-normal text-text-gray/50">Kelola dan pantau semua unit properti Anda di sini.</p>
+          </div>
+          <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center bg-surface-gray/50 p-1 rounded-2xl border border-border-line/10">
-                <button 
-                  onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-white-pure text-brand-blue shadow-sm' : 'text-text-gray/40 hover:text-text-gray'}`}
-                  title="Grid View"
+              {(['grid', 'list', 'map'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setViewMode(mode)}
+                  className={`p-2 rounded-xl transition-all ${viewMode === mode ? 'bg-white-pure text-brand-blue shadow-sm' : 'text-text-gray/40 hover:text-text-gray'}`}
                 >
-                  <LayoutGrid size={18} strokeWidth={1.5} />
+                  {mode === 'grid' && <LayoutGrid size={18} strokeWidth={1.5} />}
+                  {mode === 'list' && <List size={18} strokeWidth={1.5} />}
+                  {mode === 'map' && <MapIcon size={18} strokeWidth={1.5} />}
                 </button>
-                <button 
-                  onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-xl transition-all ${viewMode === 'list' ? 'bg-white-pure text-brand-blue shadow-sm' : 'text-text-gray/40 hover:text-text-gray'}`}
-                  title="List View"
-                >
-                  <List size={18} strokeWidth={1.5} />
-                </button>
-                <button 
-                  onClick={() => setViewMode('map')}
-                  className={`p-2 rounded-xl transition-all ${viewMode === 'map' ? 'bg-white-pure text-brand-blue shadow-sm' : 'text-text-gray/40 hover:text-text-gray'}`}
-                  title="Map View"
-                >
-                  <MapIcon size={18} strokeWidth={1.5} />
-                </button>
+              ))}
             </div>
-            <button className="px-5 py-3 bg-brand-blue text-white-pure rounded-2xl text-sm font-medium shadow-lg shadow-brand-blue/10 hover:bg-brand-blue-deep transition-all flex items-center gap-2 active:scale-95">
+            <button
+              onClick={handleAddNew}
+              className="px-5 py-3 bg-brand-blue text-white-pure rounded-2xl text-sm font-medium shadow-lg shadow-brand-blue/10 hover:bg-brand-blue-deep transition-all flex items-center gap-2 active:scale-95"
+            >
               <Plus size={18} strokeWidth={1.5} />
               Tambah Unit Baru
             </button>
-        </div>
-      </div>
-
-      {/* Stats Quick Overview - Premium Summary Design */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[
-          { label: 'Total Portfolio Listing', value: '24 Unit', change: '+2', isPos: true, icon: Building2, color: 'text-blue-600', bg: 'bg-blue-50', gradient: 'from-blue-500/10 to-transparent' },
-          { label: 'Listing Aktif', value: '18 Unit', change: '+14%', isPos: true, icon: Clock, color: 'text-emerald-600', bg: 'bg-emerald-50', gradient: 'from-emerald-500/10 to-transparent' },
-          { label: 'Unit Terjual', value: '6 Unit', change: '85%', isPos: true, icon: CheckCircle2, color: 'text-indigo-600', bg: 'bg-indigo-50', gradient: 'from-indigo-500/10 to-transparent' }
-        ].map((stat, i) => (
-          <div key={i} className="bg-white-pure p-6 rounded-[2.2rem] border border-border-line/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden relative">
-            <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-700`}></div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-5">
-                <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-inner`}>
-                  <stat.icon size={22} />
-                </div>
-                <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold ${stat.isPos ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'} border border-current/5`}>
-                  {stat.isPos ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
-                  {stat.change}
-                </div>
-              </div>
-              <p className="text-[10px] uppercase font-semibold text-text-gray/50 tracking-wider truncate">{stat.label}</p>
-              <h3 className="text-2xl font-medium text-text-dark mt-1 tracking-tight group-hover:translate-x-1 transition-transform duration-300">{stat.value}</h3>
-            </div>
           </div>
-        ))}
-      </div>
-
-      {/* Search & Filter Bar */}
-      <div className="bg-white-pure p-4 rounded-3xl border border-border-line/20 shadow-sm flex flex-col md:flex-row gap-4 items-center">
-        <div className="relative flex-1 w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-gray/30" size={18} strokeWidth={1.5} />
-            <input 
-                type="text" 
-                placeholder="Cari nama properti atau lokasi..."
-                className="w-full bg-surface-gray/30 border-none rounded-2xl py-3 pl-12 pr-4 text-sm font-normal focus:ring-2 focus:ring-brand-blue/10 transition-all placeholder:text-text-gray/30"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-            />
         </div>
-        <div className="flex items-center gap-3 w-full md:w-auto">
-            <button className="flex items-center gap-2 px-5 py-3 bg-white-pure border border-border-line/10 rounded-2xl text-sm font-medium text-text-gray hover:text-text-dark transition-all">
-                <Filter size={18} strokeWidth={1.5} />
-                Filter
-                <ChevronDown size={14} className="text-text-gray/40" />
-            </button>
-            <button className="flex items-center gap-2 px-5 py-3 bg-white-pure border border-border-line/10 rounded-2xl text-sm font-medium text-text-gray hover:text-text-dark transition-all">
-                <ArrowUpDown size={18} strokeWidth={1.5} />
-                Urutkan
-            </button>
-        </div>
-      </div>
 
-      {/* Properties Display */}
-      {viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayProperties.map((prop) => (
-            <Link
-              key={prop.id}
-              href={`/properti/${prop.id}`}
-              className="group relative flex flex-col transition-all duration-500 hover:-translate-y-2"
-            >
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-soft group-hover:shadow-md transition-all duration-700">
-                <img 
-                  src={prop.images?.[0] || 'https://via.placeholder.com/400x300'} 
-                  alt={prop.title}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[3s]"
-                />
-                <div className="absolute top-4 left-4 backdrop-blur-md bg-white-pure/90 px-3 py-1.5 rounded-full shadow-premium border border-white/20 text-[10px] font-medium flex items-center gap-2">
-                  <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${prop.status === 'Aktif' ? 'bg-emerald-500' : 'bg-brand-blue'}`}></span>
-                  <span className={prop.status === 'Aktif' ? 'text-emerald-600' : 'text-brand-blue'}>
-                    {prop.status}
-                  </span>
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            { label: 'Total Portfolio Listing', value: `${stats.total} Unit`, icon: Building2, color: 'text-blue-600', bg: 'bg-blue-50', gradient: 'from-blue-500/10 to-transparent' },
+            { label: 'Listing Aktif', value: `${stats.aktif} Unit`, icon: Clock, color: 'text-emerald-600', bg: 'bg-emerald-50', gradient: 'from-emerald-500/10 to-transparent' },
+            { label: 'Unit Tidak Aktif', value: `${stats.terjual} Unit`, icon: CheckCircle2, color: 'text-indigo-600', bg: 'bg-indigo-50', gradient: 'from-indigo-500/10 to-transparent' },
+          ].map((stat, i) => (
+            <div key={i} className="bg-white-pure p-6 rounded-[2.2rem] border border-border-line/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden relative">
+              <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-5">
+                  <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-500`}>
+                    <stat.icon size={22} />
+                  </div>
+                  <div className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-current/5">
+                    <ArrowUpRight size={10} />Live
+                  </div>
                 </div>
-                <div className="absolute top-4 right-4 backdrop-blur-md bg-white-pure/90 px-3 py-1.5 rounded-full shadow-premium border border-white/20 text-[9px] font-medium text-text-gray/60 uppercase tracking-widest">
-                  {prop.type}
-                </div>
+                <p className="text-[10px] uppercase font-semibold text-text-gray/50 tracking-wider">{stat.label}</p>
+                <h3 className="text-2xl font-medium text-text-dark mt-1 tracking-tight">{stat.value}</h3>
               </div>
-              <div className="relative -mt-14 mx-3 bg-white-pure rounded-[1.5rem] p-5 shadow-premium border border-border-line/20 group-hover:border-brand-blue/30 transition-all duration-500 z-10">
-                <div className="flex justify-between items-start mb-1">
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-base font-medium text-text-dark group-hover:text-brand-blue transition-colors truncate">
-                      {prop.title}
-                    </h3>
-                    <p className="flex items-center gap-1.5 text-[11px] text-text-gray/50 font-normal mt-0.5">
-                      <MapPin size={12} className="text-brand-blue" strokeWidth={1.5} />
-                      <span className="truncate">{prop.location}</span>
-                    </p>
-                  </div>
-                  <div className="p-2.5 bg-surface-gray/50 text-text-gray/40 rounded-full hover:bg-brand-blue hover:text-white-pure transition-all duration-300 active:scale-95">
-                    <MoreVertical size={16} strokeWidth={1.5} />
-                  </div>
-                </div>
-                <div className="my-3 border-t border-border-line/5 w-full"></div>
-                <div className="flex items-center justify-between">
-                  <p className="text-lg font-medium text-text-dark tracking-tight">
-                    {formatPrice(prop.price).replace('Rp', 'Rp ')}
-                  </p>
-                </div>
-                <div className="mt-4 pt-4 border-t border-border-line/5 flex items-center justify-between text-[10px] font-medium text-text-gray/40">
-                  <div className="flex items-center gap-4">
-                    <span className="flex items-center gap-1.5"><Bed size={14} strokeWidth={1.5} className="text-brand-blue/40" /> {prop.bedrooms} KT</span>
-                    <span className="flex items-center gap-1.5"><Bath size={14} strokeWidth={1.5} className="text-brand-blue/40" /> {prop.bathrooms} KM</span>
-                    <span className="flex items-center gap-1.5"><Maximize size={14} strokeWidth={1.5} className="text-brand-blue/40" /> {prop.land_area}m²</span>
-                  </div>
-                  <div className="text-[9px] uppercase tracking-widest text-brand-blue hover:text-brand-blue-deep transition-colors flex items-center gap-1.5">
-                    Lihat Detail <ExternalLink size={10} />
-                  </div>
-                </div>
-              </div>
-            </Link>
+            </div>
           ))}
         </div>
-      ) : viewMode === 'list' ? (
-        <div className="bg-white-pure rounded-[2rem] border border-border-line/20 shadow-sm overflow-hidden">
-            <table className="w-full text-left border-collapse">
-                <thead>
-                    <tr className="bg-surface-gray/20 text-[10px] font-medium text-text-gray/40 uppercase tracking-widest border-b border-border-line/5">
-                        <th className="p-6 pl-10">Data Properti</th>
-                        <th className="p-6">Lokasi & Tipe</th>
-                        <th className="p-6">Spek Unit</th>
-                        <th className="p-6">Harga</th>
-                        <th className="p-6">Status</th>
-                        <th className="p-6 pr-10">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-border-line/5 text-sm">
-                    {displayProperties.map((prop) => (
-                        <tr key={prop.id} className="hover:bg-surface-gray/10 transition-all group">
-                            <td className="p-6 pl-10">
-                                <Link href={`/properti/${prop.id}`} className="flex items-center gap-4 hover:translate-x-1 transition-all group/cell">
-                                    <div className="w-16 h-12 rounded-xl overflow-hidden border border-border-line/10 flex-none group-hover/cell:border-brand-blue/30">
-                                        <img src={prop.images?.[0]} className="w-full h-full object-cover" alt="" />
-                                    </div>
-                                    <div className="font-medium text-text-dark group-hover/cell:text-brand-blue transition-colors">{prop.title}</div>
-                                </Link>
-                            </td>
-                            <td className="p-6">
-                                <div className="text-xs text-text-dark/80">{prop.location}</div>
-                                <div className="text-[10px] text-brand-blue uppercase tracking-widest mt-0.5">{prop.type}</div>
-                            </td>
-                            <td className="p-6">
-                                <div className="text-xs text-text-gray/60">{prop.bedrooms}KT • {prop.bathrooms}KM • {prop.land_area}m²</div>
-                            </td>
-                            <td className="p-6">
-                                <div className="font-medium text-text-dark text-xs">{formatPrice(prop.price).replace('Rp', 'Rp ')}</div>
-                            </td>
-                            <td className="p-6">
-                                <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-medium border ${
-                                    prop.status === 'Aktif' 
-                                      ? 'bg-emerald-50 text-emerald-600 border-emerald-600/10' 
-                                      : 'bg-brand-blue/5 text-brand-blue border-brand-blue/10'
-                                }`}>
-                                    {prop.status}
-                                </span>
-                            </td>
-                            <td className="p-6 pr-10">
-                                <button className="p-2 hover:bg-surface-gray rounded-xl transition-all">
-                                    <MoreVertical size={16} strokeWidth={1.5} />
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+
+        {/* Search & Filter */}
+        <div className="bg-white-pure p-4 rounded-3xl border border-border-line/20 shadow-sm flex flex-col md:flex-row gap-4 items-center">
+          <div className="relative flex-1 w-full">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-gray/30" size={18} strokeWidth={1.5} />
+            <input
+              type="text"
+              placeholder="Cari nama properti atau lokasi..."
+              className="w-full bg-surface-gray/30 border-none rounded-2xl py-3 pl-12 pr-4 text-sm font-normal focus:ring-2 focus:ring-brand-blue/10 transition-all placeholder:text-text-gray/30"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            {['Semua', 'Aktif', 'Nonaktif'].map(s => (
+              <button
+                key={s}
+                onClick={() => setStatusFilter(s)}
+                className={`px-4 py-2.5 rounded-2xl text-xs font-semibold transition-all border ${
+                  statusFilter === s
+                    ? 'bg-brand-blue text-white-pure border-brand-blue shadow-sm'
+                    : 'bg-white-pure border-border-line/20 text-text-gray/60 hover:border-brand-blue/30'
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
         </div>
-      ) : (
-        <div className="bg-white-pure rounded-[2rem] border border-border-line/20 shadow-sm overflow-hidden h-[600px] flex animate-in fade-in zoom-in-95 duration-500">
-            <div className="w-full md:w-[350px] lg:w-[400px] flex-none border-r border-border-line/10 overflow-hidden flex flex-col">
-                <div className="p-6 border-b border-border-line/10">
-                    <div className="text-sm font-medium text-text-dark">{displayProperties.length} Unit Ditemukan</div>
-                    <div className="text-[10px] text-text-gray/40 font-normal mt-0.5">Gulir untuk melihat daftar lengkap</div>
+
+        {/* Loading & Error States */}
+        {isLoading && (
+          <div className="flex flex-col items-center justify-center py-24 text-text-gray/40">
+            <Loader2 size={36} className="animate-spin mb-4 text-brand-blue/40" />
+            <p className="text-sm font-medium">Memuat data properti...</p>
+          </div>
+        )}
+        {isError && (
+          <div className="flex items-center gap-3 p-5 bg-red-50/50 border border-red-100/50 rounded-2xl">
+            <AlertCircle size={18} className="text-red-500 shrink-0" />
+            <p className="text-sm text-red-500">Gagal memuat properti. Pastikan Anda sudah login.</p>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && !isError && filtered.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="w-20 h-20 bg-brand-blue/5 rounded-3xl flex items-center justify-center mb-5">
+              <Building2 size={32} className="text-brand-blue/40" />
+            </div>
+            <h3 className="text-lg font-display font-medium text-text-dark mb-2">
+              {searchQuery || statusFilter !== 'Semua' ? 'Properti tidak ditemukan' : 'Belum ada properti'}
+            </h3>
+            <p className="text-sm text-text-gray/40 mb-6 max-w-xs">
+              {searchQuery || statusFilter !== 'Semua' ? 'Coba ubah filter atau kata kunci pencarian Anda.' : 'Mulai tambahkan properti pertama Anda untuk dipublikasikan.'}
+            </p>
+            {!searchQuery && statusFilter === 'Semua' && (
+              <button
+                onClick={handleAddNew}
+                className="px-6 py-3 bg-brand-blue text-white-pure rounded-2xl text-sm font-medium shadow-lg shadow-brand-blue/10 hover:bg-brand-blue-deep transition-all flex items-center gap-2"
+              >
+                <Plus size={18} />
+                Tambah Properti Pertama
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Grid View */}
+        {!isLoading && viewMode === 'grid' && filtered.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filtered.map(prop => (
+              <div key={prop.id} className="group relative flex flex-col transition-all duration-500 hover:-translate-y-2">
+                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-soft group-hover:shadow-md transition-all duration-700">
+                  <img
+                    src={prop.images?.[0] || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80'}
+                    alt={prop.title}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[3s]"
+                  />
+                  <div className="absolute top-4 left-4 backdrop-blur-md bg-white-pure/90 px-3 py-1.5 rounded-full shadow-premium border border-white/20 text-[10px] font-medium flex items-center gap-2">
+                    <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${prop.status === 'Aktif' ? 'bg-emerald-500' : 'bg-gray-400'}`} />
+                    <span className={prop.status === 'Aktif' ? 'text-emerald-600' : 'text-text-gray/60'}>{prop.status}</span>
+                  </div>
+                  <div className="absolute top-4 right-4 backdrop-blur-md bg-white-pure/90 px-3 py-1.5 rounded-full shadow-premium border border-white/20 text-[9px] font-medium text-text-gray/60 uppercase tracking-widest">
+                    {prop.type}
+                  </div>
+                  {/* Action Buttons */}
+                  <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                    <button
+                      onClick={() => handleEdit(prop)}
+                      className="w-8 h-8 bg-white-pure rounded-full flex items-center justify-center shadow-premium text-brand-blue hover:bg-brand-blue hover:text-white-pure transition-all"
+                    >
+                      <Pencil size={14} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(prop)}
+                      className="w-8 h-8 bg-white-pure rounded-full flex items-center justify-center shadow-premium text-red-400 hover:bg-red-500 hover:text-white-pure transition-all"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
-                    {displayProperties.map((prop) => (
-                        <Link 
-                            key={prop.id}
-                            href={`/properti/${prop.id}`}
-                            className="flex gap-4 p-3 rounded-2xl border border-border-line/10 hover:border-brand-blue/30 hover:bg-brand-blue/[0.02] transition-all group"
+                <div className="relative -mt-14 mx-3 bg-white-pure rounded-[1.5rem] p-5 shadow-premium border border-border-line/20 group-hover:border-brand-blue/30 transition-all duration-500 z-10">
+                  <div className="flex justify-between items-start mb-1">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-base font-medium text-text-dark group-hover:text-brand-blue transition-colors truncate">{prop.title}</h3>
+                      <p className="flex items-center gap-1.5 text-[11px] text-text-gray/50 font-normal mt-0.5">
+                        <MapPin size={12} className="text-brand-blue" strokeWidth={1.5} />
+                        <span className="truncate">{prop.location}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="my-3 border-t border-border-line/5 w-full" />
+                  <div className="flex items-center justify-between">
+                    <p className="text-lg font-medium text-text-dark tracking-tight">
+                      {formatPrice(prop.price).replace('Rp', 'Rp ')}
+                    </p>
+                    <span className="text-[9px] font-semibold uppercase tracking-widest text-brand-blue/60 bg-brand-blue/5 px-2 py-1 rounded-full">
+                      {prop.price_type}
+                    </span>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-border-line/5 flex items-center justify-between text-[10px] font-medium text-text-gray/40">
+                    <div className="flex items-center gap-4">
+                      <span className="flex items-center gap-1.5"><Bed size={14} strokeWidth={1.5} className="text-brand-blue/40" /> {prop.bedrooms} KT</span>
+                      <span className="flex items-center gap-1.5"><Bath size={14} strokeWidth={1.5} className="text-brand-blue/40" /> {prop.bathrooms} KM</span>
+                      <span className="flex items-center gap-1.5"><Maximize size={14} strokeWidth={1.5} className="text-brand-blue/40" /> {prop.land_area}m²</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* List View */}
+        {!isLoading && viewMode === 'list' && filtered.length > 0 && (
+          <div className="bg-white-pure rounded-[2rem] border border-border-line/20 shadow-sm overflow-hidden">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-surface-gray/20 text-[10px] font-medium text-text-gray/40 uppercase tracking-widest border-b border-border-line/5">
+                  <th className="p-6 pl-10">Data Properti</th>
+                  <th className="p-6">Lokasi & Tipe</th>
+                  <th className="p-6">Spek</th>
+                  <th className="p-6">Harga</th>
+                  <th className="p-6">Status</th>
+                  <th className="p-6 pr-10">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border-line/5 text-sm">
+                {filtered.map(prop => (
+                  <tr key={prop.id} className="hover:bg-surface-gray/10 transition-all group">
+                    <td className="p-6 pl-10">
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-12 rounded-xl overflow-hidden border border-border-line/10 flex-none">
+                          <img
+                            src={prop.images?.[0] || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=200&q=60'}
+                            className="w-full h-full object-cover"
+                            alt=""
+                          />
+                        </div>
+                        <div className="font-medium text-text-dark text-sm">{prop.title}</div>
+                      </div>
+                    </td>
+                    <td className="p-6">
+                      <div className="text-xs text-text-dark/80">{prop.location}</div>
+                      <div className="text-[10px] text-brand-blue uppercase tracking-widest mt-0.5">{prop.type}</div>
+                    </td>
+                    <td className="p-6">
+                      <div className="text-xs text-text-gray/60">{prop.bedrooms}KT · {prop.bathrooms}KM · {prop.land_area}m²</div>
+                    </td>
+                    <td className="p-6">
+                      <div className="font-medium text-text-dark text-xs">{formatPrice(prop.price).replace('Rp', 'Rp ')}</div>
+                      <div className="text-[9px] text-brand-blue/60 mt-0.5">{prop.price_type}</div>
+                    </td>
+                    <td className="p-6">
+                      <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-medium border ${
+                        prop.status === 'Aktif'
+                          ? 'bg-emerald-50 text-emerald-600 border-emerald-600/10'
+                          : 'bg-gray-50 text-gray-500 border-gray-200'
+                      }`}>
+                        {prop.status}
+                      </span>
+                    </td>
+                    <td className="p-6 pr-10">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleEdit(prop)}
+                          className="w-8 h-8 rounded-xl bg-brand-blue/5 text-brand-blue hover:bg-brand-blue hover:text-white-pure transition-all flex items-center justify-center"
                         >
-                            <div className="w-24 h-20 rounded-xl overflow-hidden flex-none shadow-sm">
-                                <img src={prop.images?.[0]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
-                            </div>
-                            <div className="min-w-0 py-1">
-                                <h4 className="text-sm font-medium text-text-dark truncate group-hover:text-brand-blue transition-colors">{prop.title}</h4>
-                                <div className="flex items-center gap-1 text-[10px] text-text-gray/50 mt-1 truncate">
-                                    <MapPin size={10} className="text-brand-blue" /> {prop.location}
-                                </div>
-                                <div className="text-xs font-medium text-brand-blue mt-2">
-                                    {formatPrice(prop.price).replace('Rp', 'Rp ')}
-                                </div>
-                            </div>
-                        </Link>
-                    ))}
-                </div>
+                          <Pencil size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(prop)}
+                          className="w-8 h-8 rounded-xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white-pure transition-all flex items-center justify-center"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Map View */}
+        {!isLoading && viewMode === 'map' && (
+          <div className="bg-white-pure rounded-[2rem] border border-border-line/20 shadow-sm overflow-hidden h-[600px] flex animate-in fade-in zoom-in-95 duration-500">
+            <div className="w-full md:w-[350px] lg:w-[400px] flex-none border-r border-border-line/10 overflow-hidden flex flex-col">
+              <div className="p-6 border-b border-border-line/10">
+                <div className="text-sm font-medium text-text-dark">{filtered.length} Unit Ditemukan</div>
+                <div className="text-[10px] text-text-gray/40 font-normal mt-0.5">Gulir untuk melihat daftar lengkap</div>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
+                {filtered.map(prop => (
+                  <div key={prop.id} className="flex gap-4 p-3 rounded-2xl border border-border-line/10 hover:border-brand-blue/30 transition-all group">
+                    <div className="w-24 h-20 rounded-xl overflow-hidden flex-none shadow-sm">
+                      <img
+                        src={prop.images?.[0] || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=200&q=60'}
+                        className="w-full h-full object-cover"
+                        alt=""
+                      />
+                    </div>
+                    <div className="min-w-0 py-1 flex-1">
+                      <h4 className="text-sm font-medium text-text-dark truncate">{prop.title}</h4>
+                      <div className="flex items-center gap-1 text-[10px] text-text-gray/50 mt-1 truncate">
+                        <MapPin size={10} className="text-brand-blue" /> {prop.location}
+                      </div>
+                      <div className="text-xs font-medium text-brand-blue mt-2">{formatPrice(prop.price).replace('Rp', 'Rp ')}</div>
+                    </div>
+                    <div className="flex flex-col gap-2 justify-center">
+                      <button onClick={() => handleEdit(prop)} className="w-7 h-7 rounded-xl bg-brand-blue/5 text-brand-blue hover:bg-brand-blue hover:text-white-pure transition-all flex items-center justify-center">
+                        <Pencil size={12} />
+                      </button>
+                      <button onClick={() => handleDelete(prop)} className="w-7 h-7 rounded-xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white-pure transition-all flex items-center justify-center">
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="flex-1 h-full relative">
-                <MapContainer properties={mapData} />
-                <div className="absolute top-6 left-6 z-[400] bg-white-pure p-4 rounded-2xl shadow-premium border border-border-line/20 backdrop-blur-md bg-white/90">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-brand-blue/5 text-brand-blue rounded-xl flex items-center justify-center">
-                            <MapIcon size={18} strokeWidth={1.5} />
-                        </div>
-                        <div>
-                            <div className="text-xs font-medium text-text-dark">Peta Interaktif</div>
-                            <div className="text-[10px] text-text-gray/40">Area Jawa Tengah</div>
-                        </div>
-                    </div>
-                </div>
+              <MapContainer properties={mapData} />
             </div>
-        </div>
-      )}
-
-      {/* Pagination Placeholder */}
-      <div className="flex items-center justify-center py-10">
-          <div className="flex items-center gap-2">
-              <button className="w-10 h-10 rounded-xl border border-border-line/10 flex items-center justify-center text-text-gray/40 hover:bg-white-pure transition-all">1</button>
-              <button className="w-10 h-10 rounded-xl border border-border-line/10 flex items-center justify-center text-text-gray/40 hover:bg-white-pure transition-all">2</button>
-              <button className="w-10 h-10 rounded-xl border border-border-line/10 flex items-center justify-center text-text-gray/40 hover:bg-white-pure transition-all">3</button>
           </div>
-      </div>
+        )}
 
-    </div>
+      </div>
+    </>
   );
 }

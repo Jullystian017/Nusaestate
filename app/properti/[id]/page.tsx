@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, use } from 'react';
+import React, { useState, use, useEffect } from 'react';
 import Navbar from '@/components/ui/Navbar';
 import Footer from '@/components/ui/Footer';
 import {
@@ -9,19 +9,14 @@ import {
   Zap, MessageSquare, ChevronRight, Star, Shield, TrendingUp,
   Box, Eye, Info, FileText, Layout, Navigation, HelpCircle,
   Home, TrainFront, School, Hospital, ShoppingBag, ArrowUpRight,
-  Car, Map as MapIcon, Church, GraduationCap, Calculator, Percent, Wallet, Clock, ArrowLeft
+  Car, Map as MapIcon, Church, GraduationCap, Calculator, Percent, Wallet, Clock, ArrowLeft,
+  Loader2
 } from 'lucide-react';
 import Link from 'next/link';
 import { MOCK_PROPERTIES } from '@/lib/mock-data';
 import { notFound, useRouter } from 'next/navigation';
 import MapContainer from '@/components/maps/MapContainer';
-import { createClient } from '@supabase/supabase-js';
-
-// --- SUPABASE CLIENT ---
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { createClient } from '@/lib/supabase/client';
 
 // --- KPR CALCULATOR COMPONENT ---
 const KPRCalculator = ({ propertyPrice }: { propertyPrice: string }) => {
@@ -246,6 +241,7 @@ const NEAREST_DATA = {
 
 // --- INQUIRY MODAL COMPONENT ---
 const InquiryModal = ({ isOpen, onClose, propertyName, propertyId }: { isOpen: boolean, onClose: () => void, propertyName: string, propertyId: string }) => {
+  const supabase = createClient();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({ name: '', phone: '', email: '', message: `Halo, saya tertarik dengan unit ${propertyName}. Bisakah saya mendapatkan info lebih lanjut?` });
@@ -373,6 +369,7 @@ type Message = {
 };
 
 const AIChatbot = ({ isOpen, setIsOpen, onFilter }: { isOpen: boolean, setIsOpen: (v: boolean) => void, onFilter?: (budget?: number) => void }) => {
+  const supabase = createClient();
   const [messages, setMessages] = useState<Message[]>([
     { 
       role: 'ai', 
@@ -571,27 +568,79 @@ export default function DetailPropertiPage({
 }) {
   const router = useRouter();
   const { id } = use(params);
-  const property = MOCK_PROPERTIES.find(p => p.id === id);
+  const supabase = createClient();
+
+  // Support both: mock IDs (numeric like '5') and real Supabase UUIDs
+  const mockProperty = MOCK_PROPERTIES.find(p => p.id === id);
+  const [dbProperty, setDbProperty] = useState<any>(null);
+  const [loadingDb, setLoadingDb] = useState(!mockProperty);
+
+  useEffect(() => {
+    if (mockProperty) return; // numeric ID → use mock
+    async function fetchFromDb() {
+      const { data, error } = await supabase
+        .from('properties')
+        .select('*')
+        .eq('id', id)
+        .single();
+      if (!error && data) {
+        // Normalize DB record to match the shape the page expects
+        setDbProperty({
+          id: data.id,
+          name: data.title,
+          location: data.location,
+          price: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(data.price),
+          specs: { beds: data.bedrooms, baths: data.bathrooms, size: data.land_area },
+          badge: data.type,
+          image: data.images?.[0] || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80',
+          gallery: data.images || [],
+          description: data.description || '',
+          features: ['Properti Terverifikasi', `${data.building_area}m² Luas Bangunan`, data.price_type === 'Sewa' ? 'Per Tahun' : 'Harga Jual'],
+          agent: {
+            name: 'PropNest Agent',
+            type: 'Agen Terverifikasi',
+            avatar: `https://ui-avatars.com/api/?name=PA&background=3B5BDB&color=fff`
+          },
+          coords: data.lat && data.lng ? { lat: data.lat, lng: data.lng } : { lat: -7.025, lng: 110.320 },
+          _raw: data,
+        });
+      }
+      setLoadingDb(false);
+    }
+    fetchFromDb();
+  }, [id]);
+
+  const property = mockProperty || dbProperty;
 
   const [activeTab, setActiveTab] = useState<'transport' | 'school' | 'shopping' | 'health' | 'tourism' | 'worship'>('transport');
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [budgetFilter, setBudgetFilter] = useState<number | null>(null);
 
+  if (loadingDb) {
+    return (
+      <div className="min-h-screen bg-white-pure flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4 text-text-gray/40">
+          <Loader2 size={40} className="animate-spin text-brand-blue/40" />
+          <p className="text-sm font-medium">Memuat detail properti...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!property) {
     notFound();
   }
 
-  const parseNumPrice = (p: string) => {
-    let clean = p.replace('Rp', '').trim();
-    if (clean.includes('Miliar')) return parseFloat(clean) * 1000000000;
-    if (clean.includes('Juta')) return parseFloat(clean) * 1000000;
-    return parseFloat(clean.replace(/\./g, ''));
-  };
-
+  // Related: use mock for suggestions (both mock + DB IDs work for suggestions section)
   const relatedProperties = MOCK_PROPERTIES
     .filter(p => p.id !== id)
-    .filter(p => !budgetFilter || parseNumPrice(p.price) <= budgetFilter)
+    .filter(p => !budgetFilter || (() => {
+      let clean = p.price.replace('Rp', '').trim();
+      if (clean.includes('Miliar')) return parseFloat(clean) * 1_000_000_000;
+      if (clean.includes('Juta')) return parseFloat(clean) * 1_000_000;
+      return parseFloat(clean.replace(/\./g, ''));
+    })() <= budgetFilter)
     .slice(0, 3);
 
   const tabs = [
