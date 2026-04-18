@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Upload, Loader2, ImagePlus, Trash2, AlertCircle } from 'lucide-react';
+import { X, Upload, Loader2, ImagePlus, Trash2, AlertCircle, Navigation, CheckCircle } from 'lucide-react';
 import { useCreateProperty, useUpdateProperty, uploadPropertyImage, Property } from '@/hooks/useProperties';
 import { createClient } from '@/lib/supabase/client';
 
@@ -48,12 +48,39 @@ const INITIAL_FORM: FormState = {
   images: [],
 };
 
+// Geocode alamat → koordinat via Nominatim (OpenStreetMap, gratis, no key)
+async function geocodeAddress(address: string): Promise<{ lat: number; lng: number; display: string } | null> {
+  try {
+    const q = encodeURIComponent(address + ', Indonesia');
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1&addressdetails=0`,
+      {
+        headers: { 'Accept-Language': 'id' },
+        signal: AbortSignal.timeout(8000),
+      }
+    );
+    const data = await res.json();
+    if (data?.length > 0) {
+      return {
+        lat: parseFloat(data[0].lat),
+        lng: parseFloat(data[0].lon),
+        display: data[0].display_name,
+      };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export default function PropertyFormModal({ isOpen, onClose, editData }: PropertyFormModalProps) {
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [geocoding, setGeocoding] = useState(false);
+  const [geocodeResult, setGeocodeResult] = useState<string | null>(null);
 
   const createMutation = useCreateProperty();
   const updateMutation = useUpdateProperty();
@@ -79,14 +106,61 @@ export default function PropertyFormModal({ isOpen, onClose, editData }: Propert
         status: editData.status,
         images: editData.images || [],
       });
+      // Show existing coords as geocode result
+      if (editData.lat && editData.lng) {
+        setGeocodeResult(`Koordinat tersimpan: ${editData.lat.toFixed(5)}, ${editData.lng.toFixed(5)}`);
+      }
     } else {
       setForm(INITIAL_FORM);
+      setGeocodeResult(null);
     }
     setError(null);
   }, [editData, isOpen]);
 
   const handleField = (field: keyof FormState, value: string | string[]) => {
     setForm(prev => ({ ...prev, [field]: value }));
+    // Reset geocode badge saat lokasi diubah manual
+    if (field === 'location') setGeocodeResult(null);
+  };
+
+  // Auto-geocode saat user selesai mengetik lokasi
+  const handleLocationBlur = async () => {
+    if (!form.location.trim()) return;
+    if (form.lat && form.lng) return; // Sudah punya koordinat
+
+    setGeocoding(true);
+    setGeocodeResult(null);
+    const result = await geocodeAddress(form.location);
+    if (result) {
+      setForm(prev => ({
+        ...prev,
+        lat: result.lat.toFixed(6),
+        lng: result.lng.toFixed(6),
+      }));
+      setGeocodeResult(`✓ ${result.display.split(',').slice(0, 3).join(',')}`);
+    } else {
+      setGeocodeResult('Lokasi tidak ditemukan. Isi koordinat manual.');
+    }
+    setGeocoding(false);
+  };
+
+  // Manual geocode button
+  const handleGeocodeClick = async () => {
+    if (!form.location.trim()) return;
+    setGeocoding(true);
+    setGeocodeResult(null);
+    const result = await geocodeAddress(form.location);
+    if (result) {
+      setForm(prev => ({
+        ...prev,
+        lat: result.lat.toFixed(6),
+        lng: result.lng.toFixed(6),
+      }));
+      setGeocodeResult(`✓ ${result.display.split(',').slice(0, 3).join(',')}`);
+    } else {
+      setGeocodeResult('Lokasi tidak ditemukan. Coba nama lebih spesifik.');
+    }
+    setGeocoding(false);
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -311,43 +385,90 @@ export default function PropertyFormModal({ isOpen, onClose, editData }: Propert
             </div>
           </div>
 
-          {/* Lokasi */}
+          {/* Lokasi + Auto-geocode */}
           <div>
-            <label className="block text-[10px] font-semibold text-text-gray/50 uppercase tracking-widest mb-2">Lokasi *</label>
-            <input
-              type="text"
-              placeholder="contoh: Tembalang, Semarang"
-              className="w-full bg-surface-gray/30 border border-border-line/20 rounded-2xl px-4 py-3 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-brand-blue/20 placeholder:text-text-gray/30"
-              value={form.location}
-              onChange={e => handleField('location', e.target.value)}
-              required
-            />
+            <label className="block text-[10px] font-semibold text-text-gray/50 uppercase tracking-widest mb-2">
+              Lokasi / Alamat *
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="contoh: Jl. Diponegoro No. 10, Tembalang, Semarang"
+                className="flex-1 bg-surface-gray/30 border border-border-line/20 rounded-2xl px-4 py-3 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-brand-blue/20 placeholder:text-text-gray/30"
+                value={form.location}
+                onChange={e => handleField('location', e.target.value)}
+                onBlur={handleLocationBlur}
+                required
+              />
+              <button
+                type="button"
+                onClick={handleGeocodeClick}
+                disabled={geocoding || !form.location.trim()}
+                title="Deteksi koordinat otomatis dari alamat"
+                className="px-4 py-3 bg-brand-blue/10 hover:bg-brand-blue/20 border border-brand-blue/20 text-brand-blue rounded-2xl flex items-center gap-2 text-xs font-medium transition-all disabled:opacity-40 whitespace-nowrap"
+              >
+                {geocoding ? <Loader2 size={14} className="animate-spin" /> : <Navigation size={14} />}
+                {geocoding ? 'Deteksi...' : 'Deteksi'}
+              </button>
+            </div>
+
+            {/* Geocode result badge */}
+            {geocodeResult && (
+              <div className={`mt-2 text-[10px] px-3 py-1.5 rounded-xl inline-flex items-center gap-1.5 ${
+                geocodeResult.startsWith('✓')
+                  ? 'bg-emerald-50 text-emerald-700'
+                  : 'bg-amber-50 text-amber-700'
+              }`}>
+                {geocodeResult.startsWith('✓')
+                  ? <CheckCircle size={10} className="text-emerald-500" />
+                  : <AlertCircle size={10} className="text-amber-500" />}
+                {geocodeResult}
+              </div>
+            )}
           </div>
 
-          {/* Koordinat */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-[10px] font-semibold text-text-gray/50 uppercase tracking-widest mb-2">Latitude (Opsional)</label>
-              <input
-                type="number"
-                step="any"
-                placeholder="-7.048"
-                className="w-full bg-surface-gray/30 border border-border-line/20 rounded-2xl px-4 py-3 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-brand-blue/20 placeholder:text-text-gray/30"
-                value={form.lat}
-                onChange={e => handleField('lat', e.target.value)}
-              />
+          {/* Koordinat (diisi otomatis atau manual) */}
+          <div>
+            <label className="block text-[10px] font-semibold text-text-gray/50 uppercase tracking-widest mb-2">
+              Koordinat GPS
+              <span className="ml-2 normal-case text-text-gray/30 font-normal">
+                — terisi otomatis dari tombol Deteksi, atau isi manual
+              </span>
+            </label>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <input
+                  type="number"
+                  step="any"
+                  placeholder="Latitude, contoh: -7.048"
+                  className={`w-full border rounded-2xl px-4 py-3 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-brand-blue/20 placeholder:text-text-gray/30 transition-colors ${
+                    form.lat
+                      ? 'bg-emerald-50/30 border-emerald-200/60 text-emerald-800'
+                      : 'bg-surface-gray/30 border-border-line/20'
+                  }`}
+                  value={form.lat}
+                  onChange={e => handleField('lat', e.target.value)}
+                />
+              </div>
+              <div>
+                <input
+                  type="number"
+                  step="any"
+                  placeholder="Longitude, contoh: 110.438"
+                  className={`w-full border rounded-2xl px-4 py-3 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-brand-blue/20 placeholder:text-text-gray/30 transition-colors ${
+                    form.lng
+                      ? 'bg-emerald-50/30 border-emerald-200/60 text-emerald-800'
+                      : 'bg-surface-gray/30 border-border-line/20'
+                  }`}
+                  value={form.lng}
+                  onChange={e => handleField('lng', e.target.value)}
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-[10px] font-semibold text-text-gray/50 uppercase tracking-widest mb-2">Longitude (Opsional)</label>
-              <input
-                type="number"
-                step="any"
-                placeholder="110.438"
-                className="w-full bg-surface-gray/30 border border-border-line/20 rounded-2xl px-4 py-3 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-brand-blue/20 placeholder:text-text-gray/30"
-                value={form.lng}
-                onChange={e => handleField('lng', e.target.value)}
-              />
-            </div>
+            <p className="text-[10px] text-text-gray/40 mt-2">
+              💡 Koordinat digunakan untuk pin peta dan Nearest Location. Klik tombol <strong>Deteksi</strong> atau cari di{' '}
+              <a href="https://www.openstreetmap.org" target="_blank" rel="noreferrer" className="text-brand-blue underline">openstreetmap.org</a>.
+            </p>
           </div>
 
           {/* Spesifikasi */}
@@ -393,7 +514,6 @@ export default function PropertyFormModal({ isOpen, onClose, editData }: Propert
             Batal
           </button>
           <button
-            form="property-form"
             type="submit"
             disabled={isLoading || uploading}
             onClick={handleSubmit}

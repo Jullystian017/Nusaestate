@@ -5,19 +5,29 @@ import L from 'leaflet';
 import { Map as MapIcon } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
-// Fix for default Leaflet icon not showing in Next.js
-// But since we use custom markers, this is less critical
-const createCustomIcon = (price: string) => {
+// Format harga ringkas: terima number atau string Rupiah
+const formatPriceShort = (price: string | number): string => {
+  const num = typeof price === 'number'
+    ? price
+    : parseFloat(String(price).replace(/[^0-9]/g, ''));
+
+  if (isNaN(num) || num === 0) return '—';
+  if (num >= 1_000_000_000) return `${(num / 1_000_000_000).toFixed(1).replace('.0', '')}M`;
+  if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(0)}jt`;
+  return `${num}`;
+};
+
+const createCustomIcon = (priceLabel: string) => {
   return L.divIcon({
     className: 'custom-div-icon',
     html: `
       <div class="price-marker-outer">
-        <div class="price-marker-inner">${price}</div>
+        <div class="price-marker-inner">${priceLabel}</div>
         <div class="price-marker-pulse"></div>
       </div>
     `,
-    iconSize: [60, 30],
-    iconAnchor: [30, 15],
+    iconSize: [80, 30],
+    iconAnchor: [40, 15],
   });
 };
 
@@ -70,7 +80,6 @@ const MapControls = () => {
 };
 
 export default function LeafletMap({ properties }: LeafletMapProps) {
-  // Center map on Central Java (Semarang area)
   const defaultCenter: [number, number] = [-7.025, 110.320];
 
   return (
@@ -79,7 +88,7 @@ export default function LeafletMap({ properties }: LeafletMapProps) {
       zoom={11} 
       scrollWheelZoom={true}
       className="w-full h-full"
-      zoomControl={false} // We will add custom controls later or just use default position
+      zoomControl={false}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
@@ -88,21 +97,41 @@ export default function LeafletMap({ properties }: LeafletMapProps) {
       
       <MapControls />
       
-      {properties.map((prop) => (
-        <Marker 
-          key={prop.id} 
-          position={[prop.coords.lat, prop.coords.lng]} 
-          icon={createCustomIcon(prop.price.split(' ')[1] + (prop.price.includes('Miliar') ? 'M' : 'jt'))}
-        >
-          <Popup className="premium-popup">
-            <div className="p-1">
-              <img src={prop.image} alt={prop.name} className="w-full h-24 object-cover rounded-lg mb-2" />
-              <h4 className="font-bold text-brand-blue text-sm">{prop.name}</h4>
-              <p className="text-brand-orange font-bold text-xs">{prop.price}</p>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
+      {properties.map((prop, idx) => {
+        // Harga bisa berupa number (dari DB) atau string format lama (mock)
+        const priceLabel = typeof prop.price === 'number'
+          ? formatPriceShort(prop.price)
+          : formatPriceShort(prop.price);
+
+        // Nama properti — support field name (mock) atau title (DB)
+        const propName = prop.name || prop.title || 'Properti';
+        const propImage = prop.image || prop.images?.[0];
+
+        return (
+          <Marker 
+            key={prop.id || idx} 
+            position={[prop.coords?.lat ?? -7.025, prop.coords?.lng ?? 110.320]} 
+            icon={createCustomIcon(priceLabel)}
+          >
+            <Popup className="premium-popup">
+              <div className="p-1 min-w-[160px]">
+                {propImage && (
+                  <img src={propImage} alt={propName} className="w-full h-24 object-cover rounded-lg mb-2" />
+                )}
+                <h4 className="font-bold text-brand-blue text-sm leading-snug">{propName}</h4>
+                <p className="text-brand-orange font-bold text-xs mt-0.5">
+                  {typeof prop.price === 'number'
+                    ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(prop.price)
+                    : prop.price}
+                </p>
+                {prop.location && (
+                  <p className="text-[10px] text-gray-500 mt-0.5">{prop.location}</p>
+                )}
+              </div>
+            </Popup>
+          </Marker>
+        );
+      })}
     </MapContainer>
   );
 }

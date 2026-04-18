@@ -17,6 +17,7 @@ import { MOCK_PROPERTIES } from '@/lib/mock-data';
 import { notFound, useRouter } from 'next/navigation';
 import MapContainer from '@/components/maps/MapContainer';
 import { createClient } from '@/lib/supabase/client';
+import { useNearbyPlaces } from '@/hooks/useNearbyPlaces';
 
 // --- KPR CALCULATOR COMPONENT ---
 const KPRCalculator = ({ propertyPrice }: { propertyPrice: string }) => {
@@ -204,39 +205,6 @@ const KPRCalculator = ({ propertyPrice }: { propertyPrice: string }) => {
       </div>
     </div>
   );
-};
-
-// --- DATA UNTUK NEAREST FACILITIES ---
-const NEAREST_DATA = {
-  transport: [
-    { name: 'Stasiun MRT Arjuna Selatan', time: '2 Menit', dist: '809 m' },
-    { name: 'Stasiun MRT Tanjung Duren', time: '2 Menit', dist: '818 m' },
-    { name: 'Cititrans Central Park', time: '2 Menit', dist: '1 km' },
-    { name: 'Stasiun MRT Tomang', time: '2 Menit', dist: '1,1 km' },
-    { name: 'Pangkalan Blue Bird Central Park Lobby Laguna', time: '2 Menit', dist: '1,2 km' },
-  ],
-  school: [
-    { name: 'SD Negeri 01 Ungaran', time: '5 Menit', dist: '1.2 km' },
-    { name: 'SMP Negeri 1 Ungaran', time: '8 Menit', dist: '2.5 km' },
-    { name: 'SMA Negeri 1 Ungaran', time: '10 Menit', dist: '3.1 km' },
-  ],
-  shopping: [
-    { name: 'Mall Ciputra Semarang', time: '15 Menit', dist: '12 km' },
-    { name: 'Pasar Bandarjo', time: '5 Menit', dist: '2.2 km' },
-    { name: 'Indomaret Fresh', time: '2 Menit', dist: '400 m' },
-  ],
-  health: [
-    { name: 'RSUD dr. Gondo Suwarno', time: '12 Menit', dist: '4.5 km' },
-    { name: 'Puskesmas Ungaran', time: '5 Menit', dist: '1.8 km' },
-  ],
-  tourism: [
-    { name: 'Watu Gunung Ungaran', time: '15 Menit', dist: '6 km' },
-    { name: 'The Fountain Water Park', time: '10 Menit', dist: '4.2 km' },
-  ],
-  worship: [
-    { name: 'Masjid Agung Al-Mabrur', time: '5 Menit', dist: '1.5 km' },
-    { name: 'Gereja Kristus Raja', time: '7 Menit', dist: '2 km' },
-  ]
 };
 
 // --- INQUIRY MODAL COMPONENT ---
@@ -617,6 +585,11 @@ export default function DetailPropertiPage({
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [budgetFilter, setBudgetFilter] = useState<number | null>(null);
 
+  // Koordinat properti untuk Nearest Location
+  const propLat = property?.coords?.lat ?? null;
+  const propLng = property?.coords?.lng ?? null;
+  const { data: nearbyData, loading: nearbyLoading } = useNearbyPlaces(propLat, propLng);
+
   if (loadingDb) {
     return (
       <div className="min-h-screen bg-white-pure flex items-center justify-center">
@@ -835,18 +808,31 @@ export default function DetailPropertiPage({
               </div>
             </div>
 
-            {/* 5. Nearest Location */}
+            {/* 5. Nearest Location - Real Data from OpenStreetMap */}
             <div>
-              <h2 className="text-lg font-semibold text-text-dark mb-6">Nearest Location</h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-semibold text-text-dark">Nearest Location</h2>
+                {propLat && propLng ? (
+                  <div className="flex items-center gap-1.5 text-[10px] text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
+                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                    Data Real dari OpenStreetMap
+                  </div>
+                ) : (
+                  <div className="text-[10px] text-amber-600 bg-amber-50 px-3 py-1 rounded-full">
+                    Tambahkan koordinat untuk data real
+                  </div>
+                )}
+              </div>
 
               <div className="flex items-center gap-3 overflow-x-auto py-4 -mx-4 px-4 scrollbar-hide no-scrollbar">
                 {tabs.map((tab) => (
                   <button suppressHydrationWarning key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
-                    className={`flex items-center gap-2.5 px-6 py-2.5 rounded-full border-2 whitespace-nowrap transition-all duration-300 ${activeTab === tab.id
+                    className={`flex items-center gap-2.5 px-6 py-2.5 rounded-full border-2 whitespace-nowrap transition-all duration-300 ${
+                      activeTab === tab.id
                         ? 'border-brand-blue bg-white-pure text-brand-blue font-semibold scale-105 shadow-md shadow-brand-blue/5'
                         : 'border-border-line/40 text-text-gray/70 font-medium hover:border-border-line hover:text-text-dark shadow-sm bg-white-pure'
-                      }`}
+                    }`}
                   >
                     <span className={activeTab === tab.id ? 'text-brand-blue' : 'text-text-gray/60'}>
                       {tab.icon}
@@ -857,28 +843,58 @@ export default function DetailPropertiPage({
               </div>
 
               <div className="bg-white-pure rounded-3xl border border-border-line/20 overflow-hidden">
-                {NEAREST_DATA[activeTab].map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between p-5 border-b border-border-line/30 last:border-0 hover:bg-surface-gray/30 transition-colors animate-in fade-in slide-in-from-bottom-2 duration-300"
-                    style={{ animationDelay: `${idx * 50}ms` }}
-                  >
-                    <div className="text-[15px] font-medium text-text-dark pr-4">{item.name}</div>
-                    <div className="flex items-center gap-6 shrink-0">
-                      <div className="flex items-center gap-2 text-text-gray/70">
-                        <Car size={16} />
-                        <span className="text-sm font-medium">{item.time}</span>
+                {nearbyLoading ? (
+                  // Loading skeleton
+                  <div className="space-y-0">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className="flex items-center justify-between p-5 border-b border-border-line/20 last:border-0">
+                        <div className="h-4 bg-surface-gray rounded-lg w-48 animate-pulse" />
+                        <div className="flex gap-4">
+                          <div className="h-4 bg-surface-gray rounded-lg w-20 animate-pulse" />
+                          <div className="h-4 bg-surface-gray rounded-lg w-16 animate-pulse" />
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-text-gray/40">
-                        <span className="w-1 h-1 rounded-full bg-current"></span>
-                      </div>
-                      <div className="flex items-center gap-2 text-text-gray/70">
-                        <MapPin size={16} />
-                        <span className="text-sm font-medium">{item.dist}</span>
+                    ))}
+                  </div>
+                ) : nearbyData[activeTab].length > 0 ? (
+                  nearbyData[activeTab].map((item, idx) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between p-5 border-b border-border-line/30 last:border-0 hover:bg-surface-gray/30 transition-colors animate-in fade-in slide-in-from-bottom-2 duration-300"
+                      style={{ animationDelay: `${idx * 50}ms` }}
+                    >
+                      <div className="text-[15px] font-medium text-text-dark pr-4 truncate max-w-[60%]">{item.name}</div>
+                      <div className="flex items-center gap-6 shrink-0">
+                        <div className="flex items-center gap-2 text-text-gray/70">
+                          <Car size={16} />
+                          <span className="text-sm font-medium">{item.timeLabel}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-text-gray/40">
+                          <span className="w-1 h-1 rounded-full bg-current" />
+                        </div>
+                        <div className="flex items-center gap-2 text-text-gray/70">
+                          <MapPin size={16} />
+                          <span className="text-sm font-medium">{item.distLabel}</span>
+                        </div>
                       </div>
                     </div>
+                  ))
+                ) : (
+                  // Empty state — tidak ada data atau koordinat tidak diisi
+                  <div className="py-12 flex flex-col items-center text-center text-text-gray/40">
+                    <MapPin size={32} className="mb-3 text-brand-blue/20" />
+                    <p className="text-sm font-medium">
+                      {propLat && propLng
+                        ? 'Tidak ada fasilitas terdekat yang ditemukan'
+                        : 'Koordinat belum diatur oleh developer'}
+                    </p>
+                    <p className="text-xs mt-1">
+                      {propLat && propLng
+                        ? 'Coba kategori lain'
+                        : 'Developer perlu mengisi Latitude & Longitude saat menambah properti'}
+                    </p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
 
