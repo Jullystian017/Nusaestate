@@ -286,44 +286,6 @@ function CariContent() {
         <div className={`lg:pr-8 ${viewMode === 'split' ? 'lg:w-[50%] xl:w-[55%]' : 'w-full'}`}>
           <div className="py-8 px-0 max-w-full">
 
-            {/* Nearest Location Section */}
-            {searchQuery && liveProperties.length > 0 && (
-              <div className="mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-7 h-7 bg-brand-blue rounded-xl flex items-center justify-center">
-                    <Navigation size={14} className="text-white-pure" />
-                  </div>
-                  <h3 className="text-sm font-semibold text-text-dark">Properti Terdekat dengan &ldquo;{searchQuery}&rdquo;</h3>
-                </div>
-                <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-                  {liveProperties.slice(0, 3).map(p => (
-                    <Link
-                      key={p.id}
-                      href={`/properti/${p.id}`}
-                      className="flex-none w-56 bg-white-pure border border-border-line/20 rounded-2xl p-3 hover:border-brand-blue/40 hover:shadow-md transition-all group"
-                    >
-                      <div className="relative w-full h-28 rounded-xl overflow-hidden mb-3">
-                        <img
-                          src={p.images?.[0] || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=400&q=60'}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          alt={p.title}
-                        />
-                        <div className="absolute top-2 left-2 bg-brand-blue text-white-pure text-[9px] font-bold px-2 py-0.5 rounded-full">
-                          {p.type}
-                        </div>
-                      </div>
-                      <h4 className="text-xs font-semibold text-text-dark group-hover:text-brand-blue transition-colors line-clamp-1">{p.title}</h4>
-                      <p className="text-[10px] text-text-gray/60 flex items-center gap-1 mt-0.5">
-                        <MapPin size={9} className="text-brand-blue" /> {p.location}
-                      </p>
-                      <p className="text-xs font-bold text-brand-blue mt-2">
-                        {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(p.price).replace('Rp', 'Rp ')}
-                      </p>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Results Info */}
             <div className="flex items-center justify-between mb-8">
