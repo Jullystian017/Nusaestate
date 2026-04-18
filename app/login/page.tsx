@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, ArrowRight, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Eye, EyeOff, ArrowLeft, AlertCircle } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { createClient } from '@/lib/supabase/client';
@@ -43,7 +43,13 @@ export default function LoginPage() {
       router.push('/dashboard');
       router.refresh();
     } catch (err: any) {
-      setError(err.message || 'Gagal masuk. Silakan periksa email dan kata sandi Anda.');
+      let message = 'Gagal masuk. Silakan periksa koneksi internet Anda.';
+      if (err.message === 'Invalid login credentials') {
+        message = 'Email atau kata sandi salah. Silakan coba lagi.';
+      } else if (err.message) {
+        message = err.message;
+      }
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -76,7 +82,7 @@ export default function LoginPage() {
           </div>
 
           <div className="flex-1 flex flex-col justify-center max-w-[420px] mx-auto w-full">
-            <div className="mb-10 pt-16 md:pt-0">
+            <div className="mb-10 pt-24 md:pt-12">
               <h1 className="text-3xl font-display font-semibold text-text-dark mb-3 tracking-tight">
                 Selamat Datang di PropNest!
               </h1>
@@ -134,8 +140,13 @@ export default function LoginPage() {
               </div>
 
               {error && (
-                <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-500 text-xs font-medium animate-in fade-in">
-                  {error}
+                <div className="p-4 bg-red-50/50 border border-red-100/50 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center shrink-0">
+                    <AlertCircle size={16} className="text-red-500" />
+                  </div>
+                  <p className="text-red-500 text-[10.5px] font-semibold leading-none whitespace-nowrap">
+                    {error}
+                  </p>
                 </div>
               )}
 
