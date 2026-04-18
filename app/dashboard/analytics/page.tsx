@@ -47,9 +47,11 @@ export default function AnalyticsPage() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [reportSerial, setReportSerial] = useState("");
   const [reportDate, setReportDate] = useState("");
+  const [isMounted, setIsMounted] = useState(false);
 
   // Initialize report metadata on mount to avoid hydration mismatch
   React.useEffect(() => {
+    setIsMounted(true);
     setReportSerial(`PN-#${Math.floor(1000 + Math.random() * 9000)}-${new Date().getFullYear()}`);
     setReportDate(new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }));
   }, []);
@@ -175,6 +177,8 @@ export default function AnalyticsPage() {
   const onPieLeave = () => {
     setActiveIndex(null);
   };
+
+  if (!isMounted) return null;
 
   return (
     <div className="max-w-7xl mx-auto space-y-10 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
@@ -512,7 +516,7 @@ export default function AnalyticsPage() {
                   <p className="text-sm font-bold text-text-gray uppercase tracking-[0.3em] opacity-60 mt-1">Strategic Market Analysis</p>
                 </div>
               </div>
-              <div className="text-right">
+              <div className="text-right" suppressHydrationWarning>
                 <p className="text-xs font-bold text-text-gray uppercase tracking-widest mb-2">Report Serial No.</p>
                 <p className="text-lg font-bold text-text-dark">{reportSerial}</p>
                 <p className="text-sm text-text-gray font-medium mt-1">{reportDate}</p>

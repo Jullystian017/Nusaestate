@@ -1,5 +1,6 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '@/components/ui/Navbar';
 import MapContainer from '@/components/maps/MapContainer';
@@ -7,18 +8,36 @@ import Footer from '@/components/ui/Footer';
 import {
   Heart, Search, Filter, BedDouble, Bath, Scaling,
   Map as MapIcon, ChevronDown, LayoutGrid, X, House, Wifi, Car,
-  Bookmark, Star, ChevronLeft, ChevronRight
+  Bookmark, Star, ChevronLeft, ChevronRight, Navigation
 } from 'lucide-react';
 
 import { MOCK_PROPERTIES } from '@/lib/mock-data';
 
-export default function CariPage() {
+function CariContent() {
+  const searchParams = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'split' | 'list'>('list');
   const [activePopover, setActivePopover] = useState<'harga' | 'tipe' | 'kamar' | 'sort' | null>(null);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('Terbaru');
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+
+  // Sync with query params & load recent searches
+  useEffect(() => {
+    const q = searchParams.get('lokasi');
+    if (q) setSearchQuery(q);
+
+    const saved = localStorage.getItem('propnest_recent_searches');
+    if (saved) setRecentSearches(JSON.parse(saved));
+  }, [searchParams]);
+
+  const saveSearch = (q: string) => {
+    if (!q.trim()) return;
+    const updated = [q, ...recentSearches.filter(s => s !== q)].slice(0, 3);
+    setRecentSearches(updated);
+    localStorage.setItem('propnest_recent_searches', JSON.stringify(updated));
+  };
 
   const togglePopover = (type: 'harga' | 'tipe' | 'kamar' | 'sort') => {
     setActivePopover(activePopover === type ? null : type);
@@ -60,7 +79,44 @@ export default function CariPage() {
             {/* Search Suggestions Dropdown */}
             {isSearchFocused && (
               <div className="absolute top-full left-0 right-0 mt-3 bg-white-pure rounded-[2rem] shadow-premium border border-border-line overflow-hidden animate-in fade-in slide-in-from-top-2 max-w-lg lg:max-w-xl">
-                <div className="p-5 max-h-[350px] overflow-y-auto">
+                <div className="p-5 max-h-[450px] overflow-y-auto">
+
+                  {/* Category: Current Location */}
+                  <div className="mb-5">
+                    <button
+                      onClick={() => { setSearchQuery('Lokasi Saat Ini'); setIsSearchFocused(false); }}
+                      className="w-full flex items-center gap-3 p-3 hover:bg-surface-gray rounded-2xl transition-all group text-left border border-transparent hover:border-border-line/40 bg-blue-50/30"
+                    >
+                      <div className="p-2 bg-brand-blue text-white-pure rounded-xl shadow-md shadow-brand-blue/20">
+                        <Navigation size={14} />
+                      </div>
+                      <div>
+                        <span className="block text-sm font-semibold text-brand-blue">Lokasi Saat Ini</span>
+                        <span className="block text-[10px] text-text-gray/70 italic">Gunakan koordinat GPS Anda</span>
+                      </div>
+                    </button>
+                  </div>
+
+                  {/* Category: Recent Searches */}
+                  {recentSearches.length > 0 && (
+                    <div className="mb-5">
+                      <h4 className="text-[9px] font-medium text-text-gray uppercase tracking-[0.1em] mb-2.5 px-2">Pencarian Terakhir</h4>
+                      <div className="space-y-0.5">
+                        {recentSearches.map((search) => (
+                          <button
+                            key={search}
+                            onClick={() => { setSearchQuery(search); setIsSearchFocused(false); }}
+                            className="w-full flex items-center gap-3 p-2.5 hover:bg-surface-gray rounded-xl transition-all group text-left"
+                          >
+                            <div className="p-1.5 text-text-gray/40 group-hover:text-brand-blue transition-colors">
+                              <Search size={14} />
+                            </div>
+                            <span className="text-sm font-medium text-text-dark group-hover:text-brand-blue transition-colors">{search}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Category: Locations */}
                   <div className="mb-5">
@@ -69,7 +125,7 @@ export default function CariPage() {
                       {['Semarang Tengah', 'Solo Baru', 'Ungaran Barat', 'BSB City'].map((loc) => (
                         <button
                           key={loc}
-                          onClick={() => { setSearchQuery(loc); setIsSearchFocused(false); }}
+                          onClick={() => { setSearchQuery(loc); setIsSearchFocused(false); saveSearch(loc); }}
                           className="w-full flex items-center gap-3 p-2.5 hover:bg-surface-gray rounded-xl transition-all group text-left"
                         >
                           <div className="p-1.5 bg-blue-50 text-brand-blue rounded-lg group-hover:bg-brand-blue group-hover:text-white-pure transition-colors">
@@ -91,7 +147,7 @@ export default function CariPage() {
                       {['Griya Asri Premiere', 'Cilacap Bay View'].map((proj) => (
                         <button
                           key={proj}
-                          onClick={() => { setSearchQuery(proj); setIsSearchFocused(false); }}
+                          onClick={() => { setSearchQuery(proj); setIsSearchFocused(false); saveSearch(proj); }}
                           className="w-full flex items-center gap-3 p-3 hover:bg-surface-gray rounded-2xl transition-all group text-left border border-transparent hover:border-border-line/40"
                         >
                           <div className="p-2 bg-blue-50 text-brand-blue rounded-xl group-hover:bg-brand-blue group-hover:text-white-pure transition-colors">
@@ -463,5 +519,13 @@ export default function CariPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function CariPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white-pure flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-blue"></div></div>}>
+      <CariContent />
+    </Suspense>
   );
 }

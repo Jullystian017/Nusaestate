@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Home, DollarSign, MapPin, Search, ChevronDown, Check } from 'lucide-react';
 
 const TIPE_OPSI = ['Rumah Modern', 'Apartemen', 'Villa', 'Ruko', 'Tanah'];
@@ -14,21 +15,33 @@ export default function SearchBar() {
   const [filters, setFilters] = useState({
     tipe: 'Rumah Modern',
     harga: 'Rp 500jt - 1M',
-    lokasi: 'Semarang, ID'
+    lokasi: ''
   });
+  const [lokasiQuery, setLokasiQuery] = useState('');
+  const [filteredLokasi, setFilteredLokasi] = useState(LOKASI_OPSI);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside & Load recent searches
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setOpenDropdown(null);
       }
     }
+    
+    // Load from localStorage
+    const saved = localStorage.getItem('propnest_recent_searches');
+    if (saved) {
+      setRecentSearches(JSON.parse(saved));
+    }
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const router = useRouter();
 
   const toggleDropdown = (name: string) => {
     setOpenDropdown(openDropdown === name ? null : name);
@@ -36,7 +49,40 @@ export default function SearchBar() {
 
   const selectOption = (category: keyof typeof filters, value: string) => {
     setFilters(prev => ({ ...prev, [category]: value }));
+    if (category === 'lokasi') {
+      setLokasiQuery(value);
+    }
     setOpenDropdown(null);
+  };
+
+  const handleLokasiChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setLokasiQuery(val);
+    setFilters(prev => ({ ...prev, lokasi: val }));
+    
+    const filtered = LOKASI_OPSI.filter(loc => 
+      loc.toLowerCase().includes(val.toLowerCase())
+    );
+    setFilteredLokasi(filtered);
+    
+    if (openDropdown !== 'lokasi') setOpenDropdown('lokasi');
+  };
+
+  const handleSearch = () => {
+    // Save to recent searches if not empty
+    if (filters.lokasi.trim()) {
+      const updated = [filters.lokasi, ...recentSearches.filter(s => s !== filters.lokasi)].slice(0, 3);
+      setRecentSearches(updated);
+      localStorage.setItem('propnest_recent_searches', JSON.stringify(updated));
+    }
+
+    const params = new URLSearchParams({
+      tab: activeTab,
+      tipe: filters.tipe,
+      harga: filters.harga,
+      lokasi: filters.lokasi
+    });
+    router.push(`/cari?${params.toString()}`);
   };
 
   return (
@@ -141,41 +187,57 @@ export default function SearchBar() {
           )}
         </div>
 
-        {/* Lokasi */}
+        {/* Lokasi (Smart Input) */}
         <div className="space-y-2 relative">
           <label className="text-[10px] font-semibold text-text-gray uppercase tracking-widest block ml-4 opacity-60">Lokasi</label>
           <div 
-            onClick={() => toggleDropdown('lokasi')}
-            className={`flex items-center justify-between p-5 rounded-[2rem] cursor-pointer transition-all border ${
+            className={`flex items-center justify-between p-5 rounded-[2rem] transition-all border ${
               openDropdown === 'lokasi' ? 'bg-white-pure border-brand-blue shadow-lg scale-[1.02]' : 'bg-[#F1F1F3] border-transparent hover:bg-gray-200'
             }`}
           >
-            <div className="flex items-center gap-3">
-              <MapPin size={18} className="text-brand-blue" />
-              <span className="text-sm font-semibold text-text-dark">{filters.lokasi}</span>
+            <div className="flex items-center gap-3 w-full">
+              <MapPin size={18} className="text-brand-blue shrink-0" />
+              <input 
+                type="text"
+                value={lokasiQuery}
+                onChange={handleLokasiChange}
+                onFocus={() => setOpenDropdown('lokasi')}
+                placeholder="Cari Lokasi..."
+                className="bg-transparent border-none outline-none text-sm font-semibold text-text-dark w-full placeholder:text-text-gray/50"
+              />
             </div>
             <ChevronDown size={14} className={`text-text-gray transition-transform duration-300 ${openDropdown === 'lokasi' ? 'rotate-180' : ''}`} />
           </div>
 
-          {/* Dropdown Menu */}
+          {/* Dropdown Menu (Suggestions) */}
           {openDropdown === 'lokasi' && (
             <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-white-pure rounded-3xl shadow-2xl border border-gray-100 p-3 z-50 animate-fade-in">
-              {LOKASI_OPSI.map((opt) => (
-                <div 
-                  key={opt}
-                  onClick={() => selectOption('lokasi', opt)}
-                  className="flex items-center justify-between p-4 rounded-2xl hover:bg-blue-50 cursor-pointer transition-colors group"
-                >
-                  <span className={`text-sm font-medium ${filters.lokasi === opt ? 'text-brand-blue' : 'text-text-dark'}`}>{opt}</span>
-                  {filters.lokasi === opt && <Check size={16} className="text-brand-blue" />}
-                </div>
-              ))}
+              {filteredLokasi.length > 0 ? (
+                filteredLokasi.map((opt) => (
+                  <div 
+                    key={opt}
+                    onClick={() => selectOption('lokasi', opt)}
+                    className="flex items-center justify-between p-4 rounded-2xl hover:bg-blue-50 cursor-pointer transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <MapPin size={14} className="text-text-gray/40 group-hover:text-brand-blue" />
+                      <span className={`text-sm font-medium ${filters.lokasi === opt ? 'text-brand-blue' : 'text-text-dark'}`}>{opt}</span>
+                    </div>
+                    {filters.lokasi === opt && <Check size={16} className="text-brand-blue" />}
+                  </div>
+                ))
+              ) : (
+                <div className="p-4 text-xs text-text-gray italic">Lokasi tidak ditemukan...</div>
+              )}
             </div>
           )}
         </div>
 
         {/* Search Button */}
-        <button className="h-[64px] bg-black-pure hover:bg-brand-blue text-white-pure font-semibold rounded-[2rem] flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg group">
+        <button 
+          onClick={handleSearch}
+          className="h-[64px] bg-black-pure hover:bg-brand-blue text-white-pure font-semibold rounded-[2rem] flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg group"
+        >
           <Search size={20} className="group-hover:scale-110 transition-transform" />
           <span className="text-sm">Cari Properti</span>
         </button>
