@@ -8,6 +8,7 @@ import {
   Loader2, AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useMyProperties, Property } from '@/hooks/useProperties';
 import PropertyFormModal from '@/components/listing/PropertyFormModal';
 import DeleteConfirmModal from '@/components/listing/DeleteConfirmModal';
@@ -23,6 +24,7 @@ export default function ListingPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editData, setEditData] = useState<Property | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Property | null>(null);
+  const router = useRouter();
 
   const { data: properties = [], isLoading, isError } = useMyProperties();
 
@@ -188,7 +190,11 @@ export default function ListingPage() {
         {!isLoading && viewMode === 'grid' && filtered.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filtered.map(prop => (
-              <div key={prop.id} className="group relative flex flex-col transition-all duration-500 hover:-translate-y-2">
+              <div 
+                key={prop.id} 
+                onClick={() => router.push(`/properti/${prop.id}`)}
+                className="group relative flex flex-col transition-all duration-500 hover:-translate-y-2 cursor-pointer"
+              >
                 <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-soft group-hover:shadow-md transition-all duration-700">
                   <img
                     src={prop.images?.[0] || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80'}
@@ -225,7 +231,7 @@ export default function ListingPage() {
                       {prop.price_type}
                     </span>
                   </div>
-
+ 
                   <div className="mt-4 pt-4 border-t border-border-line/5 flex items-center justify-between">
                     <div className="flex items-center gap-3 text-[10px] font-medium text-text-gray/40">
                       <span className="flex items-center gap-1.5"><Bed size={14} strokeWidth={1.5} className="text-brand-blue/40" /> {prop.bedrooms}</span>
@@ -236,13 +242,13 @@ export default function ListingPage() {
                     {/* Action Buttons - Always Visible */}
                     <div className="flex gap-2">
                       <button
-                        onClick={(e) => { e.preventDefault(); handleEdit(prop); }}
+                        onClick={(e) => { e.stopPropagation(); handleEdit(prop); }}
                         className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-blue/5 text-brand-blue rounded-xl text-[10px] font-bold hover:bg-brand-blue hover:text-white-pure transition-all active:scale-95"
                       >
                         <Pencil size={12} /> Edit
                       </button>
                       <button
-                        onClick={(e) => { e.preventDefault(); handleDelete(prop); }}
+                        onClick={(e) => { e.stopPropagation(); handleDelete(prop); }}
                         className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-500 rounded-xl text-[10px] font-bold hover:bg-red-500 hover:text-white-pure transition-all active:scale-95"
                       >
                         <Trash2 size={12} /> Hapus
@@ -271,7 +277,11 @@ export default function ListingPage() {
               </thead>
               <tbody className="divide-y divide-border-line/5 text-sm">
                 {filtered.map(prop => (
-                  <tr key={prop.id} className="hover:bg-surface-gray/10 transition-all group">
+                  <tr 
+                    key={prop.id} 
+                    onClick={() => router.push(`/properti/${prop.id}`)}
+                    className="hover:bg-surface-gray/10 transition-all group cursor-pointer"
+                  >
                     <td className="p-6 pl-10">
                       <div className="flex items-center gap-4">
                         <div className="w-16 h-12 rounded-xl overflow-hidden border border-border-line/10 flex-none">
@@ -307,13 +317,13 @@ export default function ListingPage() {
                     <td className="p-6 pr-10">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => handleEdit(prop)}
+                          onClick={(e) => { e.stopPropagation(); handleEdit(prop); }}
                           className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-blue/5 text-brand-blue rounded-xl text-xs font-bold hover:bg-brand-blue hover:text-white-pure transition-all active:scale-95"
                         >
                           <Pencil size={14} /> Edit
                         </button>
                         <button
-                          onClick={() => handleDelete(prop)}
+                          onClick={(e) => { e.stopPropagation(); handleDelete(prop); }}
                           className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-500 rounded-xl text-xs font-bold hover:bg-red-500 hover:text-white-pure transition-all active:scale-95"
                         >
                           <Trash2 size={14} /> Hapus
@@ -337,7 +347,11 @@ export default function ListingPage() {
               </div>
               <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
                 {filtered.map(prop => (
-                  <div key={prop.id} className="flex gap-4 p-3 rounded-2xl border border-border-line/10 hover:border-brand-blue/30 transition-all group">
+                  <div 
+                    key={prop.id} 
+                    onClick={() => router.push(`/properti/${prop.id}`)}
+                    className="flex gap-4 p-3 rounded-2xl border border-border-line/10 hover:border-brand-blue/30 transition-all group cursor-pointer"
+                  >
                     <div className="w-24 h-20 rounded-xl overflow-hidden flex-none shadow-sm">
                       <img
                         src={prop.images?.[0] || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=200&q=60'}
@@ -353,10 +367,16 @@ export default function ListingPage() {
                       <div className="text-xs font-medium text-brand-blue mt-2">{formatPrice(prop.price).replace('Rp', 'Rp ')}</div>
                     </div>
                     <div className="flex flex-col gap-2 justify-center">
-                      <button onClick={() => handleEdit(prop)} className="w-7 h-7 rounded-xl bg-brand-blue/5 text-brand-blue hover:bg-brand-blue hover:text-white-pure transition-all flex items-center justify-center">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleEdit(prop); }} 
+                        className="w-7 h-7 rounded-xl bg-brand-blue/5 text-brand-blue hover:bg-brand-blue hover:text-white-pure transition-all flex items-center justify-center"
+                      >
                         <Pencil size={12} />
                       </button>
-                      <button onClick={() => handleDelete(prop)} className="w-7 h-7 rounded-xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white-pure transition-all flex items-center justify-center">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleDelete(prop); }} 
+                        className="w-7 h-7 rounded-xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white-pure transition-all flex items-center justify-center"
+                      >
                         <Trash2 size={12} />
                       </button>
                     </div>
