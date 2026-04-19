@@ -10,7 +10,7 @@ import {
   Box, Eye, Info, FileText, Layout, Navigation, HelpCircle,
   Home, TrainFront, School, Hospital, ShoppingBag, ArrowUpRight,
   Car, Map as MapIcon, Church, GraduationCap, Calculator, Percent, Wallet, Clock, ArrowLeft,
-  Loader2
+  Loader2, X, ChevronLeft
 } from 'lucide-react';
 import Link from 'next/link';
 import { MOCK_PROPERTIES } from '@/lib/mock-data';
@@ -442,12 +442,17 @@ const AIChatbot = ({ isOpen, setIsOpen, onFilter }: { isOpen: boolean, setIsOpen
   return (
     <>
       {/* FAB */}
-      <button suppressHydrationWarning onClick={() => setIsOpen(true)}
-        className="fixed bottom-8 right-8 z-[900] w-16 h-16 bg-brand-blue text-white-pure rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all group overflow-hidden"
+      <button suppressHydrationWarning onClick={() => setIsOpen(!isOpen)}
+        className="fixed bottom-8 right-8 z-[900] h-14 pl-4 pr-6 bg-brand-blue text-white-pure rounded-full shadow-2xl flex items-center gap-3 hover:scale-105 active:scale-95 transition-all group overflow-hidden"
       >
         <div className="absolute inset-0 bg-brand-blue-deep scale-0 group-hover:scale-100 transition-transform duration-500 rounded-full"></div>
-        <Zap size={24} className="relative z-10 animate-pulse" fill="currentColor" />
-        <div className="absolute top-0 left-0 w-full h-full border-4 border-brand-blue/30 rounded-full animate-ping"></div>
+        <div className="relative z-10 w-10 h-10 bg-white-pure/20 rounded-full flex items-center justify-center">
+          {isOpen ? <X size={20} /> : <Zap size={20} className="animate-pulse" fill="currentColor" />}
+        </div>
+        <span className="relative z-10 font-bold text-sm tracking-tight whitespace-nowrap">
+          {isOpen ? 'Tutup Chat' : 'Tanya PropNest AI'}
+        </span>
+        <div className="absolute top-0 left-0 w-full h-full border-4 border-brand-blue/30 rounded-full animate-ping pointer-events-none"></div>
       </button>
 
       {/* Chat Drawer */}
@@ -467,7 +472,7 @@ const AIChatbot = ({ isOpen, setIsOpen, onFilter }: { isOpen: boolean, setIsOpen
               </div>
             </div>
             <button suppressHydrationWarning onClick={() => setIsOpen(false)} className="p-1 hover:bg-white-pure/10 rounded-lg">
-              <Box size={18} className="rotate-45" />
+              <X size={18} />
             </button>
           </div>
         </div>
@@ -587,6 +592,9 @@ export default function DetailPropertiPage({
 
   const [isSaved, setIsSaved] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -712,11 +720,14 @@ export default function DetailPropertiPage({
               </div>
               <div className="relative rounded-[1.5rem] overflow-hidden group flex-1 shadow-lg border border-white-pure/20">
                 <div className="absolute inset-0 bg-cover bg-center hover:scale-110 transition-transform duration-[5s] ease-out" style={{ backgroundImage: `url('${property.gallery?.[2] || property.image}')` }}></div>
-                <div className="absolute inset-0 bg-black-pure/40 backdrop-blur-[1px] flex items-center justify-center cursor-pointer hover:bg-black-pure/60 transition-all duration-500">
+                <div 
+                  className="absolute inset-0 bg-black-pure/40 backdrop-blur-[1px] flex items-center justify-center cursor-pointer hover:bg-black-pure/60 transition-all duration-500"
+                  onClick={() => setIsGalleryOpen(true)}
+                >
                   <div className="text-center group-hover:scale-110 transition-transform flex flex-col items-center">
                     <div className="bg-white-pure/20 backdrop-blur-md px-4 py-2 rounded-xl flex items-center gap-2 border border-white-pure/30">
                       <Eye size={14} className="text-white-pure" />
-                      <span className="text-white-pure font-semibold text-[10px] uppercase tracking-wider">Lihas Semua Foto</span>
+                      <span className="text-white-pure font-semibold text-[10px] uppercase tracking-wider">Lihat Semua Foto</span>
                     </div>
                   </div>
                 </div>
@@ -761,7 +772,7 @@ export default function DetailPropertiPage({
                 onClick={handleSave}
                 className={`flex items-center gap-2 px-5 py-3 bg-white-pure border border-border-line/60 rounded-xl text-xs font-semibold hover:bg-blue-50 hover:text-brand-blue hover:border-brand-blue/30 transition-all shadow-sm active:scale-95 ring-1 ring-border-line/5 ${isSaved ? 'text-brand-blue' : 'text-text-dark'}`}
               >
-                <Bookmark size={16} className={isSaved ? "text-brand-blue" : "text-text-gray"} fill={isSaved ? "currentColor" : "none"} /> 
+                <Bookmark size={16} className="text-brand-blue" fill={isSaved ? "currentColor" : "none"} /> 
                 {isSaved ? 'Tersimpan' : 'Simpan'}
               </button>
             </div>
@@ -1018,20 +1029,7 @@ export default function DetailPropertiPage({
                 </div>
               </div>
 
-              {/* AIChatbot Sidebar Card */}
-              <div className="mt-8 p-6 bg-gradient-to-br from-brand-blue to-brand-blue-deep rounded-3xl text-white-pure relative overflow-hidden group shadow-lg">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-white-pure/10 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150 duration-700"></div>
-                <div className="relative z-10">
-                  <div className="w-10 h-10 bg-white-pure/20 backdrop-blur-md rounded-xl flex items-center justify-center mb-4">
-                    <Zap size={20} fill="currentColor" />
-                  </div>
-                  <h3 className="text-sm font-bold mb-2">Punya pertanyaan?</h3>
-                  <p className="text-[10px] opacity-80 mb-4 leading-relaxed">Tanyakan langsung ke PropNest AI untuk info detail properti ini.</p>
-                  <button suppressHydrationWarning onClick={() => setIsChatOpen(true)} className="w-full bg-white-pure text-brand-blue py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-opacity-90 transition-all">
-                    Mulai Chat AI
-                  </button>
-                </div>
-              </div>
+
 
             </div>
           </aside>
@@ -1102,6 +1100,120 @@ export default function DetailPropertiPage({
         setIsOpen={setIsChatOpen} 
         onFilter={(budget) => setBudgetFilter(budget || null)}
       />
+
+      {/* Photo Explorer Modal */}
+      {isGalleryOpen && (
+        <div className="fixed inset-0 z-[1000] bg-surface-gray/30 flex flex-col animate-in slide-in-from-bottom-8 duration-300">
+          {/* Header */}
+          <header className="flex-none h-16 border-b border-border-line flex items-center justify-between px-4 lg:px-8 bg-white-pure sticky top-0 z-10 shadow-sm">
+            <div className="flex items-center gap-4 flex-1 min-w-0">
+              <button 
+                onClick={() => setIsGalleryOpen(false)}
+                className="p-2 hover:bg-surface-gray rounded-full transition-colors shrink-0"
+              >
+                <ArrowLeft size={20} className="text-text-dark" />
+              </button>
+              <div className="truncate flex items-center gap-4">
+                <h2 className="text-sm font-medium text-text-dark truncate hidden sm:block">{property.name}</h2>
+                <p className="text-brand-blue font-semibold text-sm">{property.price}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button onClick={handleShare} className="p-2.5 hover:bg-surface-gray rounded-full transition-colors text-text-dark">
+                {isCopied ? <CheckCircle2 size={18} className="text-green-500" /> : <Share2 size={18} />}
+              </button>
+              <button onClick={handleSave} className="p-2.5 hover:bg-surface-gray rounded-full transition-colors text-text-dark">
+                <Bookmark size={18} className={isSaved ? "text-brand-blue" : ""} fill={isSaved ? "currentColor" : "none"} />
+              </button>
+            </div>
+          </header>
+
+          {/* Main Content Area */}
+          <div className="flex-1 flex overflow-hidden">
+            {/* Sidebar Categories (lg up) */}
+            <aside className="hidden lg:block w-72 border-r border-border-line bg-white-pure overflow-y-auto p-6">
+              <div className="space-y-4">
+                {/* Category Item */}
+                <button className="w-full text-left group">
+                  <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border-2 border-brand-blue ring-4 ring-brand-blue/10 mb-3">
+                    <img src={property.image} alt="Semua Foto" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <div className="absolute top-2 right-2 bg-white-pure/90 backdrop-blur-sm text-xs font-bold px-2 py-1 rounded-lg text-brand-blue shadow-sm">
+                      {property.gallery ? property.gallery.length + 1 : 1}
+                    </div>
+                  </div>
+                  <span className="text-sm font-semibold text-brand-blue">Fasilitas Lainnya</span>
+                </button>
+              </div>
+            </aside>
+
+            {/* Photo Grid */}
+            <main className="flex-1 overflow-y-auto p-4 lg:p-8 hide-scrollbar bg-white-pure">
+              <div className="max-w-5xl mx-auto">
+                <h3 className="text-lg font-bold text-text-dark mb-6 lg:hidden">Fasilitas Lainnya</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3">
+                  {[property.image, ...(property.gallery || []), ...Array(6).fill('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800')].slice(0, Math.max(5, (property.gallery?.length || 0) + 1)).map((img, idx) => {
+                    let colSpan = 'col-span-1 md:col-span-2';
+                    let aspect = 'aspect-[4/3] md:aspect-square lg:aspect-[4/3]';
+                    
+                    if (idx === 0 || idx === 1) {
+                      colSpan = 'col-span-1 sm:col-span-1 md:col-span-3';
+                      aspect = 'aspect-[4/3] md:aspect-square lg:aspect-[4/3]';
+                    } else if (idx >= 2 && idx <= 4) {
+                      colSpan = 'col-span-1 sm:col-span-1 md:col-span-2';
+                      aspect = 'aspect-[4/3] md:aspect-square lg:aspect-[4/3]';
+                    }
+
+                    return (
+                      <div 
+                        key={idx} 
+                        className={`relative rounded-2xl overflow-hidden group shadow-sm hover:shadow-md transition-shadow cursor-pointer ${colSpan}`}
+                        onClick={() => {
+                          setActiveImageIndex(idx);
+                          setIsLightboxOpen(true);
+                        }}
+                      >
+                        <img src={img} className={`w-full h-full object-cover ${aspect} group-hover:scale-105 transition-transform duration-700`} alt={`Gallery ${idx}`} />
+                        <div className="absolute inset-0 bg-black-pure/0 group-hover:bg-black-pure/10 transition-colors"></div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </main>
+          </div>
+        </div>
+      )}
+
+      {/* Lightbox for Individual Photos */}
+      {isLightboxOpen && (
+        <div className="fixed inset-0 z-[1100] flex items-center justify-center bg-black-pure/95 backdrop-blur-md animate-in fade-in duration-300">
+          <button 
+            onClick={() => setIsLightboxOpen(false)}
+            className="absolute top-8 right-8 text-white-pure/50 hover:text-white-pure transition-colors"
+          >
+            <X size={32} />
+          </button>
+          <div className="relative w-full max-w-5xl aspect-video mx-4">
+            <img 
+              src={[property.image, ...(property.gallery || []), ...Array(6).fill('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800')][activeImageIndex]} 
+              alt="Gallery" 
+              className="w-full h-full object-contain rounded-xl"
+            />
+            <button 
+              onClick={() => setActiveImageIndex(prev => prev === 0 ? Math.max(5, (property.gallery?.length || 0) + 1) - 1 : prev - 1)}
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white-pure/10 hover:bg-white-pure/20 text-white-pure rounded-full backdrop-blur-md transition-all shadow-xl"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <button 
+              onClick={() => setActiveImageIndex(prev => prev === Math.max(5, (property.gallery?.length || 0) + 1) - 1 ? 0 : prev + 1)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white-pure/10 hover:bg-white-pure/20 text-white-pure rounded-full backdrop-blur-md transition-all shadow-xl"
+            >
+              <ChevronRight size={24} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
