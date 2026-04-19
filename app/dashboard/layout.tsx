@@ -18,7 +18,8 @@ import {
   BarChart3,
   Search,
   History,
-  Clock
+  Clock,
+  CreditCard
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import NotificationDropdown from '@/components/dashboard/NotificationDropdown';
@@ -95,6 +96,7 @@ export default function DashboardLayout({
     { name: 'Pipeline Penjualan', href: '/dashboard/deals', icon: TrendingUp },
     { name: 'Studio Konten AI', href: '/dashboard/content', icon: Sparkles },
     { name: 'Analitik Pasar', href: '/dashboard/analytics', icon: BarChart3 },
+    { name: 'Langganan & Billing', href: '/dashboard/subscription', icon: CreditCard },
     { name: 'Aktivitas & Notifikasi', href: '/dashboard/activity', icon: Bell },
     { name: 'Pengaturan', href: '/dashboard/settings', icon: Settings },
   ];
@@ -217,7 +219,8 @@ export default function DashboardLayout({
                pathname.includes('listing') ? 'Listing Properti' :
                pathname.includes('leads') ? 'CRM Leads' :
                pathname.includes('deals') ? 'Pipeline Penjualan' :
-               pathname.includes('content') ? 'AI Content Studio' :
+               pathname.includes('analytics') ? 'Analitik Pasar' :
+               pathname.includes('subscription') ? 'Langganan & Billing' :
                pathname.includes('activity') ? 'Notifikasi & Aktivitas' :
                pathname.includes('settings') ? 'Pengaturan Akun' :
                pathname.split('/').pop()?.replace('-', ' ')}
@@ -250,7 +253,16 @@ export default function DashboardLayout({
                     )}
                 </div>
                 <div className="hidden sm:block overflow-hidden max-w-[150px]">
-                    <p className="text-xs font-medium text-text-dark truncate leading-tight">{displayName}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-medium text-text-dark truncate leading-tight">{displayName}</p>
+                      {user?.profile?.subscription_plan && user.profile.subscription_plan !== 'basic' && (
+                        <div className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter ${
+                          user.profile.subscription_plan === 'premium' ? 'bg-purple-600 text-white-pure' : 'bg-brand-blue text-white-pure'
+                        }`}>
+                          {user.profile.subscription_plan}
+                        </div>
+                      )}
+                    </div>
                     <p className="text-[9px] font-normal text-text-gray/50 truncate uppercase tracking-wider">{companyName}</p>
                 </div>
             </div>
