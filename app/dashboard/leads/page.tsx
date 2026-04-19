@@ -23,7 +23,18 @@ import {
   ArrowDownRight
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { MOCK_LEADS, Lead } from '@/lib/leads-mock';
+
+export interface Lead {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  property: string;
+  temperature: string;
+  status: string;
+  date: string;
+  source: string;
+}
 
 export default function LeadsPage() {
   const supabase = createClient();
@@ -33,6 +44,8 @@ export default function LeadsPage() {
   const [tempFilter, setTempFilter] = useState('Semua');
   const [statusFilter, setStatusFilter] = useState('Semua');
   const [convertingId, setConvertingId] = useState<string | null>(null);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   const handleConvertToDeal = (leadId: string) => {
     setConvertingId(leadId);
@@ -44,43 +57,90 @@ export default function LeadsPage() {
     }, 1500);
   };
 
-  useEffect(() => {
-    async function fetchLeads() {
-      try {
-        const { data, error } = await supabase
-          .from('leads')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        
-        // If data exists in Supabase, map it to our Lead interface
-        if (data && data.length > 0) {
-          const formattedLeads = data.map((l: any) => ({
-            id: l.id.substring(0, 8),
-            name: l.name || 'Anonim',
-            email: l.email || '-',
-            phone: l.phone || '-',
-            property: l.intent || 'Umum', // Using intent as property name if missing
-            temperature: l.temperature || (Math.random() > 0.5 ? 'Hot' : 'Warm'),
-            status: l.status || 'Baru',
-            date: l.created_at,
-            source: l.source || 'AI Chatbot'
-          }));
-          setLeads(formattedLeads);
-        } else {
-          // Fallback to mock data for demonstration
-          setLeads(MOCK_LEADS);
-        }
-      } catch (err) {
-        console.error('Error fetching leads:', err);
-        setLeads(MOCK_LEADS);
-      } finally {
-        setLoading(false);
+  const fetchLeads = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('leads')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      
+      if (data) {
+        const formattedLeads = data.map((l: any) => ({
+          id: l.id,
+          name: l.name || 'Anonim',
+          email: l.email || '-',
+          phone: l.phone || '-',
+          property: l.property_id || l.intent || 'Umum',
+          temperature: l.temperature || 'Warm',
+          status: l.status || 'Baru',
+          date: l.created_at,
+          source: l.source || 'Website'
+        }));
+        setLeads(formattedLeads);
       }
+    } catch (err) {
+      console.error('Error fetching leads:', err);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchLeads();
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.lead-action-menu')) {
+        setOpenDropdownId(null);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
   }, [supabase]);
+
+  const handleUpdateStatus = async (leadId: string, newStatus: string) => {
+    setUpdatingId(leadId);
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .update({ status: newStatus })
+        .eq('id', leadId);
+      
+      if (error) throw error;
+      
+      // Update local state
+      setLeads(prev => prev.map(l => l.id === leadId ? { ...l, status: newStatus } : l));
+      setOpenDropdownId(null);
+    } catch (err) {
+      console.error('Error updating status:', err);
+      alert('Gagal mengupdate status');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleDeleteLead = async (leadId: string) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus lead ini?')) return;
+    
+    setUpdatingId(leadId);
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .delete()
+        .eq('id', leadId);
+        
+      if (error) throw error;
+      
+      setLeads(prev => prev.filter(l => l.id !== leadId));
+    } catch (err) {
+      console.error('Error deleting lead:', err);
+      alert('Gagal menghapus lead');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
   const filteredLeads = leads.filter(lead => {
     const matchesSearch = 
@@ -208,7 +268,7 @@ export default function LeadsPage() {
       </div>
 
       {/* Leads Table */}
-      <div className="bg-white-pure rounded-[2rem] border border-border-line/20 shadow-sm overflow-hidden min-h-[400px]">
+      <div className="bg-white-pure rounded-[2rem] border border-border-line/20 shadow-sm min-h-[400px] relative">
         {loading ? (
           <div className="h-[400px] flex flex-col items-center justify-center space-y-4">
             <div className="w-10 h-10 border-2 border-brand-blue/10 border-t-brand-blue rounded-full animate-spin"></div>
@@ -223,7 +283,7 @@ export default function LeadsPage() {
             <p className="text-sm text-text-gray/40 max-w-xs mt-2">Coba sesuaikan pencarian atau filter Anda untuk menemukan leads.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+        <div className="overflow-x-auto overflow-y-visible pb-40">
             <table className="w-full text-left border-collapse">
                 <thead>
                     <tr className="bg-surface-gray/20 text-[10px] font-medium text-text-gray/40 uppercase tracking-widest border-b border-border-line/5">
@@ -239,7 +299,10 @@ export default function LeadsPage() {
                     {filteredLeads.map((lead) => {
                         const tempStyle = getTempStyles(lead.temperature);
                         return (
-                            <tr key={lead.id} className="hover:bg-surface-gray/10 transition-all group">
+                            <tr 
+                                key={lead.id} 
+                                className="hover:bg-surface-gray/10 transition-all group"
+                            >
                                 <td className="p-6 pl-10">
                                     <div className="flex items-center gap-4">
                                         <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xs font-semibold shadow-sm transition-transform group-hover:scale-105 duration-300 ${
@@ -314,9 +377,62 @@ export default function LeadsPage() {
                                                 <TrendingUp size={16} strokeWidth={2} />
                                             )}
                                         </button>
-                                        <button className="p-2.5 bg-surface-gray/50 text-text-gray hover:bg-brand-blue hover:text-white-pure rounded-xl transition-all shadow-sm active:scale-95 group/btn">
-                                            <MoreVertical size={16} strokeWidth={1.5} className="group-hover/btn:rotate-90 transition-transform duration-300" />
-                                        </button>
+                                        <div className="relative lead-action-menu">
+                                            <button 
+                                                suppressHydrationWarning
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    e.nativeEvent.stopImmediatePropagation();
+                                                    setOpenDropdownId(openDropdownId === lead.id ? null : lead.id);
+                                                }}
+                                                className={`p-2.5 rounded-xl transition-all shadow-sm active:scale-95 group/btn ${
+                                                    openDropdownId === lead.id 
+                                                    ? 'bg-brand-blue text-white-pure' 
+                                                    : 'bg-surface-gray/50 text-text-gray hover:bg-brand-blue hover:text-white-pure'
+                                                }`}
+                                            >
+                                                {updatingId === lead.id ? (
+                                                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                                ) : (
+                                                    <MoreVertical size={16} strokeWidth={1.5} className={`transition-transform duration-300 pointer-events-none ${openDropdownId === lead.id ? 'rotate-90' : 'group-hover/btn:rotate-90'}`} />
+                                                )}
+                                            </button>
+
+                                            {openDropdownId === lead.id && (
+                                                <div 
+                                                    suppressHydrationWarning
+                                                    className="absolute right-0 top-full mt-2 w-48 bg-white-pure rounded-2xl shadow-2xl border border-border-line/10 z-[100] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <div className="px-3 py-2 text-[10px] font-bold text-text-gray/40 uppercase tracking-widest border-b border-border-line/5 bg-surface-gray/10">
+                                                        Ubah Status
+                                                    </div>
+                                                    <div className="p-1">
+                                                        {['Baru', 'Dihubungi', 'Tertarik'].map(status => (
+                                                            <button
+                                                                key={status}
+                                                                onClick={() => handleUpdateStatus(lead.id, status)}
+                                                                className={`w-full text-left px-3 py-2 text-xs font-medium rounded-xl transition-all ${
+                                                                    lead.status === status 
+                                                                    ? 'bg-brand-blue/5 text-brand-blue' 
+                                                                    : 'text-text-gray hover:bg-surface-gray hover:text-text-dark'
+                                                                }`}
+                                                            >
+                                                                {status}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                    <div className="border-t border-border-line/5 p-1">
+                                                        <button 
+                                                            onClick={() => handleDeleteLead(lead.id)}
+                                                            className="w-full text-left px-3 py-2 text-xs font-medium text-red-500 hover:bg-red-50 rounded-xl transition-all flex items-center gap-2"
+                                                        >
+                                                            <X size={14} /> Hapus Lead
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
