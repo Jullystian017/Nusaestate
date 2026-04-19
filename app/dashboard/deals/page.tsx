@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Plus,
   Search,
@@ -22,12 +22,33 @@ import {
   X,
   Plus as PlusSmall,
   Hash,
-  Briefcase
+  Briefcase,
+  Trash2,
+  MoreVertical
 } from 'lucide-react';
-import { MOCK_DEALS, Deal } from '@/lib/deals-mock';
+import { createClient } from '@/lib/supabase/client';
+
+export interface Deal {
+  id: string;
+  display_id: string;
+  title: string;
+  price: number;
+  client_name: string;
+  source: string;
+  priority: 'High' | 'Medium' | 'Low' | string;
+  reservation_date: string;
+  floor_plan_url: string;
+  property_image_url: string;
+  status: 'Survey' | 'Negosiasi' | 'Legalitas' | string;
+  members: { name: string; avatar: string }[];
+  comments_count: number;
+  files_count: number;
+}
 
 export default function DealsPipelinePage() {
-  const [deals, setDeals] = useState<Deal[]>(MOCK_DEALS);
+  const supabase = createClient();
+  const [deals, setDeals] = useState<Deal[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeModal, setActiveModal] = useState<null | 'new' | 'filter' | 'sort'>(null);
 
@@ -38,6 +59,41 @@ export default function DealsPipelinePage() {
   // Drag and Drop State
   const [draggedDealId, setDraggedDealId] = useState<string | null>(null);
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
+
+  // Dropdown State
+  const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchDeals();
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.deal-action-menu')) {
+        setActiveDropdownId(null);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [supabase]);
+
+  const fetchDeals = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('deals')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      
+      if (data) {
+        setDeals(data as Deal[]);
+      }
+    } catch (err) {
+      console.error('Error fetching deals:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -60,7 +116,8 @@ export default function DealsPipelinePage() {
     if (searchQuery) {
       result = result.filter(d =>
         d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        d.client.toLowerCase().includes(searchQuery.toLowerCase())
+        d.client_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (d.display_id && d.display_id.toLowerCase().includes(searchQuery.toLowerCase()))
       );
     }
 
@@ -116,12 +173,61 @@ export default function DealsPipelinePage() {
     }
   };
 
-  const handleDrop = (e: React.DragEvent, newStatus: string) => {
+  const handleDrop = async (e: React.DragEvent, newStatus: string) => {
     const dealId = e.dataTransfer.getData('dealId');
+    if (!dealId) return;
+
+    // Optimistic update
     setDeals(prev => prev.map(d => d.id === dealId ? { ...d, status: newStatus as any } : d));
     setDraggedDealId(null);
     setDragOverColumn(null);
+
+    // Backend sync
+    try {
+      const { error } = await supabase
+        .from('deals')
+        .update({ status: newStatus })
+        .eq('id', dealId);
+
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error updating deal status:', err);
+      alert('Gagal mengupdate status deal');
+      // Revert on error
+      fetchDeals();
+    }
   };
+
+  const handleDelete = async (e: React.MouseEvent, dealId: string) => {
+    e.stopPropagation();
+    if (!confirm('Yakin ingin menghapus deal ini?')) return;
+    
+    try {
+      const { error } = await supabase
+        .from('deals')
+        .delete()
+        .eq('id', dealId);
+
+      if (error) throw error;
+      
+      setDeals(prev => prev.filter(d => d.id !== dealId));
+      setActiveDropdownId(null);
+    } catch (err) {
+      console.error('Error deleting deal:', err);
+      alert('Gagal menghapus deal');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[600px]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-brand-blue/20 border-t-brand-blue rounded-full animate-spin"></div>
+          <p className="text-sm font-medium text-text-gray/50">Memuat Deals Pipeline...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-full mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-700 relative">
@@ -270,19 +376,56 @@ export default function DealsPipelinePage() {
                     onDragStart={(e) => handleDragStart(e, deal.id)}
                     className={`bg-white-pure rounded-[2rem] p-5 border border-border-line/20 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group cursor-grab active:cursor-grabbing ring-1 ring-inset ring-transparent hover:ring-brand-blue/10 ${draggedDealId === deal.id ? 'opacity-40 animate-pulse' : ''}`}
                   >
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="text-[10px] font-medium text-text-gray/40 tracking-wider">#{deal.id}</span>
-                      <span className={`px-2.5 py-1 rounded-full text-[9px] font-semibold uppercase tracking-widest ${getPriorityColor(deal.priority)}`}>
-                        {deal.priority}
-                      </span>
+                    <div className="flex justify-between items-center mb-4 relative">
+                      <span className="text-[10px] font-medium text-text-gray/40 tracking-wider">#{deal.display_id || deal.id.substring(0,8)}</span>
+                      
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2.5 py-1 rounded-full text-[9px] font-semibold uppercase tracking-widest ${getPriorityColor(deal.priority)}`}>
+                          {deal.priority}
+                        </span>
+                        
+                        <div className="relative deal-action-menu">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveDropdownId(activeDropdownId === deal.id ? null : deal.id);
+                            }}
+                            className="p-1 hover:bg-surface-gray rounded-lg transition-colors text-text-gray/40 hover:text-text-dark"
+                          >
+                            <MoreVertical size={14} />
+                          </button>
+
+                          {activeDropdownId === deal.id && (
+                            <div className="absolute top-full right-0 mt-1 w-36 bg-white-pure border border-border-line/20 rounded-xl shadow-xl overflow-hidden z-30 animate-in fade-in zoom-in-95 duration-200">
+                              <div className="p-1.5 space-y-1">
+                                <button
+                                  onClick={(e) => handleDelete(e, deal.id)}
+                                  className="w-full text-left px-3 py-2 text-xs font-medium text-red-500 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2"
+                                >
+                                  <Trash2 size={12} />
+                                  Hapus Deal
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 mb-5 h-28 pointer-events-none">
                       <div className="rounded-xl overflow-hidden border border-border-line/5 bg-surface-gray">
-                        <img src={deal.floorPlan} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Floorplan" />
+                        {deal.floor_plan_url ? (
+                          <img src={deal.floor_plan_url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Floorplan" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-text-gray/30"><FileText size={24} /></div>
+                        )}
                       </div>
                       <div className="rounded-xl overflow-hidden border border-border-line/5 bg-surface-gray">
-                        <img src={deal.propertyImage} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Property" />
+                        {deal.property_image_url ? (
+                          <img src={deal.property_image_url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Property" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-text-gray/30"><Building2 size={24} /></div>
+                        )}
                       </div>
                     </div>
 
@@ -295,10 +438,10 @@ export default function DealsPipelinePage() {
                       <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border-line/5">
                         <div className="space-y-2">
                           <div className="flex items-center gap-2 text-[10px] text-text-gray/40 font-medium">
-                            <Calendar size={12} className="text-text-gray/30" /> {deal.reservationDate}
+                            <Calendar size={12} className="text-text-gray/30" /> {new Date(deal.reservation_date || new Date()).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                           </div>
                           <div className="flex items-center gap-2 text-[10px] text-text-gray/40 font-medium truncate">
-                            <User size={12} className="text-text-gray/30" /> {deal.client}
+                            <User size={12} className="text-text-gray/30" /> {deal.client_name}
                           </div>
                           <div className="flex items-center gap-2 text-[10px] text-text-gray/40 font-medium truncate">
                             <MapPin size={12} className="text-text-gray/30" /> {deal.source}
@@ -306,21 +449,18 @@ export default function DealsPipelinePage() {
                         </div>
                         <div className="flex flex-col items-end justify-between">
                           <div className="flex -space-x-1.5">
-                            {deal.members.map((m, i) => (
+                            {deal.members && Array.isArray(deal.members) && deal.members.map((m: any, i: number) => (
                               <div key={i} className="w-6 h-6 rounded-full border-2 border-white-pure bg-brand-blue/10 flex items-center justify-center text-[8px] font-bold text-brand-blue ring-1 ring-brand-blue/5">
-                                {m.name}
+                                {m.name || m.avatar}
                               </div>
                             ))}
-                            <div className="w-6 h-6 rounded-full border-2 border-white-pure bg-surface-gray text-[8px] font-bold text-text-gray/40 flex items-center justify-center">
-                              +2
-                            </div>
                           </div>
-                          <div className="flex items-center gap-3 text-text-gray/30">
+                          <div className="flex items-center gap-3 text-text-gray/30 mt-2">
                             <div className="flex items-center gap-1">
-                              <MessageSquare size={12} /> <span className="text-[10px] font-medium">{deal.commentsCount}</span>
+                              <MessageSquare size={12} /> <span className="text-[10px] font-medium">{deal.comments_count || 0}</span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <FileText size={12} /> <span className="text-[10px] font-medium">{deal.filesCount}</span>
+                              <FileText size={12} /> <span className="text-[10px] font-medium">{deal.files_count || 0}</span>
                             </div>
                           </div>
                         </div>
@@ -364,7 +504,7 @@ export default function DealsPipelinePage() {
                     { label: 'Terbaru', key: 'id', dir: 'desc' },
                     { label: 'Harga Tertinggi', key: 'price', dir: 'desc' },
                     { label: 'Harga Terendah', key: 'price', dir: 'asc' },
-                    { label: 'Alphabet Klien (A-Z)', key: 'client', dir: 'asc' }
+                    { label: 'Alphabet Klien (A-Z)', key: 'client_name', dir: 'asc' }
                   ].map((opt, i) => (
                     <button
                       key={i}
