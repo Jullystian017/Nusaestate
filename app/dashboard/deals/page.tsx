@@ -109,7 +109,6 @@ export default function DealsPipelinePage() {
     { title: 'Legalitas & Dok', status: 'Legalitas', color: 'bg-emerald-500' },
   ];
 
-  // Logic: Search + Filter + Sort
   const processedDeals = useMemo(() => {
     let result = [...deals];
 
@@ -130,7 +129,7 @@ export default function DealsPipelinePage() {
         const valA = a[sortConfig.key as keyof Deal];
         const valB = b[sortConfig.key as keyof Deal];
         if (typeof valA === 'number' && typeof valB === 'number') {
-          return sortConfig.direction === 'asc' ? valA - valB : valB - valA;
+          return sortConfig.direction === 'asc' ? (valA as number) - (valB as number) : (valB as number) - (valA as number);
         }
         return 0;
       });
@@ -138,6 +137,30 @@ export default function DealsPipelinePage() {
 
     return result;
   }, [deals, searchQuery, filterPriority, sortConfig]);
+
+  const stats = useMemo(() => {
+    const totalVolume = deals.reduce((sum, d) => sum + (Number(d.price) || 0), 0);
+    const totalCommission = totalVolume * 0.02; // Asumsi komisi 2%
+    const visitCount = deals.filter(d => d.status === 'Survey').length;
+    const negosiasiCount = deals.filter(d => d.status === 'Negosiasi').length;
+    const legalitasCount = deals.filter(d => d.status === 'Legalitas').length;
+    
+    const winRate = deals.length > 0 ? Math.round(((legalitasCount + negosiasiCount) / deals.length) * 100) : 0;
+    
+    return {
+      totalVolume,
+      totalCommission,
+      visitCount,
+      negosiasiCount,
+      winRate
+    };
+  }, [deals]);
+
+  const formatShortPrice = (price: number) => {
+    if (price >= 1_000_000_000) return `Rp ${(price / 1_000_000_000).toFixed(1)}M`;
+    if (price >= 1_000_000) return `Rp ${(price / 1_000_000).toFixed(0)}jt`;
+    return formatPrice(price);
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -247,21 +270,12 @@ export default function DealsPipelinePage() {
           <div className="flex justify-between items-start mb-6 font-display">
             <h3 className="text-sm font-medium text-text-gray/60 flex items-center gap-2"> Pipeline Value <TrendingUp size={14} className="text-text-gray/30" /></h3>
           </div>
-          <div className="grid grid-cols-2 gap-8">
-            <div>
-              <p className="text-[10px] font-semibold text-text-gray/30 uppercase tracking-widest mb-2">Volume Asset</p>
-              <h4 className="text-xl font-medium text-text-dark tracking-tight">Rp 24.5M</h4>
-              <p className="text-[10px] text-green-500 font-medium flex items-center gap-0.5 mt-1">
-                <ArrowUpRight size={10} /> 14%
-              </p>
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold text-text-gray/30 uppercase tracking-widest mb-2">Komisi</p>
-              <h4 className="text-xl font-medium text-text-dark tracking-tight">Rp 490jt</h4>
-              <p className="text-[10px] text-green-500 font-medium flex items-center gap-0.5 mt-1">
-                <ArrowUpRight size={10} /> 5%
-              </p>
-            </div>
+          <div>
+            <p className="text-[10px] font-semibold text-text-gray/30 uppercase tracking-widest mb-2">Total Volume Asset</p>
+            <h4 className="text-3xl font-semibold text-text-dark tracking-tight">{formatShortPrice(stats.totalVolume)}</h4>
+            <p className="text-[10px] text-green-500 font-medium flex items-center gap-0.5 mt-2">
+              <ArrowUpRight size={10} /> {deals.length} Deal Aktif di Pipeline
+            </p>
           </div>
         </div>
 
@@ -273,16 +287,16 @@ export default function DealsPipelinePage() {
           <div className="grid grid-cols-2 gap-8">
             <div>
               <p className="text-[10px] font-semibold text-text-gray/30 uppercase tracking-widest mb-2">Visit Terjadwal</p>
-              <h4 className="text-xl font-medium text-text-dark tracking-tight">20</h4>
+              <h4 className="text-xl font-medium text-text-dark tracking-tight">{stats.visitCount}</h4>
               <p className="text-[10px] text-green-500 font-medium flex items-center gap-0.5 mt-1">
-                <ArrowUpRight size={10} /> 12%
+                <ArrowUpRight size={10} /> Tahap Survey
               </p>
             </div>
             <div>
               <p className="text-[10px] font-semibold text-text-gray/30 uppercase tracking-widest mb-2">Penawaran</p>
-              <h4 className="text-xl font-medium text-text-dark tracking-tight">5</h4>
+              <h4 className="text-xl font-medium text-text-dark tracking-tight">{stats.negosiasiCount}</h4>
               <p className="text-[10px] text-amber-500 font-medium flex items-center gap-0.5 mt-1">
-                <ArrowUpRight size={10} /> 20%
+                <ArrowUpRight size={10} /> Negosiasi
               </p>
             </div>
           </div>
@@ -296,11 +310,11 @@ export default function DealsPipelinePage() {
           <div className="grid grid-cols-2 gap-8">
             <div>
               <p className="text-[10px] font-semibold text-text-gray/30 uppercase tracking-widest mb-2">Avg. Closing</p>
-              <h4 className="text-xl font-medium text-text-dark tracking-tight">42 Hari</h4>
+              <h4 className="text-xl font-medium text-text-dark tracking-tight">30 Hari</h4>
             </div>
             <div>
               <p className="text-[10px] font-semibold text-text-gray/30 uppercase tracking-widest mb-2">Win Rate</p>
-              <h4 className="text-xl font-medium text-text-dark tracking-tight">12%</h4>
+              <h4 className="text-xl font-medium text-text-dark tracking-tight">{stats.winRate}%</h4>
             </div>
           </div>
         </div>
