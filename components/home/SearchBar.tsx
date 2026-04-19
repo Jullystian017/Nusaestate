@@ -86,7 +86,11 @@ export default function SearchBar() {
   };
 
   return (
-    <div className="bg-white-pure rounded-[2.5rem] p-4 lg:p-6 shadow-2xl max-w-full mx-auto -mb-32 relative z-30 border border-gray-100/50 backdrop-blur-sm animate-fade-in" ref={dropdownRef}>
+    <div 
+      className="bg-white-pure rounded-[2.5rem] p-4 lg:p-6 shadow-2xl max-w-full mx-auto -mb-32 relative z-30 border border-gray-100/50 backdrop-blur-sm animate-in fade-in slide-in-from-top-4 duration-500" 
+      ref={dropdownRef}
+      suppressHydrationWarning
+    >
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-8">
         <h2 className="text-xl md:text-2xl font-display font-medium text-text-dark max-w-xl">
           Temukan Tempat Sempurna untuk Menetap
@@ -103,6 +107,7 @@ export default function SearchBar() {
           
           <button
             onClick={() => setActiveTab('Beli')}
+            suppressHydrationWarning
             className={`relative z-10 px-10 py-2.5 rounded-full text-xs font-semibold transition-colors duration-300 ${
               activeTab === 'Beli' ? 'text-white-pure' : 'text-text-gray/70 hover:text-text-dark'
             }`}
@@ -111,6 +116,7 @@ export default function SearchBar() {
           </button>
           <button
             onClick={() => setActiveTab('Sewa')}
+            suppressHydrationWarning
             className={`relative z-10 px-10 py-2.5 rounded-full text-xs font-semibold transition-colors duration-300 ${
               activeTab === 'Sewa' ? 'text-white-pure' : 'text-text-gray/70 hover:text-text-dark'
             }`}
@@ -236,6 +242,7 @@ export default function SearchBar() {
         {/* Search Button */}
         <button 
           onClick={handleSearch}
+          suppressHydrationWarning
           className="h-[64px] bg-black-pure hover:bg-brand-blue text-white-pure font-semibold rounded-[2rem] flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg group"
         >
           <Search size={20} className="group-hover:scale-110 transition-transform" />
@@ -243,15 +250,6 @@ export default function SearchBar() {
         </button>
       </div>
 
-      <style jsx>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.2s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
 }

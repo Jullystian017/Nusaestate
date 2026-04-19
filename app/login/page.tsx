@@ -33,14 +33,24 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const { error: authError } = await supabase.auth.signInWithPassword({
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (authError) throw authError;
       
-      router.push('/dashboard');
+      // Cek role dan status onboarding untuk menentukan redirect
+      const metadata = data.user?.user_metadata;
+      
+      if (metadata?.onboarding_completed !== true) {
+        router.push('/onboarding');
+      } else if (metadata?.role === 'developer') {
+        router.push('/dashboard');
+      } else {
+        router.push('/');
+      }
+      
       router.refresh();
     } catch (err: any) {
       let message = 'Gagal masuk. Silakan periksa koneksi internet Anda.';

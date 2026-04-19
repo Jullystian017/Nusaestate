@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, User, ArrowRight, Eye, EyeOff, ArrowLeft, Building2 } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { createClient } from '@/lib/supabase/client';
@@ -41,6 +41,7 @@ export default function RegisterPage() {
         options: {
           data: {
             full_name: fullName,
+            onboarding_completed: false, // Flag for onboarding
           },
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
@@ -49,7 +50,7 @@ export default function RegisterPage() {
       if (authError) throw authError;
       
       if (data.session) {
-        router.push('/dashboard');
+        router.push('/onboarding');
         router.refresh();
       } else {
         setIsSuccess(true);

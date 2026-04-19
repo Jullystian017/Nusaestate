@@ -33,10 +33,18 @@ export async function GET(request: Request) {
     )
     
     // Exchange the code for a session
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     
-    if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+    if (!error && data.session) {
+      const metadata = data.session.user.user_metadata;
+      
+      if (metadata?.onboarding_completed !== true) {
+        return NextResponse.redirect(`${origin}/onboarding`)
+      } else if (metadata?.role === 'developer') {
+        return NextResponse.redirect(`${origin}/dashboard`)
+      } else {
+        return NextResponse.redirect(`${origin}/`)
+      }
     }
   }
 
