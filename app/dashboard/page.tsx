@@ -164,14 +164,7 @@ export default function DashboardPage() {
         </div>
         
         <div className="flex items-center gap-3">
-            <button className="px-5 py-3 bg-white-pure border border-border-line/20 rounded-2xl text-sm font-medium text-text-dark hover:bg-surface-gray transition-all flex items-center gap-2 active:scale-95">
-              <Home size={18} strokeWidth={1.5} />
-              Tambah Listing
-            </button>
-            <button className="px-5 py-3 bg-brand-blue text-white-pure rounded-2xl text-sm font-medium shadow-lg shadow-brand-blue/10 hover:bg-brand-blue-deep transition-all flex items-center gap-2 active:scale-95">
-              <Sparkles size={18} strokeWidth={1.5} />
-              AI Studio
-            </button>
+            {/* Tombol dihapus sesuai request */}
         </div>
       </div>
 
@@ -256,15 +249,15 @@ export default function DashboardPage() {
         
         {/* Recent Leads Table - Super Clean */}
         <div className="lg:col-span-2 bg-white-pure rounded-[2.5rem] border border-border-line/30 shadow-sm flex flex-col overflow-hidden">
-          <div className="p-8 border-b border-border-line/10 flex justify-between items-center">
-            <div className="space-y-0.5">
-              <h2 className="text-lg font-medium text-text-dark tracking-tight">Leads Terbaru</h2>
-              <p className="text-xs font-normal text-text-gray/50">Prospek dari AI Chatbot & Inquiry</p>
+            <div className="p-8 border-b border-border-line/10 flex justify-between items-center">
+              <div className="space-y-0.5">
+                <h2 className="text-lg font-medium text-text-dark tracking-tight">Leads Terbaru</h2>
+                <p className="text-xs font-normal text-text-gray/50">Prospek dari AI Chatbot & Inquiry</p>
+              </div>
+              <Link href="/dashboard/leads" className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-blue hover:gap-2 transition-all">
+                Semua <ArrowRight size={18} strokeWidth={1.5} />
+              </Link>
             </div>
-            <button className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-blue hover:gap-2 transition-all">
-              Semua <ArrowRight size={18} strokeWidth={1.5} />
-            </button>
-          </div>
           
           <div className="flex-1 p-0 overflow-x-auto">
             {loading ? (
@@ -360,10 +353,15 @@ export default function DashboardPage() {
 
           {/* Activity Log - Refined Light */}
           <div className="bg-white-pure rounded-[2.5rem] p-8 border border-border-line/30 shadow-sm">
-            <h3 className="font-medium text-text-dark mb-8 text-sm flex items-center gap-2">
-                <div className="w-1 h-5 bg-brand-blue/20 rounded-full"></div>
-                Aktivitas Terakhir
-            </h3>
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="font-medium text-text-dark text-sm flex items-center gap-2">
+                  <div className="w-1 h-5 bg-brand-blue/20 rounded-full"></div>
+                  Aktivitas Terakhir
+              </h3>
+              <Link href="/dashboard/activity" className="text-[10px] font-bold text-brand-blue hover:underline uppercase tracking-widest">
+                Lihat Semua
+              </Link>
+            </div>
             <div className="space-y-8">
               {loading ? (
                 <div className="py-10 flex justify-center">
