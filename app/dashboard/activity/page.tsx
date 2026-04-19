@@ -5,7 +5,7 @@ import {
   Clock, Search, Filter, ArrowUpRight, 
   Users, TrendingUp, Home, ArrowLeft, 
   ChevronRight, Calendar, Bell, Sparkles,
-  Loader2, AlertCircle
+  Loader2, AlertCircle, MessageSquare, Trash2, CheckCircle2
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
@@ -18,14 +18,31 @@ interface Activity {
   status: string;
   timestamp: string;
   fullDate: string;
+  rawDate: string;
 }
 
-export default function ActivityLogPage() {
+interface Notification {
+  id: string;
+  title: string;
+  description: string;
+  type: 'lead' | 'ai' | 'status' | 'system';
+  is_read: boolean;
+  created_at: string;
+}
+
+export default function CombinedActivityPage() {
   const supabase = createClient();
+  const [activeTab, setActiveTab] = useState<'notif' | 'log'>('notif');
   const [loading, setLoading] = useState(true);
+  
+  // States for Log Aktivitas
   const [activities, setActivities] = useState<Activity[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [typeFilter, setTypeFilter] = useState('Semua');
+  const [logSearch, setLogSearch] = useState('');
+  const [logTypeFilter, setLogTypeFilter] = useState('Semua');
+
+  // States for Notifications
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifSearch, setNotifSearch] = useState('');
 
   const formatRelativeTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -42,219 +59,262 @@ export default function ActivityLogPage() {
     return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
   };
 
-  useEffect(() => {
-    async function fetchAllActivity() {
-      try {
-        const [leadsRes, propsRes, dealsRes] = await Promise.all([
-          supabase.from('leads').select('*').order('created_at', { ascending: false }).limit(20),
-          supabase.from('properties').select('*').order('created_at', { ascending: false }).limit(20),
-          supabase.from('deals').select('*').order('created_at', { ascending: false }).limit(20)
-        ]);
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // Fetch Log Data
+      const [leadsRes, propsRes, dealsRes, notifRes] = await Promise.all([
+        supabase.from('leads').select('*').order('created_at', { ascending: false }).limit(20),
+        supabase.from('properties').select('*').order('created_at', { ascending: false }).limit(20),
+        supabase.from('deals').select('*').order('created_at', { ascending: false }).limit(20),
+        supabase.from('notifications').select('*').order('created_at', { ascending: false })
+      ]);
 
-        const combined: Activity[] = [];
-
-        // Map Leads
-        (leadsRes.data || []).forEach(l => {
-          combined.push({
-            id: `lead-${l.id}`,
-            type: 'lead',
-            title: 'Prospek Baru Masuk',
-            description: `${l.name || 'Anonim'} tertarik pada ${l.intent || 'Listing Umum'}`,
-            status: l.status || 'Baru',
-            timestamp: formatRelativeTime(l.created_at),
-            fullDate: new Date(l.created_at).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' })
-          });
+      const combinedLog: Activity[] = [];
+      (leadsRes.data || []).forEach(l => {
+        combinedLog.push({
+          id: `lead-${l.id}`,
+          type: 'lead',
+          title: 'Prospek Baru',
+          description: `${l.name || 'Anonim'} tertarik pada ${l.intent || 'Listing'}`,
+          status: l.status || 'Baru',
+          timestamp: formatRelativeTime(l.created_at),
+          fullDate: new Date(l.created_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }),
+          rawDate: l.created_at
         });
-
-        // Map Properties
-        (propsRes.data || []).forEach(p => {
-          combined.push({
-            id: `prop-${p.id}`,
-            type: 'property',
-            title: 'Listing Diterbitkan',
-            description: `Unit ${p.title} telah tersedia di market.`,
-            status: p.status || 'Aktif',
-            timestamp: formatRelativeTime(p.created_at),
-            fullDate: new Date(p.created_at).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' })
-          });
+      });
+      (propsRes.data || []).forEach(p => {
+        combinedLog.push({
+          id: `prop-${p.id}`,
+          type: 'property',
+          title: 'Listing Update',
+          description: `Unit ${p.title} telah diperbarui di listing.`,
+          status: p.status || 'Aktif',
+          timestamp: formatRelativeTime(p.created_at),
+          fullDate: new Date(p.created_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }),
+          rawDate: p.created_at
         });
-
-        // Map Deals
-        (dealsRes.data || []).forEach(d => {
-          combined.push({
-            id: `deal-${d.id}`,
-            type: 'deal',
-            title: 'Pipeline Diperbarui',
-            description: `Deal untuk ${d.client_name || 'Klien'} di tahap ${d.status}.`,
-            status: d.priority || 'Medium',
-            timestamp: formatRelativeTime(d.created_at || new Date().toISOString()),
-            fullDate: new Date(d.created_at || new Date().toISOString()).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' })
-          });
+      });
+      (dealsRes.data || []).forEach(d => {
+        combinedLog.push({
+          id: `deal-${d.id}`,
+          type: 'deal',
+          title: 'Pipeline Change',
+          description: `Klien ${d.client_name || 'Klien'} pindah ke tahap ${d.status}.`,
+          status: d.priority || 'Medium',
+          timestamp: formatRelativeTime(d.created_at || new Date().toISOString()),
+          fullDate: new Date(d.created_at || new Date().toISOString()).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }),
+          rawDate: d.created_at || new Date().toISOString()
         });
+      });
 
-        // Sort by actual date
-        setActivities(combined.sort((a, b) => new Date(b.fullDate).getTime() - new Date(a.fullDate).getTime()));
-      } catch (err) {
-        console.error('Error fetching activities:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchAllActivity();
-  }, []);
-
-  const filtered = useMemo(() => {
-    return activities.filter(act => {
-      const matchesSearch = act.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                           act.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesType = typeFilter === 'Semua' || 
-                         (typeFilter === 'Leads' && act.type === 'lead') ||
-                         (typeFilter === 'Pipeline' && act.type === 'deal') ||
-                         (typeFilter === 'Listing' && act.type === 'property');
-      return matchesSearch && matchesType;
-    });
-  }, [activities, searchQuery, typeFilter]);
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'lead': return <Users size={18} />;
-      case 'deal': return <TrendingUp size={18} />;
-      case 'property': return <Home size={18} />;
-      default: return <Clock size={18} />;
+      setActivities(combinedLog.sort((a, b) => new Date(b.rawDate).getTime() - new Date(a.rawDate).getTime()));
+      setNotifications(notifRes.data || []);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getTypeStyles = (type: string) => {
-    switch (type) {
-      case 'lead': return 'bg-blue-50 text-blue-600 border-blue-100';
-      case 'deal': return 'bg-violet-50 text-violet-600 border-violet-100';
-      case 'property': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
-      default: return 'bg-gray-50 text-gray-600 border-gray-100';
-    }
+  useEffect(() => {
+    fetchData();
+
+    // Real-time notifications
+    const channel = supabase
+      .channel('combined-activity')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const filteredLog = useMemo(() => {
+    return activities.filter(act => {
+      const matchesSearch = act.title.toLowerCase().includes(logSearch.toLowerCase()) || 
+                           act.description.toLowerCase().includes(logSearch.toLowerCase());
+      const matchesType = logTypeFilter === 'Semua' || 
+                         (logTypeFilter === 'Leads' && act.type === 'lead') ||
+                         (logTypeFilter === 'Pipeline' && act.type === 'deal') ||
+                         (logTypeFilter === 'Listing' && act.type === 'property');
+      return matchesSearch && matchesType;
+    });
+  }, [activities, logSearch, logTypeFilter]);
+
+  const filteredNotif = useMemo(() => {
+    return notifications.filter(n => 
+      n.title.toLowerCase().includes(notifSearch.toLowerCase()) || 
+      n.description.toLowerCase().includes(notifSearch.toLowerCase())
+    );
+  }, [notifications, notifSearch]);
+
+  const unreadCount = notifications.filter(n => !n.is_read).length;
+
+  const markAllRead = async () => {
+    await supabase.from('notifications').update({ is_read: true }).eq('is_read', false);
+    fetchData();
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
+    <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-1">
           <Link href="/dashboard" className="inline-flex items-center gap-2 text-xs font-medium text-brand-blue hover:gap-3 transition-all mb-4">
             <ArrowLeft size={14} /> Kembali ke Dashboard
           </Link>
-          <h1 className="text-3xl font-display font-medium text-text-dark tracking-tight">Log Aktivitas</h1>
-          <p className="text-sm font-normal text-text-gray/50">Lacak setiap perubahan dan interaksi di akun PropNest Anda.</p>
+          <h1 className="text-3xl font-display font-medium text-text-dark tracking-tight">Notifikasi & Aktivitas</h1>
+          <p className="text-sm font-normal text-text-gray/50">Pusat pemantauan real-time untuk seluruh kegiatan PropNest Anda.</p>
         </div>
         
-        <div className="flex items-center gap-3">
-          <button className="p-3 bg-white-pure border border-border-line/20 rounded-2xl text-text-gray/40 hover:text-brand-blue transition-all shadow-sm">
-            <Calendar size={20} />
+        {activeTab === 'notif' && unreadCount > 0 && (
+          <button 
+            onClick={markAllRead}
+            className="flex items-center gap-2 px-5 py-2.5 bg-brand-blue text-white-pure rounded-2xl text-xs font-bold shadow-lg shadow-brand-blue/10 hover:bg-brand-blue-deep transition-all"
+          >
+            <CheckCircle2 size={16} /> Tandai Semua Dibaca
           </button>
-          <button className="p-3 bg-white-pure border border-border-line/20 rounded-2xl text-text-gray/40 hover:text-brand-blue transition-all shadow-sm">
-            <Bell size={20} />
-          </button>
-        </div>
+        )}
       </div>
 
-      {/* Filter Bar */}
+      {/* Main Tabs */}
+      <div className="bg-white-pure p-1.5 rounded-[2rem] border border-border-line/10 shadow-sm flex items-center max-w-md">
+        <button
+          onClick={() => setActiveTab('notif')}
+          className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-[1.7rem] text-sm font-semibold transition-all ${
+            activeTab === 'notif' ? 'bg-brand-blue text-white-pure shadow-lg shadow-brand-blue/10' : 'text-text-gray/50 hover:text-text-dark'
+          }`}
+        >
+          <Bell size={18} />
+          Notifikasi
+          {unreadCount > 0 && (
+            <span className={`px-2 py-0.5 rounded-full text-[10px] ${activeTab === 'notif' ? 'bg-white-pure text-brand-blue' : 'bg-brand-blue text-white-pure'}`}>
+              {unreadCount}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab('log')}
+          className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-[1.7rem] text-sm font-semibold transition-all ${
+            activeTab === 'log' ? 'bg-brand-blue text-white-pure shadow-lg shadow-brand-blue/10' : 'text-text-gray/50 hover:text-text-dark'
+          }`}
+        >
+          <Clock size={18} />
+          Log Aktivitas
+        </button>
+      </div>
+
+      {/* Filters Area */}
       <div className="bg-white-pure p-4 rounded-3xl border border-border-line/20 shadow-sm flex flex-col md:flex-row gap-4 items-center">
         <div className="relative flex-1 w-full">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-gray/30" size={18} strokeWidth={1.5} />
           <input
             type="text"
-            placeholder="Cari aktivitas..."
+            placeholder={activeTab === 'notif' ? "Cari notifikasi..." : "Cari di log aktivitas..."}
             className="w-full bg-surface-gray/30 border-none rounded-2xl py-3 pl-12 pr-4 text-sm font-normal focus:ring-2 focus:ring-brand-blue/10 transition-all placeholder:text-text-gray/30"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            value={activeTab === 'notif' ? notifSearch : logSearch}
+            onChange={e => activeTab === 'notif' ? setNotifSearch(e.target.value) : setLogSearch(e.target.value)}
           />
         </div>
-        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto no-scrollbar">
-          {['Semua', 'Leads', 'Pipeline', 'Listing'].map(t => (
-            <button
-              key={t}
-              onClick={() => setTypeFilter(t)}
-              className={`px-5 py-2.5 rounded-2xl text-xs font-semibold transition-all border whitespace-nowrap ${
-                typeFilter === t
-                  ? 'bg-brand-blue text-white-pure border-brand-blue shadow-sm'
-                  : 'bg-white-pure border-border-line/20 text-text-gray/60 hover:border-brand-blue/30'
-              }`}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
+        {activeTab === 'log' && (
+          <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto no-scrollbar">
+            {['Semua', 'Leads', 'Pipeline', 'Listing'].map(t => (
+              <button
+                key={t}
+                onClick={() => setLogTypeFilter(t)}
+                className={`px-5 py-2.5 rounded-2xl text-xs font-semibold transition-all border whitespace-nowrap ${
+                  logTypeFilter === t ? 'bg-brand-blue text-white-pure border-brand-blue shadow-sm' : 'bg-white-pure border-border-line/20 text-text-gray/60 hover:border-brand-blue/30'
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Timeline Section */}
-      <div className="relative">
-        {/* Vertical Line */}
-        <div className="absolute left-[27px] top-4 bottom-4 w-0.5 bg-gradient-to-b from-brand-blue/20 via-brand-blue/10 to-transparent rounded-full hidden md:block"></div>
-
-        <div className="space-y-10">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-20 text-text-gray/40">
-              <Loader2 size={32} className="animate-spin mb-4 text-brand-blue" />
-              <p className="text-sm font-medium">Sinkronisasi data...</p>
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-20 bg-surface-gray/20 rounded-[3rem] border border-dashed border-border-line/30">
-              <div className="w-16 h-16 bg-white-pure rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
-                <Filter size={24} className="text-text-gray/20" />
+      {/* Content Area */}
+      <div className="space-y-6">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-24 text-text-gray/40">
+            <Loader2 size={32} className="animate-spin mb-4 text-brand-blue" />
+            <p className="text-sm font-medium tracking-wide">Menyelaraskan data...</p>
+          </div>
+        ) : activeTab === 'notif' ? (
+          // NOTIFICATIONS LIST
+          filteredNotif.length === 0 ? (
+            <div className="text-center py-24 bg-surface-gray/10 rounded-[3rem] border border-dashed border-border-line/20">
+              <div className="w-20 h-20 bg-white-pure rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                <Bell size={32} className="text-text-gray/20" />
               </div>
-              <h3 className="text-lg font-medium text-text-dark">Tidak ada aktivitas</h3>
-              <p className="text-sm text-text-gray/40">Coba ubah filter atau kata kunci pencarian Anda.</p>
+              <h3 className="text-xl font-medium text-text-dark">Pusat Notifikasi Kosong</h3>
+              <p className="text-sm text-text-gray/40">Anda sedang up-to-date! Belum ada pengingat baru.</p>
             </div>
           ) : (
-            filtered.map((act, index) => (
-              <div key={act.id} className="relative md:pl-16 group">
-                {/* Dot / Icon Container */}
-                <div className={`absolute left-0 top-0 w-14 h-14 rounded-2xl border flex items-center justify-center z-10 transition-all duration-500 group-hover:scale-110 shadow-sm ${getTypeStyles(act.type)}`}>
-                  {getTypeIcon(act.type)}
-                </div>
-
-                <div className="bg-white-pure p-8 rounded-[2rem] border border-border-line/10 shadow-sm hover:shadow-xl transition-all duration-500">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-3">
-                        <h3 className="text-lg font-medium text-text-dark group-hover:text-brand-blue transition-colors">{act.title}</h3>
-                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border ${getTypeStyles(act.type)}`}>
-                          {act.type}
-                        </span>
+            <div className="space-y-4">
+              {filteredNotif.map(n => (
+                <div key={n.id} className={`group bg-white-pure rounded-[2rem] p-7 border transition-all duration-500 hover:shadow-premium ${!n.is_read ? 'border-brand-blue/20 shadow-soft bg-brand-blue/[0.01]' : 'border-border-line/10'}`}>
+                  <div className="flex gap-6">
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-inner relative ${
+                      n.type === 'lead' ? 'bg-emerald-50 text-emerald-500' : n.type === 'ai' ? 'bg-brand-blue/5 text-brand-blue' : 'bg-surface-gray text-text-gray/60'
+                    }`}>
+                      {n.type === 'lead' ? <Users size={24} /> : n.type === 'ai' ? <Sparkles size={24} /> : <Bell size={24} />}
+                      {!n.is_read && <div className="absolute -top-1 -right-1 w-4 h-4 bg-brand-blue rounded-full border-2 border-white-pure animate-pulse" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className={`text-base font-bold ${!n.is_read ? 'text-text-dark' : 'text-text-dark/80'}`}>{n.title}</h3>
+                        <span className="text-[10px] font-bold text-text-gray/30 uppercase tracking-widest">{formatRelativeTime(n.created_at)}</span>
                       </div>
-                      <p className="text-sm text-text-gray/60 leading-relaxed font-normal">{act.description}</p>
+                      <p className="text-sm text-text-gray/60 leading-relaxed">{n.description}</p>
                     </div>
-                    <div className="flex flex-col items-end">
-                      <span className="text-xs font-semibold text-text-dark/80">{act.timestamp}</span>
-                      <span className="text-[10px] text-text-gray/30 uppercase tracking-widest mt-1">{act.fullDate}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-6 pt-6 border-t border-border-line/5">
-                    <button className="text-[10px] font-bold text-text-gray/40 uppercase tracking-widest hover:text-brand-blue transition-colors flex items-center gap-1.5 group/btn">
-                      Lihat Detail <ChevronRight size={12} className="group-hover/btn:translate-x-1 transition-transform" />
-                    </button>
-                    {act.type === 'lead' && (
-                      <button className="text-[10px] font-bold text-brand-blue uppercase tracking-widest hover:underline">
-                        Hubungi Prospek
-                      </button>
-                    )}
                   </div>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
+              ))}
+            </div>
+          )
+        ) : (
+          // LOG AKTIVITAS LIST
+          <div className="relative">
+            <div className="absolute left-[27px] top-4 bottom-4 w-0.5 bg-gradient-to-b from-brand-blue/20 via-brand-blue/10 to-transparent rounded-full hidden md:block"></div>
+            <div className="space-y-8">
+              {filteredLog.length === 0 ? (
+                <div className="text-center py-24 bg-surface-gray/10 rounded-[3rem] border border-dashed border-border-line/20">
+                   <h3 className="text-xl font-medium text-text-dark">Belum ada riwayat aktivitas</h3>
+                </div>
+              ) : (
+                filteredLog.map(act => (
+                  <div key={act.id} className="relative md:pl-16 group">
+                    <div className={`absolute left-0 top-0 w-14 h-14 rounded-2xl border border-border-line/10 bg-white-pure flex items-center justify-center z-10 transition-all duration-500 group-hover:scale-110 shadow-sm text-text-gray/40 group-hover:text-brand-blue group-hover:border-brand-blue/20`}>
+                      {act.type === 'lead' ? <Users size={20} /> : act.type === 'deal' ? <TrendingUp size={20} /> : <Home size={20} />}
+                    </div>
+                    <div className="bg-white-pure p-7 rounded-[2rem] border border-border-line/10 shadow-sm group-hover:shadow-premium transition-all duration-500">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-3">
+                            <h3 className="text-lg font-medium text-text-dark group-hover:text-brand-blue transition-colors">{act.title}</h3>
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-surface-gray/50 text-text-gray/50 border border-border-line/5">{act.type}</span>
+                          </div>
+                          <p className="text-sm text-text-gray/60 leading-relaxed font-normal">{act.description}</p>
+                        </div>
+                        <div className="flex flex-col items-end shrink-0">
+                          <span className="text-xs font-semibold text-text-dark/80">{act.timestamp}</span>
+                          <span className="text-[10px] text-text-gray/30 uppercase tracking-widest mt-1">{act.fullDate}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
       </div>
-
-      {/* Footer Note */}
-      {!loading && filtered.length > 0 && (
-        <div className="text-center pt-10">
-          <p className="text-[10px] text-text-gray/30 uppercase tracking-[0.2em] font-medium">
-            Menampilkan {filtered.length} aktivitas terbaru • Terakhir sinkronisasi: {new Date().toLocaleTimeString()}
-          </p>
-        </div>
-      )}
     </div>
   );
 }

@@ -16,7 +16,9 @@ import {
   PanelRightClose,
   TrendingUp,
   BarChart3,
-  Search
+  Search,
+  History,
+  Clock
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import NotificationDropdown from '@/components/dashboard/NotificationDropdown';
@@ -93,6 +95,7 @@ export default function DashboardLayout({
     { name: 'Pipeline Penjualan', href: '/dashboard/deals', icon: TrendingUp },
     { name: 'Content Studio', href: '/dashboard/content', icon: Sparkles },
     { name: 'Market Analytics', href: '/dashboard/analytics', icon: BarChart3 },
+    { name: 'Aktivitas & Notifikasi', href: '/dashboard/activity', icon: Bell },
     { name: 'Pengaturan', href: '/dashboard/settings', icon: Settings },
   ];
 
@@ -215,6 +218,7 @@ export default function DashboardLayout({
                pathname.includes('leads') ? 'CRM Leads' :
                pathname.includes('deals') ? 'Pipeline Penjualan' :
                pathname.includes('content') ? 'AI Content Studio' :
+               pathname.includes('activity') ? 'Notifikasi & Aktivitas' :
                pathname.includes('settings') ? 'Pengaturan Akun' :
                pathname.split('/').pop()?.replace('-', ' ')}
             </h1>

@@ -1,7 +1,6 @@
 'use server';
 
 import Groq from 'groq-sdk';
-import { MOCK_LEADS } from '@/lib/leads-mock';
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
@@ -9,31 +8,18 @@ const groq = new Groq({
 
 const MODEL = 'llama-3.3-70b-versatile';
 
-/**
- * Generates an AI-powered executive report based on current leads data.
- */
-export async function generateExecutiveReport(analyticsData?: {
+export async function generateExecutiveReport(analyticsData: {
   totalLeads: number;
   sourceStats: any;
   propertyStats: any;
   qualityStats: any;
   trendSummary?: string;
 }) {
-  // Use provided data or fallback to MOCK_LEADS
   const data = {
-    totalLeads: analyticsData?.totalLeads || MOCK_LEADS.length,
-    sources: analyticsData?.sourceStats || MOCK_LEADS.reduce((acc: any, lead) => {
-      acc[lead.source] = (acc[lead.source] || 0) + 1;
-      return acc;
-    }, {}),
-    properties: analyticsData?.propertyStats || MOCK_LEADS.reduce((acc: any, lead) => {
-      acc[lead.property] = (acc[lead.property] || 0) + 1;
-      return acc;
-    }, {}),
-    quality: analyticsData?.qualityStats || MOCK_LEADS.reduce((acc: any, lead) => {
-      acc[lead.temperature] = (acc[lead.temperature] || 0) + 1;
-      return acc;
-    }, {})
+    totalLeads: analyticsData.totalLeads || 0,
+    sources: analyticsData.sourceStats || {},
+    properties: analyticsData.propertyStats || {},
+    quality: analyticsData.qualityStats || {}
   };
 
   const prompt = `
