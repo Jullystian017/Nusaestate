@@ -8,6 +8,8 @@ import LeadsChart from '@/components/dashboard/LeadsChart';
 export default function DashboardPage() {
   const supabase = createClient();
   const [leads, setLeads] = useState<any[]>([]);
+  const [properties, setProperties] = useState<any[]>([]);
+  const [deals, setDeals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('7 Hari');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -23,14 +25,16 @@ export default function DashboardPage() {
           setDisplayName(name);
         }
 
-        const { data, error } = await supabase
-          .from('leads')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(5);
+        const [leadsRes, propsRes, dealsRes] = await Promise.all([
+          supabase.from('leads').select('*').order('created_at', { ascending: false }),
+          supabase.from('properties').select('*'),
+          supabase.from('deals').select('*')
+        ]);
         
-        if (error) throw error;
-        setLeads(data || []);
+        if (leadsRes.error) throw leadsRes.error;
+        setLeads(leadsRes.data || []);
+        setProperties(propsRes.data || []);
+        setDeals(dealsRes.data || []);
       } catch (err) {
         console.debug('Dashboard data sync deferred:', err);
       } finally {
@@ -40,11 +44,21 @@ export default function DashboardPage() {
     fetchData();
   }, []);
 
-  const stats = [
-    { label: 'Total Leads', value: '124', change: '+12.5%', isPos: true, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50', gradient: 'from-blue-500/10 to-transparent' },
-    { label: 'Listing Aktif', value: '8', change: '0%', isPos: true, icon: Home, color: 'text-emerald-600', bg: 'bg-emerald-50', gradient: 'from-emerald-500/10 to-transparent' },
-    { label: 'Tingkat Konversi', value: '2.4%', change: '+0.4%', isPos: true, icon: TrendingUp, color: 'text-violet-600', bg: 'bg-violet-50', gradient: 'from-violet-500/10 to-transparent' },
-    { label: 'Klik Chatbot', value: '432', change: '+45%', isPos: true, icon: MousePointerClick, color: 'text-orange-600', bg: 'bg-orange-50', gradient: 'from-orange-500/10 to-transparent' },
+  const activeListings = properties.filter(p => p.status === 'Aktif').length;
+  const conversionRate = leads.length > 0 ? ((deals.length / leads.length) * 100).toFixed(1) : '0';
+  const totalVolume = deals.reduce((sum, d) => sum + (Number(d.price) || 0), 0);
+  
+  const formatShortPrice = (price: number) => {
+    if (price >= 1_000_000_000) return `Rp ${(price / 1_000_000_000).toFixed(1)}M`;
+    if (price >= 1_000_000) return `Rp ${(price / 1_000_000).toFixed(0)}jt`;
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(price).replace('Rp', 'Rp ');
+  };
+
+  const dynamicStats = [
+    { label: 'Total Leads', value: leads.length.toString(), change: 'All Time', isPos: true, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50', gradient: 'from-blue-500/10 to-transparent' },
+    { label: 'Listing Aktif', value: activeListings.toString(), change: 'Live', isPos: true, icon: Home, color: 'text-emerald-600', bg: 'bg-emerald-50', gradient: 'from-emerald-500/10 to-transparent' },
+    { label: 'Tingkat Konversi', value: `${conversionRate}%`, change: 'Deals/Leads', isPos: true, icon: TrendingUp, color: 'text-violet-600', bg: 'bg-violet-50', gradient: 'from-violet-500/10 to-transparent' },
+    { label: 'Volume Asset', value: formatShortPrice(totalVolume), change: 'Est. Deal', isPos: true, icon: MousePointerClick, color: 'text-orange-600', bg: 'bg-orange-50', gradient: 'from-orange-500/10 to-transparent' },
   ];
 
   const timeRanges = [
@@ -91,7 +105,7 @@ export default function DashboardPage() {
 
       {/* Stat Cards - Premium & Light Design */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, i) => (
+        {dynamicStats.map((stat, i) => (
           <div key={i} className="bg-white-pure p-7 rounded-[2.5rem] border border-border-line/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group overflow-hidden relative">
             <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-700`}></div>
             <div className="relative z-10">
@@ -205,7 +219,7 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border-line/5">
-                  {leads.map((lead, i) => (
+                  {leads.slice(0, 5).map((lead, i) => (
                     <tr key={lead.id} className="hover:bg-blue-50/30 transition-all group">
                       <td className="p-6 pl-10">
                         <div className="flex items-center gap-4">
@@ -228,8 +242,12 @@ export default function DashboardPage() {
                         </div>
                       </td>
                       <td className="p-6 pr-10">
-                        <span className="inline-flex items-center gap-2 py-1.5 px-3 rounded-full text-[10px] font-medium bg-emerald-50 text-emerald-600 ring-1 ring-emerald-600/10">
-                          Baru
+                        <span className={`inline-flex items-center gap-2 py-1.5 px-3 rounded-full text-[10px] font-medium ${
+                          lead.status === 'Closing' ? 'bg-brand-blue/10 text-brand-blue ring-1 ring-brand-blue/10' :
+                          lead.status === 'Baru' || lead.status === 'new' ? 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-600/10' :
+                          'bg-blue-50 text-blue-600 ring-1 ring-blue-600/10'
+                        }`}>
+                          {lead.status === 'new' ? 'Baru' : (lead.status || 'Baru')}
                         </span>
                       </td>
                     </tr>
