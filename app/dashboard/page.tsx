@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { TrendingUp, Users, Home, MousePointerClick, ArrowUpRight, ArrowDownRight, ArrowRight, ChevronDown, Check, Sparkles } from 'lucide-react';
+import { TrendingUp, Users, Home, MousePointerClick, ArrowUpRight, ArrowDownRight, ArrowRight, ChevronDown, Check, Sparkles, Clock } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
 import LeadsChart from '@/components/dashboard/LeadsChart';
+import Link from 'next/link';
 
 export default function DashboardPage() {
   const supabase = createClient();
@@ -14,6 +16,22 @@ export default function DashboardPage() {
   const [timeRange, setTimeRange] = useState('7 Hari');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [displayName, setDisplayName] = useState('User');
+  const router = useRouter();
+
+  const formatRelativeTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return 'Baru saja';
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    if (diffInMinutes < 60) return `${diffInMinutes} menit lalu`;
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours} jam lalu`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 30) return `${diffInDays} hari lalu`;
+    return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -95,6 +113,31 @@ export default function DashboardPage() {
 
     return last7Days.map(({ day, leads, click }) => ({ day, leads, click }));
   }, [leads]);
+
+  const recentActivities = useMemo(() => {
+    const activities: { text: string; time: string; timestamp: number }[] = [];
+    
+    // Prospek Baru
+    leads.slice(0, 3).forEach(l => {
+      activities.push({
+        text: `Prospek baru: ${l.name || 'Anonim'}`,
+        time: formatRelativeTime(l.created_at),
+        timestamp: new Date(l.created_at).getTime()
+      });
+    });
+    
+    // Update Pipeline
+    deals.slice(0, 2).forEach(d => {
+      activities.push({
+        text: `Pipeline updated: ${d.title}`,
+        time: formatRelativeTime(d.created_at || new Date().toISOString()),
+        timestamp: new Date(d.created_at || new Date().toISOString()).getTime()
+      });
+    });
+
+    // Sort by newest
+    return activities.sort((a, b) => b.timestamp - a.timestamp).slice(0, 4);
+  }, [leads, deals]);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -301,14 +344,17 @@ export default function DashboardPage() {
                   <Sparkles size={24} strokeWidth={1.5} className="text-brand-blue" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-xl font-display font-medium text-text-dark leading-tight">Butuh Konten AI?</h3>
+                <h3 className="text-xl font-display font-medium text-text-dark leading-tight">Butuh AI Caption Generator?</h3>
                 <p className="text-text-gray/60 text-sm font-normal leading-relaxed">
                   Bikin caption Instagram dalam hitungan detik pakai AI Studio.
                 </p>
               </div>
-              <button className="w-full bg-brand-blue text-white-pure py-3.5 rounded-2xl text-xs font-medium shadow-lg shadow-brand-blue/10 hover:bg-brand-blue-deep transition-all">
+              <Link 
+                href="/dashboard/content"
+                className="w-full bg-brand-blue text-white-pure py-3.5 rounded-2xl text-xs font-medium shadow-lg shadow-brand-blue/10 hover:bg-brand-blue-deep transition-all flex items-center justify-center"
+              >
                 BUAT SEKARANG
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -319,20 +365,25 @@ export default function DashboardPage() {
                 Aktivitas Terakhir
             </h3>
             <div className="space-y-8">
-              {[
-                { text: 'Post Instagram Terjadwal', time: '10 min lalu' },
-                { text: 'Lead baru dikonfirmasi', time: '2 jam lalu' }
-              ].map((act, i) => (
-                <div key={i} className="flex gap-4 group">
-                  <div className="w-9 h-9 rounded-xl bg-surface-gray/50 border border-border-line/10 flex items-center justify-center flex-none group-hover:bg-brand-blue/5 group-hover:border-brand-blue/20 transition-all">
-                      <div className="w-1.5 h-1.5 rounded-full bg-brand-blue/30 group-hover:bg-brand-blue transition-colors"></div>
-                  </div>
-                  <div className="pt-0.5">
-                    <p className="text-sm font-medium text-text-dark/80 group-hover:text-brand-blue transition-colors">{act.text}</p>
-                    <p className="text-[10px] font-normal text-text-gray/40 uppercase tracking-widest mt-1">{act.time}</p>
-                  </div>
+              {loading ? (
+                <div className="py-10 flex justify-center">
+                  <div className="w-5 h-5 border-2 border-brand-blue/10 border-t-brand-blue rounded-full animate-spin"></div>
                 </div>
-              ))}
+              ) : recentActivities.length === 0 ? (
+                <p className="text-xs text-text-gray/40 text-center py-10 italic">Belum ada aktivitas.</p>
+              ) : (
+                recentActivities.map((act, i) => (
+                  <div key={i} className="flex gap-4 group">
+                    <div className="w-9 h-9 rounded-xl bg-surface-gray/50 border border-border-line/10 flex items-center justify-center flex-none group-hover:bg-brand-blue/5 group-hover:border-brand-blue/20 transition-all">
+                        <Clock size={14} className="text-text-gray/30 group-hover:text-brand-blue transition-colors" />
+                    </div>
+                    <div className="pt-0.5">
+                      <p className="text-sm font-medium text-text-dark/80 group-hover:text-brand-blue transition-colors line-clamp-1">{act.text}</p>
+                      <p className="text-[10px] font-normal text-text-gray/40 uppercase tracking-widest mt-1">{act.time}</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
