@@ -52,6 +52,7 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [leadsData, setLeadsData] = useState<any[]>([]);
   const [dealsData, setDealsData] = useState<any[]>([]);
+  const [propertiesData, setPropertiesData] = useState<any[]>([]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -63,13 +64,15 @@ export default function AnalyticsPage() {
     async function fetchData() {
       setLoading(true);
       try {
-        const [leadsRes, dealsRes] = await Promise.all([
+        const [leadsRes, dealsRes, propsRes] = await Promise.all([
           supabase.from('leads').select('*').order('created_at', { ascending: true }),
-          supabase.from('deals').select('*')
+          supabase.from('deals').select('*'),
+          supabase.from('properties').select('id, title')
         ]);
         
         if (leadsRes.data) setLeadsData(leadsRes.data);
         if (dealsRes.data) setDealsData(dealsRes.data);
+        if (propsRes.data) setPropertiesData(propsRes.data);
       } catch (err) {
         console.error('Error fetching analytics data:', err);
       } finally {
@@ -158,20 +161,27 @@ export default function AnalyticsPage() {
   const propertyData = useMemo(() => {
     if (leadsData.length === 0) return [];
     const counts = leadsData.reduce((acc: any, lead) => {
-      const prop = lead.property_id || lead.intent || 'Unit Lainnya';
-      acc[prop] = (acc[prop] || 0) + 1;
+      let propName = lead.intent || 'Unit Lainnya';
+      if (lead.property_id && propertiesData.length > 0) {
+        const prop = propertiesData.find((p: any) => p.id === lead.property_id);
+        if (prop && prop.title) {
+          propName = prop.title;
+        }
+      }
+      
+      acc[propName] = (acc[propName] || 0) + 1;
       return acc;
     }, {});
     
     return Object.keys(counts)
       .map(key => ({ 
-        name: key.length > 20 ? key.substring(0, 20) + '...' : key, 
+        name: key.length > 25 ? key.substring(0, 25) + '...' : key, 
         full: key, 
         value: counts[key] 
       }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 5);
-  }, [leadsData]);
+  }, [leadsData, propertiesData]);
 
   // KPI Calculations
   const totalLeads = leadsData.length;
@@ -367,7 +377,7 @@ export default function AnalyticsPage() {
             <div className="bg-white-pure p-10 rounded-[3rem] border border-border-line/10 shadow-sm relative overflow-hidden flex flex-col items-center">
               <div className="w-full">
                 <h3 className="text-xl font-bold text-text-dark mb-2 flex items-center gap-3">
-                  <PieChartIcon size={20} className="text-brand-blue" />
+                  <div className="w-1.5 h-6 bg-brand-blue rounded-full"></div>
                   Saluran Leads
                 </h3>
                 <p className="text-xs text-text-gray mb-10">Distribusi sumber leads berdasarkan platform.</p>
@@ -452,7 +462,10 @@ export default function AnalyticsPage() {
           <div className="bg-white-pure p-10 rounded-[3rem] border border-border-line/10 shadow-sm group">
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
               <div>
-                <h3 className="text-xl font-bold text-text-dark">Properti Paling Diminati</h3>
+                <h3 className="text-xl font-bold text-text-dark flex items-center gap-3">
+                  <div className="w-1.5 h-6 bg-brand-blue rounded-full"></div>
+                  Properti Paling Diminati
+                </h3>
                 <p className="text-xs text-text-gray mt-1">Unit yang paling sering memicu interaksi dan prospek.</p>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 bg-surface-gray rounded-full text-[10px] font-bold text-text-gray uppercase tracking-widest self-start md:self-auto">
@@ -463,16 +476,16 @@ export default function AnalyticsPage() {
             <div className="h-[350px] w-full">
               {propertyData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={propertyData} layout="vertical" margin={{ left: 20 }}>
+                  <BarChart data={propertyData} layout="vertical" margin={{ left: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
-                    <XAxis type="number" hide />
+                    <XAxis type="number" hide domain={[0, (dataMax: number) => Math.max(5, Math.ceil(dataMax * 1.2))]} />
                     <YAxis 
                       dataKey="name" 
                       type="category" 
                       axisLine={false} 
                       tickLine={false} 
-                      width={140} 
-                      tick={{fontSize: 13, fontWeight: 700, fill: '#1e293b'}} 
+                      width={170} 
+                      tick={{fontSize: 12, fontWeight: 600, fill: '#1e293b'}} 
                     />
                     <Tooltip 
                       cursor={{fill: 'rgba(59, 130, 246, 0.05)'}}

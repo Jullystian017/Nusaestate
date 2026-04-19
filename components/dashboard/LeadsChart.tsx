@@ -42,13 +42,13 @@ const CustomTooltip = ({ active, payload, label }: any) => {
           <div className="flex items-center gap-2">
             <div className="w-2.5 h-2.5 rounded-full bg-brand-blue"></div>
             <p className="text-sm font-medium text-text-dark">
-              {payload[0].value} <span className="text-text-gray font-normal">Leads Baru</span>
+              {payload[1]?.value || 0} <span className="text-text-gray font-normal">Leads Baru</span>
             </p>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2.5 h-2.5 rounded-full bg-brand-blue/30"></div>
             <p className="text-sm font-medium text-text-dark">
-              {payload[1].value} <span className="text-text-gray font-normal">Klik AI</span>
+              {payload[0]?.value || 0} <span className="text-text-gray font-normal">Klik AI</span>
             </p>
           </div>
         </div>
