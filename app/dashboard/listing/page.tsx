@@ -75,6 +75,7 @@ export default function ListingPage() {
               {(['grid', 'list', 'map'] as const).map((mode) => (
                 <button
                   key={mode}
+                  suppressHydrationWarning
                   onClick={() => setViewMode(mode)}
                   className={`p-2 rounded-xl transition-all ${viewMode === mode ? 'bg-white-pure text-brand-blue shadow-sm' : 'text-text-gray/40 hover:text-text-gray'}`}
                 >
@@ -86,6 +87,7 @@ export default function ListingPage() {
             </div>
             <button
               onClick={handleAddNew}
+              suppressHydrationWarning
               className="px-5 py-3 bg-brand-blue text-white-pure rounded-2xl text-sm font-medium shadow-lg shadow-brand-blue/10 hover:bg-brand-blue-deep transition-all flex items-center gap-2 active:scale-95"
             >
               <Plus size={18} strokeWidth={1.5} />
@@ -125,6 +127,7 @@ export default function ListingPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-gray/30" size={18} strokeWidth={1.5} />
             <input
               type="text"
+              suppressHydrationWarning
               placeholder="Cari nama properti atau lokasi..."
               className="w-full bg-surface-gray/30 border-none rounded-2xl py-3 pl-12 pr-4 text-sm font-normal focus:ring-2 focus:ring-brand-blue/10 transition-all placeholder:text-text-gray/30"
               value={searchQuery}
@@ -135,6 +138,7 @@ export default function ListingPage() {
             {['Semua', 'Aktif', 'Nonaktif'].map(s => (
               <button
                 key={s}
+                suppressHydrationWarning
                 onClick={() => setStatusFilter(s)}
                 className={`px-4 py-2.5 rounded-2xl text-xs font-semibold transition-all border ${
                   statusFilter === s
@@ -177,6 +181,7 @@ export default function ListingPage() {
             {!searchQuery && statusFilter === 'Semua' && (
               <button
                 onClick={handleAddNew}
+                suppressHydrationWarning
                 className="px-6 py-3 bg-brand-blue text-white-pure rounded-2xl text-sm font-medium shadow-lg shadow-brand-blue/10 hover:bg-brand-blue-deep transition-all flex items-center gap-2"
               >
                 <Plus size={18} />
@@ -243,12 +248,14 @@ export default function ListingPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={(e) => { e.stopPropagation(); handleEdit(prop); }}
+                        suppressHydrationWarning
                         className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-blue/5 text-brand-blue rounded-xl text-[10px] font-bold hover:bg-brand-blue hover:text-white-pure transition-all active:scale-95"
                       >
                         <Pencil size={12} /> Edit
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDelete(prop); }}
+                        suppressHydrationWarning
                         className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-500 rounded-xl text-[10px] font-bold hover:bg-red-500 hover:text-white-pure transition-all active:scale-95"
                       >
                         <Trash2 size={12} /> Hapus
@@ -318,12 +325,14 @@ export default function ListingPage() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={(e) => { e.stopPropagation(); handleEdit(prop); }}
+                          suppressHydrationWarning
                           className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-blue/5 text-brand-blue rounded-xl text-xs font-bold hover:bg-brand-blue hover:text-white-pure transition-all active:scale-95"
                         >
                           <Pencil size={14} /> Edit
                         </button>
                         <button
                           onClick={(e) => { e.stopPropagation(); handleDelete(prop); }}
+                          suppressHydrationWarning
                           className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-500 rounded-xl text-xs font-bold hover:bg-red-500 hover:text-white-pure transition-all active:scale-95"
                         >
                           <Trash2 size={14} /> Hapus
@@ -369,12 +378,14 @@ export default function ListingPage() {
                     <div className="flex flex-col gap-2 justify-center">
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleEdit(prop); }} 
+                        suppressHydrationWarning
                         className="w-7 h-7 rounded-xl bg-brand-blue/5 text-brand-blue hover:bg-brand-blue hover:text-white-pure transition-all flex items-center justify-center"
                       >
                         <Pencil size={12} />
                       </button>
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleDelete(prop); }} 
+                        suppressHydrationWarning
                         className="w-7 h-7 rounded-xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white-pure transition-all flex items-center justify-center"
                       >
                         <Trash2 size={12} />
