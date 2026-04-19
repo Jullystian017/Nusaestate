@@ -361,10 +361,6 @@ export default function DealsPipelinePage() {
                   <h3 className="text-sm font-semibold text-text-dark">{col.title}</h3>
                   <span className="text-xs text-text-gray/40 font-medium">{columnDeals.length}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <button className="p-1.5 hover:bg-surface-gray rounded-lg transition-all text-text-gray/40"><Plus size={14} /></button>
-                  <button className="p-1.5 hover:bg-surface-gray rounded-lg transition-all text-text-gray/40"><MoreHorizontal size={14} /></button>
-                </div>
               </div>
 
               {/* Column Content */}

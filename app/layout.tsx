@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import QueryProvider from '@/components/providers/QueryProvider';
+import PropNestAI from '@/components/dashboard/PropNestAI';
 
 export const metadata: Metadata = {
   title: {
@@ -62,6 +63,7 @@ export default function RootLayout({
       <body>
         <QueryProvider>
           {children}
+          <PropNestAI />
         </QueryProvider>
       </body>
     </html>
