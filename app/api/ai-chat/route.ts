@@ -183,11 +183,16 @@ KEMAMPUAN UTAMA:
 5. PERBANDINGAN: bantu calon pembeli membandingkan dengan opsi lain yang tersedia
 
 CARA JAWAB SIMULASI KPR (jika ditanya):
-- Ambil harga dari data properti
-- Hitung: Harga × 80% = Pokok pinjaman
-- Gunakan rumus anuitas: bunga 4% per tahun, tenor pilihan user
-- Tampilkan dalam tabel atau format yang mudah dibaca
-- Sebutkan bank-bank yang umumnya menyediakan KPR properti serupa
+- Ambil harga dari data properti.
+- Hitung Pokok Pinjaman = Harga Properti - DP (asumsi DP 20% jika tidak disebut).
+- GUNAKAN TABEL PENGALI INI (Bunga 4% - Baseline PropNest):
+  * Tenor 10 Tahun: Pokok Pinjaman x 0.010125
+  * Tenor 15 Tahun: Pokok Pinjaman x 0.007397
+  * Tenor 20 Tahun: Pokok Pinjaman x 0.006060
+- CONTOH: Jika pokok 1.2 Miliar, maka 15 thn = 1.200.000.000 x 0.007397 = 8.876.400.
+- Sebutkan secara eksplisit bahwa simulasi ini menggunakan **Bunga 4%** (asumsi bunga promo bank seperti BTN/BCA).
+- Tampilkan dalam tabel Markdown yang rapi.
+- DI AKHIR JAWABAN, berikan catatan: "Angka di atas adalah estimasi cepat. Untuk hasil yang lebih akurat sesuai bank pilihan Anda, silakan gunakan fitur **Simulasi Cicilan KPR** yang tersedia di halaman ini."
 
 LARANGAN KERAS:
 - JANGAN sarankan user untuk mengecek dokumen sendiri atau negosiasi sendiri (kamu yang bantu)
@@ -204,7 +209,7 @@ LARANGAN KERAS:
         ...messages,
       ],
       model: 'llama-3.3-70b-versatile',
-      temperature: 0.75,
+      temperature: 0.6, // Lower temperature for more stable math
       max_tokens: 1500,
     });
 

@@ -21,7 +21,7 @@ import { useNearbyPlaces } from '@/hooks/useNearbyPlaces';
 import PropNestAI from '@/components/dashboard/PropNestAI';
 
 // --- KPR CALCULATOR COMPONENT ---
-const KPRCalculator = ({ propertyPrice }: { propertyPrice: string }) => {
+const KPRCalculator = ({ propertyPrice, onInquiry }: { propertyPrice: string, onInquiry: () => void }) => {
   const parsePrice = (priceStr: string) => {
     let clean = priceStr.toLowerCase().replace('rp', '').trim();
     let multiplier = 1;
@@ -184,7 +184,16 @@ const KPRCalculator = ({ propertyPrice }: { propertyPrice: string }) => {
 
             <div className="space-y-4 pt-8 border-t border-brand-blue/5 relative z-10">
               <div className="flex justify-between text-xs font-semibold">
-                <span className="text-text-gray/50">Pinjaman Pokok</span>
+                <div className="flex items-center gap-1.5 text-text-gray/50">
+                  Pinjaman Pokok 
+                  <div className="group/info relative cursor-help">
+                    <Info size={12} className="text-text-gray/30 hover:text-brand-blue transition-colors" />
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-text-dark text-white-pure text-[10px] font-medium rounded-lg opacity-0 group-hover/info:opacity-100 transition-opacity pointer-events-none shadow-xl z-20">
+                      Sisa harga rumah yang dipinjam dari bank setelah dikurangi DP.
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-text-dark"></div>
+                    </div>
+                  </div>
+                </div>
                 <span className="text-text-dark">{formatCurrency(numericPrice * (1 - dpPercent/100))}</span>
               </div>
               <div className="flex justify-between text-xs font-semibold">
@@ -192,7 +201,10 @@ const KPRCalculator = ({ propertyPrice }: { propertyPrice: string }) => {
                 <span className="text-brand-blue">{currentRate}% Efektif</span>
               </div>
               
-              <button suppressHydrationWarning className="w-full bg-brand-blue text-white-pure py-4 rounded-xl font-bold text-sm shadow-xl shadow-brand-blue/20 hover:bg-brand-blue-deep transition-all mt-4 flex items-center justify-center gap-3 active:scale-95 group/cta">
+              <button suppressHydrationWarning 
+                onClick={onInquiry}
+                className="w-full bg-brand-blue text-white-pure py-4 rounded-xl font-bold text-sm shadow-xl shadow-brand-blue/20 hover:bg-brand-blue-deep transition-all mt-4 flex items-center justify-center gap-3 active:scale-95 group/cta"
+              >
                 <MessageSquare size={18} />
                 Ajukan KPR via PropNest
                 <ArrowUpRight size={16} className="group-hover/cta:translate-x-1 group-hover/cta:-translate-y-1 transition-transform" />
@@ -752,7 +764,7 @@ export default function DetailPropertiPage({
 
 
             {/* 7. KPR Calculator (Simulasi Cicilan) */}
-            <KPRCalculator propertyPrice={property.price} />
+            <KPRCalculator propertyPrice={property.price} onInquiry={() => setIsInquiryOpen(true)} />
           </div>
 
           <aside className="w-full lg:w-[380px] shrink-0">
