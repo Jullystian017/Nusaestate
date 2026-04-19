@@ -141,7 +141,7 @@ export async function exportToWord(reportContent: string, filename: string = 'Pr
         return new TextRun({ text: part, size: 22 });
       });
 
-      docChildren.push(new Paragraph({ children: runs, spacing: { after: 200 }, lineSpacing: { line: 360 } }));
+      docChildren.push(new Paragraph({ children: runs, spacing: { after: 200, line: 360 } }));
     }
   });
 
@@ -151,7 +151,7 @@ export async function exportToWord(reportContent: string, filename: string = 'Pr
       text: "PropNest Intelligence — Empowering Property Decisions.",
       alignment: AlignmentType.CENTER,
       spacing: { before: 800 },
-      children: [new TextRun({ text: "PropNest Intelligence — Empowering Property Decisions.", italic: true, size: 18, color: "6b7280" })]
+      children: [new TextRun({ text: "PropNest Intelligence — Empowering Property Decisions.", italics: true, size: 18, color: "6b7280" })]
     })
   );
 

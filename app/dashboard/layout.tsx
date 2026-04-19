@@ -66,7 +66,7 @@ export default function DashboardLayout({
     document.addEventListener('mousedown', handleClickOutside);
 
     // Listen for auth state changes to refresh data
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: any) => {
       if (session?.user) {
         getUser();
       } else {
