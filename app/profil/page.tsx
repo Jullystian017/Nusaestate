@@ -1,30 +1,30 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bookmark, Search, MapPin, BedDouble, Bath, Scaling } from 'lucide-react';
 import Link from 'next/link';
 
-// Mock data for Bookmarks
-const MOCK_BOOKMARKS = [
-  {
-    id: 1,
-    name: "Modern Minimalist Home",
-    location: "Kebayoran Baru, Jakarta",
-    price: "Rp 3.5 Miliar",
-    image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=800",
-    specs: { beds: 3, baths: 2, size: 150 }
-  },
-  {
-    id: 2,
-    name: "Luxury Smart Villa",
-    location: "Pondok Indah, Jakarta",
-    price: "Rp 8.2 Miliar",
-    image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800",
-    specs: { beds: 5, baths: 4, size: 320 }
-  }
-];
-
 export default function ProfilOverviewPage() {
+  const [bookmarks, setBookmarks] = useState<any[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = JSON.parse(localStorage.getItem('propnest_bookmarks') || '[]');
+      setBookmarks(saved);
+      setIsLoaded(true);
+    }
+  }, []);
+
+  const handleRemove = (e: React.MouseEvent, id: string | number) => {
+    e.preventDefault(); // Prevent navigating to the property detail
+    const updated = bookmarks.filter(b => b.id !== id);
+    setBookmarks(updated);
+    localStorage.setItem('propnest_bookmarks', JSON.stringify(updated));
+  };
+
+  if (!isLoaded) return null;
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       
@@ -33,9 +33,9 @@ export default function ProfilOverviewPage() {
         <p className="text-sm text-text-gray font-medium">Lanjutkan pencarian dari properti terakhir yang Anda minati.</p>
       </div>
 
-      {MOCK_BOOKMARKS.length > 0 ? (
+      {bookmarks.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {MOCK_BOOKMARKS.map((item) => (
+          {bookmarks.map((item) => (
             <Link
               key={item.id}
               href={`/properti/${item.id}`}
@@ -46,7 +46,10 @@ export default function ProfilOverviewPage() {
                   className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-700" 
                   style={{ backgroundImage: `url(${item.image})` }}
                 ></div>
-                <button className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-full text-brand-blue hover:scale-110 transition-transform shadow-sm">
+                <button 
+                  onClick={(e) => handleRemove(e, item.id)}
+                  className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-full text-brand-blue hover:scale-110 hover:bg-white-pure transition-all shadow-sm"
+                >
                   <Bookmark size={18} fill="currentColor" />
                 </button>
               </div>
@@ -62,9 +65,9 @@ export default function ProfilOverviewPage() {
                 </div>
                 <p className="text-lg font-bold text-text-dark mt-4 mb-3">{item.price}</p>
                 <div className="pt-4 border-t border-border-line/20 flex justify-between text-xs font-medium text-text-gray/70">
-                  <span className="flex items-center gap-1.5"><BedDouble size={14} className="text-brand-blue/50" /> {item.specs.beds} Kmr</span>
-                  <span className="flex items-center gap-1.5"><Bath size={14} className="text-brand-blue/50" /> {item.specs.baths} Mandi</span>
-                  <span className="flex items-center gap-1.5"><Scaling size={14} className="text-brand-blue/50" /> {item.specs.size} m²</span>
+                  <span className="flex items-center gap-1.5"><BedDouble size={14} className="text-brand-blue/50" /> {item.specs?.beds || '-'} Kmr</span>
+                  <span className="flex items-center gap-1.5"><Bath size={14} className="text-brand-blue/50" /> {item.specs?.baths || '-'} Mandi</span>
+                  <span className="flex items-center gap-1.5"><Scaling size={14} className="text-brand-blue/50" /> {item.specs?.size || '-'} m²</span>
                 </div>
               </div>
             </Link>
@@ -77,7 +80,7 @@ export default function ProfilOverviewPage() {
           </div>
           <h3 className="font-semibold text-text-dark text-lg mb-2">Belum ada properti disimpan</h3>
           <p className="text-sm text-text-gray max-w-sm mb-6">Mulai eksplorasi dan simpan properti idaman Anda untuk membandingkannya nanti.</p>
-          <Link href="/cari" className="px-6 py-2.5 bg-brand-blue hover:bg-brand-blue-hover text-white-pure text-sm font-semibold rounded-xl flex items-center gap-2 transition-all">
+          <Link href="/cari" className="px-6 py-2.5 bg-brand-blue hover:bg-brand-blue-hover text-white-pure text-sm font-semibold rounded-xl flex items-center gap-2 transition-all shadow-md">
             <Search size={16} /> Cari Properti
           </Link>
         </div>

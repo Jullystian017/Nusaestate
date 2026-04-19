@@ -582,8 +582,47 @@ export default function DetailPropertiPage({
 
   const [activeTab, setActiveTab] = useState<'transport' | 'school' | 'shopping' | 'health' | 'tourism' | 'worship'>('transport');
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [budgetFilter, setBudgetFilter] = useState<number | null>(null);
+
+  const [isSaved, setIsSaved] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = JSON.parse(localStorage.getItem('propnest_bookmarks') || '[]');
+      setIsSaved(saved.some((p: any) => p.id === id));
+    }
+  }, [id]);
+
+  const handleSave = () => {
+    if (typeof window === 'undefined') return;
+    const saved = JSON.parse(localStorage.getItem('propnest_bookmarks') || '[]');
+    if (isSaved) {
+      const updated = saved.filter((p: any) => p.id !== id);
+      localStorage.setItem('propnest_bookmarks', JSON.stringify(updated));
+      setIsSaved(false);
+    } else {
+      const propData = {
+        id: property.id,
+        name: property.name,
+        location: property.location,
+        price: property.price,
+        image: property.image,
+        specs: property.specs
+      };
+      saved.push(propData);
+      localStorage.setItem('propnest_bookmarks', JSON.stringify(saved));
+      setIsSaved(true);
+    }
+  };
+
+  const handleShare = () => {
+    if (typeof navigator !== 'undefined') {
+      navigator.clipboard.writeText(window.location.href);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    }
+  };
 
   // Koordinat properti untuk Nearest Location
   const propLat = property?.coords?.lat ?? null;
@@ -717,11 +756,21 @@ export default function DetailPropertiPage({
             </div>
 
             <div className="flex gap-2.5 relative z-10">
-              <button suppressHydrationWarning className="flex items-center gap-2 px-5 py-3 bg-white-pure border border-border-line/60 rounded-xl text-xs font-medium text-text-dark hover:bg-blue-50 hover:text-brand-blue hover:border-brand-blue/30 transition-all shadow-sm active:scale-95 ring-1 ring-border-line/5">
-                <Share2 size={16} className="text-brand-blue" /> Bagikan
+              <button 
+                suppressHydrationWarning 
+                onClick={handleShare}
+                className="flex items-center gap-2 px-5 py-3 bg-white-pure border border-border-line/60 rounded-xl text-xs font-medium text-text-dark hover:bg-blue-50 hover:text-brand-blue hover:border-brand-blue/30 transition-all shadow-sm active:scale-95 ring-1 ring-border-line/5 w-28 justify-center"
+              >
+                {isCopied ? <CheckCircle2 size={16} className="text-green-500" /> : <Share2 size={16} className="text-brand-blue" />} 
+                {isCopied ? 'Tersalin' : 'Bagikan'}
               </button>
-              <button suppressHydrationWarning className="flex items-center gap-2 px-5 py-3 bg-white-pure border border-border-line/60 rounded-xl text-xs font-semibold text-text-dark hover:bg-blue-50 hover:text-brand-blue hover:border-brand-blue/30 transition-all shadow-sm active:scale-95 ring-1 ring-border-line/5">
-                <Bookmark size={16} className="text-brand-blue" /> Simpan
+              <button 
+                suppressHydrationWarning 
+                onClick={handleSave}
+                className={`flex items-center gap-2 px-5 py-3 bg-white-pure border border-border-line/60 rounded-xl text-xs font-semibold hover:bg-blue-50 hover:text-brand-blue hover:border-brand-blue/30 transition-all shadow-sm active:scale-95 ring-1 ring-border-line/5 ${isSaved ? 'text-brand-blue' : 'text-text-dark'}`}
+              >
+                <Bookmark size={16} className={isSaved ? "text-brand-blue" : "text-text-gray"} fill={isSaved ? "currentColor" : "none"} /> 
+                {isSaved ? 'Tersimpan' : 'Simpan'}
               </button>
             </div>
           </div>
