@@ -8,10 +8,10 @@ export default function Footer() {
           
           {/* Logo & Description */}
           <div className="lg:col-span-4">
-            <Link href="/" className="flex items-center gap-2 mb-6">
-              <img src="/images/nusaestate.png" alt="NusaEstate Logo" className="h-8 w-auto object-contain" />
-              <span className="font-display font-semibold text-lg tracking-tight text-white-pure">
-                NusaEstate<span className="text-brand-blue">.</span>
+            <Link href="/" className="flex items-center gap-0 mb-6">
+              <img src="/images/nusaestate.png" alt="NusaEstate Logo" className="h-14 w-auto object-contain" />
+              <span className="font-display font-semibold text-lg tracking-tight text-white-pure -ml-3">
+                NusaEstate
               </span>
             </Link>
             <p className="leading-relaxed text-gray-400 max-w-sm">

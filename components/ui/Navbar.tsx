@@ -66,12 +66,12 @@ export default function Navbar() {
           
           {/* Logo - Fixed width for symmetry */}
           <div className="flex-1 flex justify-start">
-            <Link href="/" className="flex items-center gap-2 group shrink-0">
-              <img src="/images/nusaestate.png" alt="NusaEstate Logo" className="h-8 w-auto object-contain" />
-              <span className={`font-display font-semibold text-2xl tracking-tight transition-colors duration-300 ${
+            <Link href="/" className="flex items-center gap-0 group shrink-0">
+              <img src="/images/nusaestate.png" alt="NusaEstate Logo" className="h-14 w-auto object-contain" />
+              <span className={`font-display font-semibold text-2xl tracking-tight transition-colors duration-300 -ml-3 ${
                 isScrolled || pathname !== '/' ? 'text-text-dark' : 'text-white-pure'
               }`}>
-                Nusa<span className="text-brand-blue">Estate</span>
+                NusaEstate
               </span>
             </Link>
           </div>
