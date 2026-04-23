@@ -27,7 +27,7 @@ function CariContent() {
     const q = searchParams.get('lokasi');
     if (q) setSearchQuery(q);
 
-    const saved = localStorage.getItem('propnest_recent_searches');
+    const saved = localStorage.getItem('nusaestate_recent_searches');
     if (saved) setRecentSearches(JSON.parse(saved));
   }, [searchParams]);
 
@@ -35,7 +35,7 @@ function CariContent() {
     if (!q.trim()) return;
     const updated = [q, ...recentSearches.filter(s => s !== q)].slice(0, 3);
     setRecentSearches(updated);
-    localStorage.setItem('propnest_recent_searches', JSON.stringify(updated));
+    localStorage.setItem('nusaestate_recent_searches', JSON.stringify(updated));
   };
 
   // Live data from Supabase via TanStack Query

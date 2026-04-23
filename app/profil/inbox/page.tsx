@@ -27,10 +27,10 @@ const MOCK_CHATS = [
   },
   {
     id: 'c3',
-    name: 'PropNest Support',
+    name: 'NusaEstate Support',
     type: 'Sistem',
-    avatar: 'https://ui-avatars.com/api/?name=PropNest&background=0f172a&color=fff',
-    lastMessage: 'Selamat datang di PropNest! Temukan hunian idaman Anda.',
+    avatar: 'https://ui-avatars.com/api/?name=NusaEstate&background=0f172a&color=fff',
+    lastMessage: 'Selamat datang di NusaEstate! Temukan hunian idaman Anda.',
     time: '12 Okt',
     unread: 0,
     online: true,

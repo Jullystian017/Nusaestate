@@ -102,7 +102,7 @@ export default function DashboardLayout({
   ];
 
   const displayName = user?.profile?.full_name || user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
-  const companyName = user?.profile?.company_name || user?.user_metadata?.company_name || 'PropNest Developer';
+  const companyName = user?.profile?.company_name || user?.user_metadata?.company_name || 'NusaEstate Developer';
   const avatarUrl = user?.profile?.avatar_url || user?.user_metadata?.avatar_url;
 
   return (
@@ -134,7 +134,7 @@ export default function DashboardLayout({
                 <div className="w-9 h-9 bg-brand-blue rounded-xl flex items-center justify-center shadow-lg shadow-brand-blue/10 group-hover:scale-105 transition-all shrink-0">
                   <span className="text-white-pure font-medium text-sm">P</span>
                 </div>
-                <span className="font-display font-medium text-base text-text-dark tracking-tight animate-in fade-in slide-in-from-left-2 duration-300">PropNest</span>
+                <span className="font-display font-medium text-base text-text-dark tracking-tight animate-in fade-in slide-in-from-left-2 duration-300">NusaEstate</span>
               </Link>
               <button 
                 suppressHydrationWarning

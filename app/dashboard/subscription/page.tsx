@@ -21,13 +21,13 @@ const PLANS = [
     id: 'basic',
     name: 'Free Starter',
     price: '0',
-    description: 'Cocok untuk agen individu yang baru memulai.',
+    description: 'Cocok untuk developer individu yang baru memulai.',
     features: [
-      'Hingga 3 Listing Properti',
-      'AI Content Studio Dasar',
-      'CRM Leads Dasar',
-      '1 Akun Developer',
-      'Statistik Standar'
+      'Hingga 5 Listing Properti',
+      'AI Caption Generator (Basic)',
+      'CRM Leads Basic',
+      'KPR Simulator (Embed)',
+      'Support via Email'
     ],
     color: 'text-text-gray',
     bg: 'bg-white-pure',
@@ -42,12 +42,13 @@ const PLANS = [
     period: '/bulan',
     description: 'Pilihan terbaik untuk pengembang properti aktif.',
     features: [
-      'Hingga 50 Listing Properti',
-      'AI Content Studio Pro',
-      'Analitik Pasar Premium',
-      'Manajemen Tim (3 User)',
-      'Prioritas Support 24/7',
-      'Tanpa Watermark AI'
+      'Hingga 20 Listing Properti',
+      'AI Caption Semua Platform',
+      'Auto Posting IG, FB, TikTok',
+      'CRM Leads Full Pipeline',
+      'Laporan Otomatis Mingguan',
+      'Manajemen Tim (2 User)',
+      'Support WA Business'
     ],
     color: 'text-brand-blue',
     bg: 'bg-white-pure',
@@ -59,16 +60,18 @@ const PLANS = [
   {
     id: 'premium',
     name: 'Enterprise AI',
-    price: '999rb',
+    price: '1.99jt',
     period: '/bulan',
     description: 'Solusi lengkap untuk perusahaan real estate besar.',
     features: [
-      'Listing Tanpa Batas',
-      'AI Full Automation (Autopilot)',
-      'Custom AI Training (Brand Voice)',
-      'Multi-Office Management',
-      'Integrasi API Custom',
-      'Account Manager Khusus'
+      'Listing Properti Unlimited',
+      'Auto Posting Semua Platform + WA',
+      'CRM Leads + Advanced Analytics',
+      'KPR Simulator Custom Branded',
+      'A/B Testing Caption',
+      'Laporan Harian & Bulanan',
+      'Manajemen Tim (5 User)',
+      'Dedicated WA Support'
     ],
     color: 'text-purple-600',
     bg: 'bg-white-pure',
@@ -153,7 +156,7 @@ export default function SubscriptionPage() {
               {PLANS.find(p => p.id === profile?.subscription_plan)?.name || 'Free Starter'}
             </h2>
             <p className="text-text-gray max-w-lg leading-relaxed">
-              Anda memiliki akses ke fitur-fitur dasar pemasaran PropNest AI. Tingkatkan paket Anda untuk membuka potensi penuh otomasi AI.
+              Anda memiliki akses ke fitur-fitur dasar pemasaran NusaEstate AI. Tingkatkan paket Anda untuk membuka potensi penuh otomasi AI.
             </p>
             <div className="flex flex-wrap items-center gap-6 pt-4">
               <div className="flex items-center gap-3">
@@ -190,10 +193,10 @@ export default function SubscriptionPage() {
               <div className="space-y-2">
                 <div className="flex justify-between text-xs font-bold">
                   <span>Listing Properti</span>
-                  <span>1 / {profile?.subscription_plan === 'basic' ? '3' : profile?.subscription_plan === 'pro' ? '50' : '∞'}</span>
+                  <span>1 / {profile?.subscription_plan === 'basic' ? '5' : profile?.subscription_plan === 'pro' ? '20' : '∞'}</span>
                 </div>
                 <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-                  <div className="h-full bg-white w-1/3 rounded-full"></div>
+                  <div className="h-full bg-white w-1/5 rounded-full"></div>
                 </div>
               </div>
               <div className="space-y-2">

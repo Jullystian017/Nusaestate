@@ -135,7 +135,7 @@ export default function OnboardingPage() {
                 Pilih Profil Anda
               </h1>
               <p className="text-text-gray font-medium text-base leading-relaxed max-w-md mx-auto">
-                Bantu kami menyesuaikan pengalaman terbaik untuk Anda di PropNest AI.
+                Bantu kami menyesuaikan pengalaman terbaik untuk Anda di NusaEstate AI.
               </p>
             </div>
 

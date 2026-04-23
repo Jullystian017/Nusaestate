@@ -400,7 +400,7 @@ export default function ContentStudioPage() {
                     {/* User info */}
                     <div className="flex items-center gap-2 p-3">
                       <div className="w-8 h-8 rounded-full bg-brand-blue/10 flex items-center justify-center text-[10px] font-bold text-brand-blue">PN</div>
-                      <p className="text-[10px] font-bold">PropNest Official</p>
+                      <p className="text-[10px] font-bold">NusaEstate Official</p>
                     </div>
                     {/* Image */}
                     <div className="aspect-square bg-surface-gray flex items-center justify-center">
@@ -419,7 +419,7 @@ export default function ContentStudioPage() {
                     {/* Caption Preview */}
                     <div className="px-3 pb-8">
                       <p className="text-[11px] leading-relaxed whitespace-pre-wrap">
-                        <span className="font-bold mr-1">propnestofficial</span>
+                        <span className="font-bold mr-1">nusaestateofficial</span>
                         {captions[activePlatform] || 'Klik tombol Generate untuk membuat caption otomatis dengan AI Llama 3.'}
                       </p>
                     </div>

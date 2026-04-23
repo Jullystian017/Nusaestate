@@ -1,5 +1,5 @@
 // =============================================
-// PropNest AI — TypeScript Types
+// NusaEstate AI — TypeScript Types
 // =============================================
 
 // ---- Developer / Auth ----

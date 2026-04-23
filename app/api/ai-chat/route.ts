@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
     if (isDashboard) {
       // ===== DASHBOARD MODE: Business Intelligence =====
       systemPrompt = `
-Kamu adalah PropNest AI, asisten bisnis properti cerdas dan profesional.
+Kamu adalah NusaEstate AI, asisten bisnis properti cerdas dan profesional.
 Kamu memiliki akses REAL-TIME ke seluruh database bisnis properti user.
 
 DATA PROPERTI (${properties?.length || 0} listing):
@@ -145,7 +145,7 @@ LARANGAN:
       const activeProperty = pageContext?.property || (properties && properties[0]);
 
       systemPrompt = `
-Kamu adalah PropNest AI, agen properti digital yang sangat berpengalaman, persuasif, dan helpful.
+Kamu adalah NusaEstate AI, agen properti digital yang sangat berpengalaman, persuasif, dan helpful.
 Kamu berbicara langsung dengan calon pembeli yang sedang menjelajahi properti.
 
 ${activeProperty ? `

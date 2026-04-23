@@ -10,7 +10,7 @@ export default function ProfilOverviewPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const saved = JSON.parse(localStorage.getItem('propnest_bookmarks') || '[]');
+      const saved = JSON.parse(localStorage.getItem('nusaestate_bookmarks') || '[]');
       setBookmarks(saved);
       setIsLoaded(true);
     }
@@ -20,7 +20,7 @@ export default function ProfilOverviewPage() {
     e.preventDefault(); // Prevent navigating to the property detail
     const updated = bookmarks.filter(b => b.id !== id);
     setBookmarks(updated);
-    localStorage.setItem('propnest_bookmarks', JSON.stringify(updated));
+    localStorage.setItem('nusaestate_bookmarks', JSON.stringify(updated));
   };
 
   if (!isLoaded) return null;

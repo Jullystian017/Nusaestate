@@ -43,7 +43,7 @@ export default function TentangPage() {
                   </span>
                 </h1>
                 <p className="text-lg md:text-xl text-text-gray leading-relaxed mb-12 max-w-xl font-medium">
-                  PropNest adalah ekosistem digital revolusioner yang memberdayakan developer melalui AI Generatif dan Otomasi cerdas.
+                  NusaEstate adalah ekosistem digital revolusioner yang memberdayakan developer melalui AI Generatif dan Otomasi cerdas.
                 </p>
                 <div className="flex flex-wrap gap-5">
                   <Link href="/cari" className="bg-brand-blue text-white-pure px-10 py-5 rounded-2xl font-semibold hover:bg-brand-blue-hover transition-all shadow-premium active:scale-95 flex items-center gap-3 group">
@@ -143,7 +143,7 @@ export default function TentangPage() {
                 <div className="w-16 h-1 w-brand-blue mb-8 rounded-full"></div>
                 <h2 className="text-3xl md:text-5xl font-display font-semibold text-text-dark mb-8 leading-tight">Misi Berbasis Komunitas & Teknologi</h2>
                 <p className="text-text-gray text-lg mb-10 leading-relaxed font-medium">
-                  PropNest  tidak hanya membangun software, kami membangun jembatan antara developer daerah dengan pembeli impian mereka. Melalui kecerdasan buatan, kami mengotomatisasi kerumitan sehingga Anda bisa fokus pada apa yang terpenting: <span className="text-brand-blue">membangun hunian</span>.
+                  NusaEstate  tidak hanya membangun software, kami membangun jembatan antara developer daerah dengan pembeli impian mereka. Melalui kecerdasan buatan, kami mengotomatisasi kerumitan sehingga Anda bisa fokus pada apa yang terpenting: <span className="text-brand-blue">membangun hunian</span>.
                 </p>
                 <div className="space-y-6">
                   {[
@@ -168,7 +168,7 @@ export default function TentangPage() {
         <section className="py-12 relative">
           <div className="absolute left-1/2 -translate-x-1/2 top-0 w-full h-[600px] bg-gradient-to-b from-brand-blue/5 to-transparent -z-10"></div>
           <div className="container-standard text-center mb-12">
-            <h2 className="text-4xl md:text-6xl font-display font-semibold text-text-dark mb-6">Kenapa PropNest?</h2>
+            <h2 className="text-4xl md:text-6xl font-display font-semibold text-text-dark mb-6">Kenapa NusaEstate?</h2>
             <p className="text-text-gray text-lg max-w-2xl mx-auto font-medium">Satu platform, ribuan peluang. Dirancang untuk efisiensi maksimal.</p>
           </div>
           <div className="container-standard">
@@ -230,7 +230,7 @@ export default function TentangPage() {
                      </div>
                      <h2 className="text-4xl md:text-5xl font-display font-semibold text-text-dark mb-8 leading-tight">Fokus Pada Kota <br /> Tier 2 & 3</h2>
                      <p className="text-text-gray text-lg mb-12 leading-relaxed font-medium">
-                        Kami mengerti bahwa dinamika properti di Purwokerto, Cilacap, atau Banyumas berbeda dengan Jakarta. PropNest dirancang khusus untuk memahami karakteristik pasar lokal dan membantu developer di daerah berkembang pesat.
+                        Kami mengerti bahwa dinamika properti di Purwokerto, Cilacap, atau Banyumas berbeda dengan Jakarta. NusaEstate dirancang khusus untuk memahami karakteristik pasar lokal dan membantu developer di daerah berkembang pesat.
                      </p>
                      <div className="grid grid-cols-2 gap-10">
                         <div>

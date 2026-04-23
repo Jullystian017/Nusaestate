@@ -38,7 +38,7 @@ export default function HomePage() {
             <div className="max-w-3xl">
               <h1 className="font-display font-light text-3xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight text-white-pure drop-shadow-md">
                 Temukan Rumah Impian <br className="hidden md:block" />
-                Bersama <span className="text-brand-blue font-medium">PropNest</span>
+                Bersama <span className="text-brand-blue font-medium">NusaEstate</span>
               </h1>
             </div>
 

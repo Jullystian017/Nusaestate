@@ -169,7 +169,7 @@ export default function CombinedActivityPage() {
             <ArrowLeft size={14} /> Kembali ke Dashboard
           </Link>
           <h1 className="text-3xl font-display font-medium text-text-dark tracking-tight">Notifikasi & Aktivitas</h1>
-          <p className="text-sm font-normal text-text-gray/50">Pusat pemantauan real-time untuk seluruh kegiatan PropNest Anda.</p>
+          <p className="text-sm font-normal text-text-gray/50">Pusat pemantauan real-time untuk seluruh kegiatan NusaEstate Anda.</p>
         </div>
         
         {activeTab === 'notif' && unreadCount > 0 && (

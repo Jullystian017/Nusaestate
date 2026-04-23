@@ -13,7 +13,7 @@ import { saveAs } from 'file-saver';
 /**
  * Exports a DOM element (the report card) to a high-quality PDF.
  */
-export async function exportToPDF(elementId: string, filename: string = 'PropNest-Executive-Report.pdf') {
+export async function exportToPDF(elementId: string, filename: string = 'NusaEstate-Executive-Report.pdf') {
   const element = document.getElementById(elementId);
   if (!element) return;
 
@@ -43,7 +43,7 @@ export async function exportToPDF(elementId: string, filename: string = 'PropNes
 /**
  * Generates a professional Word document from the AI report markdown.
  */
-export async function exportToWord(reportContent: string, filename: string = 'PropNest-Executive-Report.docx') {
+export async function exportToWord(reportContent: string, filename: string = 'NusaEstate-Executive-Report.docx') {
   const lines = reportContent.split('\n');
   const docChildren: any[] = [];
 
@@ -53,7 +53,7 @@ export async function exportToWord(reportContent: string, filename: string = 'Pr
       alignment: AlignmentType.LEFT,
       children: [
         new TextRun({
-          text: "PROPNEST ",
+          text: "NUSAESTATE ",
           bold: true,
           size: 28,
           color: "1d4ed8",
@@ -148,10 +148,10 @@ export async function exportToWord(reportContent: string, filename: string = 'Pr
   // 4. FOOTER
   docChildren.push(
     new Paragraph({
-      text: "PropNest Intelligence — Empowering Property Decisions.",
+      text: "NusaEstate Intelligence — Empowering Property Decisions.",
       alignment: AlignmentType.CENTER,
       spacing: { before: 800 },
-      children: [new TextRun({ text: "PropNest Intelligence — Empowering Property Decisions.", italics: true, size: 18, color: "6b7280" })]
+      children: [new TextRun({ text: "NusaEstate Intelligence — Empowering Property Decisions.", italics: true, size: 18, color: "6b7280" })]
     })
   );
 

@@ -23,7 +23,7 @@ export async function generateExecutiveReport(analyticsData: {
   };
 
   const prompt = `
-Anda adalah Chief Marketing Officer (CMO) Senior di PropNest, platform analitik properti cerdas.
+Anda adalah Chief Marketing Officer (CMO) Senior di NusaEstate, platform analitik properti cerdas.
 Tugas Anda adalah membuat **Laporan Strategis Eksekutif** berdasarkan data real-time di bawah ini.
 
 ### DATA ANALITIK REAL-TIME:
@@ -43,7 +43,7 @@ Tugas Anda adalah membuat **Laporan Strategis Eksekutif** berdasarkan data real-
 - Gunakan format Markdown yang bersih (Heading 2 dan 3, Bold, Tabel, Bullet points).
 - Fokus pada insight bisnis, bukan sekadar angka.
 - JANGAN menyertakan metadata atau teks pembuka. Langsung ke isi laporan.
-- Tambahkan tagline di akhir: "PropNest Intelligence — Empowering Property Decisions."
+- Tambahkan tagline di akhir: "NusaEstate Intelligence — Empowering Property Decisions."
     `;
 
   try {

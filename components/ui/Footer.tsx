@@ -9,11 +9,9 @@ export default function Footer() {
           {/* Logo & Description */}
           <div className="lg:col-span-4">
             <Link href="/" className="flex items-center gap-2 mb-6">
-              <div className="w-8 h-8 rounded-lg bg-brand-blue text-white-pure flex items-center justify-center font-display font-semibold text-lg">
-                PJ
-              </div>
+              <img src="/images/nusaestate.png" alt="NusaEstate Logo" className="h-8 w-auto object-contain" />
               <span className="font-display font-semibold text-lg tracking-tight text-white-pure">
-                PropNest<span className="text-brand-blue">.</span>
+                NusaEstate<span className="text-brand-blue">.</span>
               </span>
             </Link>
             <p className="leading-relaxed text-gray-400 max-w-sm">
@@ -57,7 +55,7 @@ export default function Footer() {
         </div>
 
         <div className="pt-8 border-t border-gray-800 text-center">
-           <p>© {new Date().getFullYear()} PropNest. Hak cipta dilindungi.</p>
+           <p>© {new Date().getFullYear()} NusaEstate. Hak cipta dilindungi.</p>
         </div>
       </div>
     </footer>

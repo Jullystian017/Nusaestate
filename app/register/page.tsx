@@ -112,7 +112,7 @@ export default function RegisterPage() {
           <div className="flex-1 flex flex-col justify-center max-w-[420px] mx-auto w-full">
             <div className="mb-10 pt-16 md:pt-0">
               <h1 className="text-3xl font-display font-semibold text-text-dark mb-3 tracking-tight">
-                Daftar PropNest AI
+                Daftar NusaEstate AI
               </h1>
               <p className="text-text-gray font-medium text-sm">
                 Bergabunglah dengan platform pemasaran properti masa depan
@@ -213,13 +213,11 @@ export default function RegisterPage() {
           <div className="absolute inset-0 p-3">
              <div className="w-full h-full rounded-[2.5rem] bg-black-pure/30 flex flex-col justify-end p-10">
                 <div className="mb-6 flex items-center gap-2 bg-white/10 backdrop-blur-md w-fit px-4 py-2 rounded-full border border-white/20">
-                    <div className="w-6 h-6 bg-brand-blue rounded-lg flex items-center justify-center">
-                        <span className="text-white-pure text-[10px] font-bold">P</span>
-                    </div>
-                    <span className="text-white-pure text-xs font-medium tracking-wide">PropNest AI</span>
+                    <img src="/images/nusaestate.png" alt="Logo" className="w-6 h-6 object-contain" />
+                    <span className="text-white-pure text-xs font-medium tracking-wide">NusaEstate AI</span>
                 </div>
                 <h2 className="text-3xl lg:text-4xl font-display font-semibold text-white-pure leading-tight mb-4">
-                  Gabung PropNest <br /> Sekarang
+                  Gabung NusaEstate <br /> Sekarang
                 </h2>
                 <p className="text-white-pure/80 text-sm font-medium max-w-sm leading-relaxed">
                   Mulai perjalanan Anda untuk menemukan properti impian dengan teknologi AI kami. Bergabunglah dengan ribuan pengguna lainnya.

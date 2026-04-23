@@ -5,8 +5,8 @@ import GlobalAI from '@/components/dashboard/GlobalAI';
 
 export const metadata: Metadata = {
   title: {
-    default: 'PropNest AI — Platform Properti Cerdas Indonesia',
-    template: '%s | PropNest AI',
+    default: 'NusaEstate AI — Platform Properti Cerdas Indonesia',
+    template: '%s | NusaEstate AI',
   },
   description:
     'Platform pemasaran properti berbasis kecerdasan buatan untuk developer perumahan Indonesia. AI Caption Generator, CRM Leads, KPR Simulator, dan Auto Posting media sosial dalam satu platform.',
@@ -18,20 +18,20 @@ export const metadata: Metadata = {
     'developer perumahan',
     'listing properti Jawa Tengah',
   ],
-  authors: [{ name: 'PropNest AI' }],
-  creator: 'PropNest AI',
+  authors: [{ name: 'NusaEstate AI' }],
+  creator: 'NusaEstate AI',
   openGraph: {
     type: 'website',
     locale: 'id_ID',
     url: process.env.NEXT_PUBLIC_APP_URL,
-    siteName: 'PropNest AI',
-    title: 'PropNest AI — Platform Properti Cerdas Indonesia',
+    siteName: 'NusaEstate AI',
+    title: 'NusaEstate AI — Platform Properti Cerdas Indonesia',
     description:
       'Ekosistem digital lengkap untuk developer perumahan. AI-powered, auto posting, CRM leads, dan KPR simulator.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'PropNest AI',
+    title: 'NusaEstate AI',
     description: 'Platform properti berbasis AI untuk developer Indonesia.',
   },
   robots: {

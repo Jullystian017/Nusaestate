@@ -227,12 +227,12 @@ export default function AnalyticsPage() {
 
   const handleExportPDF = (id: string = 'report-print-template') => {
     if (!report) return;
-    exportToPDF(id, `PropNest_Laporan_Eksekutif_${new Date().toISOString().split('T')[0]}.pdf`);
+    exportToPDF(id, `NusaEstate_Laporan_Eksekutif_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   const handleExportWord = () => {
     if (!report) return;
-    exportToWord(report, `PropNest_Laporan_Eksekutif_${new Date().toLocaleDateString('id-ID')}.docx`);
+    exportToWord(report, `NusaEstate_Laporan_Eksekutif_${new Date().toLocaleDateString('id-ID')}.docx`);
   };
 
   const onPieEnter = (_: any, index: number) => {
@@ -603,7 +603,7 @@ export default function AnalyticsPage() {
                   <Building2 size={36} />
                 </div>
                 <div>
-                  <h1 className="text-4xl font-display font-bold text-text-dark tracking-tight">PropNest <span className="text-brand-blue">Intelligence</span></h1>
+                  <h1 className="text-4xl font-display font-bold text-text-dark tracking-tight">NusaEstate <span className="text-brand-blue">Intelligence</span></h1>
                   <p className="text-sm font-bold text-text-gray uppercase tracking-[0.3em] opacity-60 mt-1">Analisis Pasar Strategis</p>
                 </div>
               </div>
@@ -643,7 +643,7 @@ export default function AnalyticsPage() {
           </div>
 
           <div className="mt-24 pt-10 border-t border-border-line/10 flex justify-between items-center opacity-50 italic text-xs text-text-gray">
-            <p>© 2026 PropNest Intelligence — Penggunaan Internal</p>
+            <p>© 2026 NusaEstate Intelligence — Penggunaan Internal</p>
             <p>Memberdayakan Keputusan Properti melalui Data dan AI.</p>
           </div>
         </div>

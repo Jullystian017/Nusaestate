@@ -32,7 +32,7 @@ export default function SearchBar() {
     }
     
     // Load from localStorage
-    const saved = localStorage.getItem('propnest_recent_searches');
+    const saved = localStorage.getItem('nusaestate_recent_searches');
     if (saved) {
       setRecentSearches(JSON.parse(saved));
     }
@@ -73,7 +73,7 @@ export default function SearchBar() {
     if (filters.lokasi.trim()) {
       const updated = [filters.lokasi, ...recentSearches.filter(s => s !== filters.lokasi)].slice(0, 3);
       setRecentSearches(updated);
-      localStorage.setItem('propnest_recent_searches', JSON.stringify(updated));
+      localStorage.setItem('nusaestate_recent_searches', JSON.stringify(updated));
     }
 
     const params = new URLSearchParams({

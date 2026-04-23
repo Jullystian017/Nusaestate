@@ -119,13 +119,13 @@ export async function chatWithBot(params: {
   const { messages, listingContext } = params;
 
   const systemPrompt = listingContext
-    ? `Kamu adalah AI asisten properti PropNest untuk perumahan "${listingContext.name}" di ${listingContext.location_city}. 
+    ? `Kamu adalah AI asisten properti NusaEstate untuk perumahan "${listingContext.name}" di ${listingContext.location_city}. 
 Harga: Rp ${listingContext.price_min?.toLocaleString('id-ID')}. 
 Spesifikasi: ${listingContext.specs.kamar_tidur} KT, ${listingContext.specs.kamar_mandi} KM.
 Fasilitasnya: ${listingContext.facilities.join(', ')}.
 Jawab pertanyaan calon pembeli dengan ramah, informatif, dan profesional dalam Bahasa Indonesia.
 Jika ditanya soal KPR, berikan panduan umum. Jika pertanyaan di luar properti ini, arahkan untuk menghubungi tim kami.`
-    : `Kamu adalah AI asisten properti PropNest. Bantu calon pembeli menemukan properti impian mereka di Indonesia, terutama Jawa Tengah. 
+    : `Kamu adalah AI asisten properti NusaEstate. Bantu calon pembeli menemukan properti impian mereka di Indonesia, terutama Jawa Tengah. 
 Jawab dengan ramah, informatif, dan profesional dalam Bahasa Indonesia.`;
 
   const completion = await groq.chat.completions.create({

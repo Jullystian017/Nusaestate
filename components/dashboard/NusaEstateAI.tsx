@@ -69,19 +69,19 @@ function getContext(pathname: string): AIPageContext['page'] {
 function getWelcomeMessage(context: AIPageContext['page']): string {
   switch (context) {
     case 'dashboard':
-      return '👋 Halo! Saya **PropNest AI**, asisten bisnis Anda.\n\nSaya terhubung ke database properti, leads, dan deals Anda secara real-time. Tanyakan apa saja — dari analisis performa hingga draft pesan follow-up!';
+      return '👋 Halo! Saya **NusaEstate AI**, asisten bisnis Anda.\n\nSaya terhubung ke database properti, leads, dan deals Anda secara real-time. Tanyakan apa saja — dari analisis performa hingga draft pesan follow-up!';
     case 'properti':
-      return '👋 Halo! Saya **PropNest AI**, agen properti digital Anda.\n\nSaya tahu detail properti ini dan fasilitas di sekitarnya. Ingin tahu estimasi cicilan KPR, keunggulan lokasi, atau nilai investasinya? Tanya saja!';
+      return '👋 Halo! Saya **NusaEstate AI**, agen properti digital Anda.\n\nSaya tahu detail properti ini dan fasilitas di sekitarnya. Ingin tahu estimasi cicilan KPR, keunggulan lokasi, atau nilai investasinya? Tanya saja!';
     default:
-      return '👋 Halo! Saya **PropNest AI**.\n\nSaya bisa bantu Anda menemukan properti impian, menghitung simulasi KPR, atau menjawab pertanyaan seputar properti. Mulai dari mana?';
+      return '👋 Halo! Saya **NusaEstate AI**.\n\nSaya bisa bantu Anda menemukan properti impian, menghitung simulasi KPR, atau menjawab pertanyaan seputar properti. Mulai dari mana?';
   }
 }
 
-interface PropNestAIProps {
+interface NusaEstateAIProps {
   pageContext?: AIPageContext;
 }
 
-export default function PropNestAI({ pageContext }: PropNestAIProps) {
+export default function NusaEstateAI({ pageContext }: NusaEstateAIProps) {
   const pathname = usePathname();
   const derivedContext = pageContext?.page || getContext(pathname || '');
   const chips = CHIPS_BY_CONTEXT[derivedContext] || CHIPS_BY_CONTEXT.public;
@@ -188,7 +188,7 @@ export default function PropNestAI({ pageContext }: PropNestAIProps) {
               <Sparkles size={20} />
             </div>
             <div>
-              <h3 className="font-display font-medium text-sm leading-tight">PropNest AI</h3>
+              <h3 className="font-display font-medium text-sm leading-tight">NusaEstate AI</h3>
               <div className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
                 <span className="text-[10px] font-medium opacity-80 uppercase tracking-widest">{contextLabel}</span>
@@ -298,7 +298,7 @@ export default function PropNestAI({ pageContext }: PropNestAIProps) {
                 </button>
               </div>
               <p className="text-[9px] text-center text-text-gray/30 mt-2 font-medium uppercase tracking-[0.1em]">
-                PropNest AI · Powered by Groq
+                NusaEstate AI · Powered by Groq
               </p>
             </div>
           </>

@@ -18,7 +18,7 @@ import { notFound, useRouter } from 'next/navigation';
 import MapContainer from '@/components/maps/MapContainer';
 import { createClient } from '@/lib/supabase/client';
 import { useNearbyPlaces } from '@/hooks/useNearbyPlaces';
-import PropNestAI from '@/components/dashboard/PropNestAI';
+import NusaEstateAI from '@/components/dashboard/NusaEstateAI';
 
 // --- KPR CALCULATOR COMPONENT ---
 const KPRCalculator = ({ propertyPrice, onInquiry }: { propertyPrice: string, onInquiry: () => void }) => {
@@ -206,7 +206,7 @@ const KPRCalculator = ({ propertyPrice, onInquiry }: { propertyPrice: string, on
                 className="w-full bg-brand-blue text-white-pure py-4 rounded-xl font-bold text-sm shadow-xl shadow-brand-blue/20 hover:bg-brand-blue-deep transition-all mt-4 flex items-center justify-center gap-3 active:scale-95 group/cta"
               >
                 <MessageSquare size={18} />
-                Ajukan KPR via PropNest
+                Ajukan KPR via NusaEstate
                 <ArrowUpRight size={16} className="group-hover/cta:translate-x-1 group-hover/cta:-translate-y-1 transition-transform" />
               </button>
             </div>
@@ -390,7 +390,7 @@ export default function DetailPropertiPage({
           description: propData.description || '',
           features: ['Properti Terverifikasi', `${propData.building_area}m² Luas Bangunan`, propData.price_type === 'Sewa' ? 'Per Tahun' : 'Harga Jual'],
           agent: {
-            name: agentProfile?.full_name || 'Agen PropNest',
+            name: agentProfile?.full_name || 'Agen NusaEstate',
             type: agentProfile?.company_name || 'Developer Resmi',
             avatar: agentProfile?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(agentProfile?.full_name || 'AP')}&background=3B5BDB&color=fff`
           },
@@ -416,17 +416,17 @@ export default function DetailPropertiPage({
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const saved = JSON.parse(localStorage.getItem('propnest_bookmarks') || '[]');
+      const saved = JSON.parse(localStorage.getItem('nusaestate_bookmarks') || '[]');
       setIsSaved(saved.some((p: any) => p.id === id));
     }
   }, [id]);
 
   const handleSave = () => {
     if (typeof window === 'undefined') return;
-    const saved = JSON.parse(localStorage.getItem('propnest_bookmarks') || '[]');
+    const saved = JSON.parse(localStorage.getItem('nusaestate_bookmarks') || '[]');
     if (isSaved) {
       const updated = saved.filter((p: any) => p.id !== id);
-      localStorage.setItem('propnest_bookmarks', JSON.stringify(updated));
+      localStorage.setItem('nusaestate_bookmarks', JSON.stringify(updated));
       setIsSaved(false);
     } else {
       const propData = {
@@ -438,7 +438,7 @@ export default function DetailPropertiPage({
         specs: property.specs
       };
       saved.push(propData);
-      localStorage.setItem('propnest_bookmarks', JSON.stringify(saved));
+      localStorage.setItem('nusaestate_bookmarks', JSON.stringify(saved));
       setIsSaved(true);
     }
   };
@@ -803,13 +803,13 @@ export default function DetailPropertiPage({
 
               <div className="bg-white-pure border border-border-line/40 p-4 rounded-2xl flex items-center gap-4 hover:bg-surface-gray transition-colors group mb-6">
                 <div className="relative">
-                  <div className="w-12 h-12 rounded-xl bg-cover bg-center shadow-md grow-0 shrink-0 border border-white-pure group-hover:scale-110 transition-transform duration-300" style={{ backgroundImage: `url('${property.agent?.avatar || 'https://ui-avatars.com/api/?name=Agent+PropNest&background=random'}')` }}></div>
+                  <div className="w-12 h-12 rounded-xl bg-cover bg-center shadow-md grow-0 shrink-0 border border-white-pure group-hover:scale-110 transition-transform duration-300" style={{ backgroundImage: `url('${property.agent?.avatar || 'https://ui-avatars.com/api/?name=Agent+NusaEstate&background=random'}')` }}></div>
                   <div className="absolute -bottom-1 -right-1 bg-green-500 text-white-pure p-1 rounded-full border-2 border-white-pure">
                     <Shield size={8} fill="currentColor" />
                   </div>
                 </div>
                 <div>
-                  <div className="font-semibold text-text-dark text-sm tracking-tight">{property.agent?.name || 'Agen PropNest Resmi'}</div>
+                  <div className="font-semibold text-text-dark text-sm tracking-tight">{property.agent?.name || 'Agen NusaEstate Resmi'}</div>
                   <div className="text-[9px] text-text-gray font-black uppercase tracking-widest mt-0.5">{property.agent?.type || 'Senior Consultant'}</div>
                 </div>
               </div>
@@ -907,8 +907,8 @@ export default function DetailPropertiPage({
         propertyName={property.name}
         propertyId={property.id}
       />
-      {/* PropNest AI with full property context */}
-      <PropNestAI
+      {/* NusaEstate AI with full property context */}
+      <NusaEstateAI
         pageContext={{
           page: 'properti',
           property: {
