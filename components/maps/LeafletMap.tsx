@@ -9,12 +9,12 @@ import 'leaflet/dist/leaflet.css';
 const formatPriceShort = (price: string | number): string => {
   const num = typeof price === 'number'
     ? price
-    : parseFloat(String(price).replace(/[^0-9]/g, ''));
+    : parseInt(String(price).replace(/[^0-9]/g, ''), 10);
 
-  if (isNaN(num) || num === 0) return '—';
-  if (num >= 1_000_000_000) return `${(num / 1_000_000_000).toFixed(1).replace('.0', '')}M`;
-  if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(0)}jt`;
-  return `${num}`;
+  if (isNaN(num) || num === 0) return typeof price === 'string' ? price : '—';
+  if (num >= 1000000000) return `Rp ${(num / 1000000000).toFixed(1).replace('.0', '')} M`;
+  if (num >= 1000000) return `Rp ${(num / 1000000).toFixed(1).replace('.0', '')} Juta`;
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
 };
 
 const createCustomIcon = (priceLabel: string) => {
@@ -119,13 +119,11 @@ export default function LeafletMap({ properties }: LeafletMapProps) {
                   <img src={propImage} alt={propName} className="w-full h-24 object-cover rounded-lg mb-2" />
                 )}
                 <h4 className="font-bold text-brand-blue text-sm leading-snug">{propName}</h4>
-                <p className="text-brand-orange font-bold text-xs mt-0.5">
-                  {typeof prop.price === 'number'
-                    ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(prop.price)
-                    : prop.price}
+                <p className="text-text-dark font-bold text-xs mt-0.5">
+                  {formatPriceShort(prop.price)}
                 </p>
                 {prop.location && (
-                  <p className="text-[10px] text-gray-500 mt-0.5">{prop.location}</p>
+                  <p className="text-[10px] text-gray-500 mt-1 pt-1 border-t border-gray-100">{prop.location}</p>
                 )}
               </div>
             </Popup>

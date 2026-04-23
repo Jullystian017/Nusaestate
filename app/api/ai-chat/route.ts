@@ -67,8 +67,14 @@ export async function POST(req: NextRequest) {
       nearbyContext = await fetchNearbyForAI(pageContext.lat, pageContext.lng);
     }
 
+    const formatPrice = (price: number) => {
+      if (price >= 1000000000) return `${(price / 1000000000).toFixed(1).replace('.0', '')} M`;
+      if (price >= 1000000) return `${(price / 1000000).toFixed(1).replace('.0', '')} Juta`;
+      return price.toLocaleString('id-ID');
+    };
+
     const formatProperties = (props: any[]) => props.map(p =>
-      `- ${p.title} | ${p.location} | Rp ${Number(p.price).toLocaleString('id-ID')} | ${p.type}`
+      `- ${p.title} | ${p.location} | Rp ${formatPrice(Number(p.price))} | ${p.type}`
     ).join('\n');
 
     let systemPrompt = '';
@@ -82,7 +88,7 @@ Jawab singkat, padat, profesional. Berikan insight langsung.`.trim();
     } else {
       const prop = pageContext?.property;
       systemPrompt = `Kamu NusaEstate AI, agen properti persuasif dan singkat.
-PROPERTI: ${prop ? `${prop.title}, ${prop.location}, Rp ${prop.price}` : 'Lihat katalog.'}
+PROPERTI: ${prop ? `${prop.title}, ${prop.location}, Rp ${formatPrice(Number(prop.price))}` : 'Lihat katalog.'}
 FASILITAS: ${nearbyContext || 'Strategis.'}
 
 ATURAN PENTING:

@@ -348,7 +348,11 @@ function CariContent() {
             ) : (
             <div className={`grid gap-x-8 gap-y-12 ${viewMode === 'split' ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
               {liveProperties.map((item) => {
-                const formatPrice = (p: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(p).replace('Rp', 'Rp ');
+                const formatPrice = (p: number) => {
+                  if (p >= 1000000000) return `Rp ${(p / 1000000000).toFixed(1).replace('.0', '')} M`;
+                  if (p >= 1000000) return `Rp ${(p / 1000000).toFixed(1).replace('.0', '')} Juta`;
+                  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(p).replace('Rp', 'Rp ');
+                };
                 const imageUrl = item.images?.[0] || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80';
 
                 if (viewMode === 'split') {
@@ -469,7 +473,11 @@ function CariContent() {
                 coords: p.lat && p.lng
                   ? { lat: p.lat, lng: p.lng }
                   : { lat: -7.025 + (Math.random() - 0.5) * 0.1, lng: 110.320 + (Math.random() - 0.5) * 0.1 },
-                price: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(p.price).replace('Rp', 'Rp '),
+                price: p.price >= 1000000000 
+                  ? `Rp ${(p.price / 1000000000).toFixed(1).replace('.0', '')} M` 
+                  : p.price >= 1000000 
+                    ? `Rp ${(p.price / 1000000).toFixed(1).replace('.0', '')} Juta` 
+                    : new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(p.price).replace('Rp', 'Rp '),
               }))} />
 
               {/* Map Info Overlay */}

@@ -112,7 +112,7 @@ export default function HomePage() {
 
                 <div className="flex items-center justify-between">
                   <p className="text-lg font-semibold text-text-dark">
-                    {item.price.replace('Rp ', 'Rp').replace(' Juta', 'jt').replace(' Miliar', 'M')}
+                    {item.price.replace('Rp ', 'Rp ').replace(' Juta', ' Juta').replace(' Miliar', ' M')}
                   </p>
                 </div>
 

@@ -26,12 +26,12 @@ const KPRCalculator = ({ propertyPrice, onInquiry }: { propertyPrice: string, on
     let clean = priceStr.toLowerCase().replace('rp', '').trim();
     let multiplier = 1;
 
-    if (clean.includes('miliar')) {
+    if (clean.includes('miliar') || clean.includes(' m')) {
       multiplier = 1000000000;
-      clean = clean.replace('miliar', '').replace(',', '.').trim();
-    } else if (clean.includes('juta')) {
+      clean = clean.replace('miliar', '').replace(' m', '').replace(',', '.').trim();
+    } else if (clean.includes('juta') || clean.includes(' jt')) {
       multiplier = 1000000;
-      clean = clean.replace('juta', '').replace(',', '.').trim();
+      clean = clean.replace('juta', '').replace(' jt', '').replace(',', '.').trim();
     } else {
       // Handle full numbers like Rp 2.500.000.000
       clean = clean.replace(/\./g, '').replace(',', '.').replace(/[^0-9.]/g, '');
@@ -405,6 +405,19 @@ export default function DetailPropertiPage({
 
   const property = mockProperty || dbProperty;
 
+  const formatPrice = (price: string | number) => {
+    if (!price) return 'Rp 0';
+    let num = typeof price === 'number' ? price : 0;
+    if (typeof price === 'string') {
+      if (price.includes('Miliar') || price.includes('Juta') || price.includes('M')) return price;
+      num = parseInt(price.replace(/[^0-9]/g, ''), 10);
+    }
+    if (isNaN(num) || num === 0) return price.toString();
+    if (num >= 1000000000) return `Rp ${(num / 1000000000).toFixed(1).replace('.0', '')} M`;
+    if (num >= 1000000) return `Rp ${(num / 1000000).toFixed(1).replace('.0', '')} Juta`;
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
+  };
+
   const [activeTab, setActiveTab] = useState<'transport' | 'school' | 'shopping' | 'health' | 'tourism' | 'worship'>('transport');
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
 
@@ -773,7 +786,7 @@ export default function DetailPropertiPage({
               <div className="mb-6 p-6 bg-[#F8F9FD] rounded-[2rem] border border-brand-blue/10 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-brand-blue/5 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150 duration-700"></div>
                 <div className="text-[9px] font-black uppercase tracking-[0.2em] text-text-gray/50 mb-2">Harga Jual Properti</div>
-                <div className="text-3xl font-display font-medium text-text-dark tracking-tight">{property.price}</div>
+                <div className="text-3xl font-display font-medium text-text-dark tracking-tight">{formatPrice(property.price)}</div>
               </div>
 
               <div className="bg-brand-blue/5 border border-brand-blue/10 text-brand-blue p-4 rounded-xl flex items-start gap-3 mb-6">
@@ -882,7 +895,7 @@ export default function DetailPropertiPage({
                   </p>
                   <div className="my-3 border-t border-border-line/20"></div>
                   <div className="flex items-center justify-between">
-                    <p className="text-base font-bold text-text-dark">{item.price}</p>
+                    <p className="text-base font-bold text-text-dark">{formatPrice(item.price)}</p>
                     <div className="flex gap-3 text-[10px] text-text-gray font-medium">
                       <span className="flex items-center gap-1"><BedDouble size={14} className="text-brand-blue/60" /> {item.specs.beds}</span>
                       <span className="flex items-center gap-1"><Bath size={14} className="text-brand-blue/60" /> {item.specs.baths}</span>
@@ -946,7 +959,7 @@ export default function DetailPropertiPage({
               </button>
               <div className="truncate flex items-center gap-4">
                 <h2 className="text-sm font-medium text-text-dark truncate hidden sm:block">{property.name}</h2>
-                <p className="text-brand-blue font-semibold text-sm">{property.price}</p>
+                <p className="text-brand-blue font-semibold text-sm">{formatPrice(property.price)}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
