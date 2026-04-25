@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import AuthHero from '@/components/auth/AuthHero';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { createClient } from '@/lib/supabase/client';
@@ -204,32 +205,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Right Side: Visual Hero */}
-        <div className="relative w-full md:w-[45%] h-[300px] md:h-auto overflow-hidden order-1 md:order-2">
-          <img 
-            src="/images/auth-hero.png" 
-            alt="Properti mewah" 
-            className="absolute inset-0 w-full h-full object-cover p-3 rounded-[3rem]"
-          />
-          <div className="absolute inset-0 p-3">
-             <div className="w-full h-full rounded-[2.5rem] bg-black-pure/30 flex flex-col justify-end p-10">
-                <div className="mb-6 flex items-center gap-2 bg-white/10 backdrop-blur-md w-fit px-4 py-2 rounded-full border border-white/20">
-                    <img src="/images/nusaestate.png" alt="Logo" className="w-6 h-6 object-contain" />
-                    <span className="text-white-pure text-xs font-medium tracking-wide">NusaEstate AI</span>
-                </div>
-                <h2 className="text-3xl lg:text-4xl font-display font-semibold text-white-pure leading-tight mb-4">
-                  Gabung NusaEstate <br /> Sekarang
-                </h2>
-                <p className="text-white-pure/80 text-sm font-medium max-w-sm leading-relaxed">
-                  Mulai perjalanan Anda untuk menemukan properti impian dengan teknologi AI kami. Bergabunglah dengan ribuan pengguna lainnya.
-                </p>
-                <div className="flex gap-2 mt-8">
-                    <div className="w-4 h-1 bg-white/30 rounded-full"></div>
-                    <div className="w-8 h-1 bg-white-pure rounded-full opacity-100"></div>
-                    <div className="w-4 h-1 bg-white/30 rounded-full"></div>
-                </div>
-             </div>
-          </div>
-        </div>
+        <AuthHero />
       </div>
     </div>
   );
