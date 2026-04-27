@@ -8,7 +8,8 @@ import {
   MapPin, Home, DollarSign, Search,
   BrainCircuit, Calculator, Map, FileCheck, Zap, TrendingUp,
   Heart, BedDouble, Bath, Scaling, ArrowUpRight, Bookmark,
-  ChevronDown, Shield, CheckCircle, Building, Store, ArrowRight
+  ChevronDown, Shield, CheckCircle, Building, Store, ArrowRight,
+  Star, Sparkles, Crown, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import SearchBar from '@/components/home/SearchBar';
 
@@ -86,6 +87,233 @@ export default function HomePage() {
               </div>
               <h3 className="text-xl font-medium text-text-dark mb-3">Listing Terverifikasi</h3>
               <p className="text-text-gray text-sm leading-relaxed">Semua properti melewati proses verifikasi ketat. Apa yang Anda lihat di foto adalah apa yang Anda dapatkan di lokasi.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* ── PROPERTI UNGGULAN (FEATURED LISTING - WOW UI) ── */}
+      <section className="py-24 bg-surface-gray relative overflow-hidden">
+        {/* Subtle Background Elements */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-30">
+          <div className="absolute top-[-10%] left-[-5%] w-[400px] h-[400px] bg-brand-blue/10 rounded-full blur-[120px]"></div>
+          <div className="absolute bottom-[-10%] right-[-5%] w-[400px] h-[400px] bg-brand-blue/10 rounded-full blur-[120px]"></div>
+        </div>
+
+        <div className="container-standard relative z-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div className="max-w-xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-blue/10 border border-brand-blue/20 text-brand-blue text-[10px] font-bold uppercase tracking-widest mb-4">
+                <Sparkles size={12} />
+                Featured Add-on
+              </div>
+              <h2 className="text-3xl md:text-5xl font-display font-medium text-text-dark leading-[1.2]">
+                Properti <span className="text-brand-blue italic">Unggulan</span> Minggu Ini
+              </h2>
+            </div>
+            <p className="text-text-gray text-sm md:text-base max-w-xs md:text-right">
+              Listing pilihan dengan eksposur maksimal dan verifikasi premium dari tim ahli kami.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Main Featured Card (Large - Span 2 columns on large screens) */}
+            {RECOMMENDATIONS.slice(2, 3).map((item) => (
+              <Link 
+                key={`featured-large-${item.id}`}
+                href={`/properti/${item.id}`}
+                className="group relative h-[450px] md:h-full lg:col-span-2 rounded-3xl overflow-hidden shadow-2xl flex flex-col justify-end p-8 transition-transform duration-700 hover:scale-[1.01]"
+              >
+                {/* Background Image */}
+                <div className="absolute inset-0 bg-cover bg-center transition-transform duration-[10s] group-hover:scale-110" style={{ backgroundImage: `url(${item.image})` }}></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black-pure via-black-pure/40 to-transparent"></div>
+                
+                {/* Top Badge */}
+                <div className="absolute top-6 left-6 flex gap-3">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-brand-blue text-white-pure rounded-full text-xs font-bold shadow-lg shadow-brand-blue/30">
+                    <Star size={14} fill="white" />
+                    FEATURED
+                  </div>
+                  <div className="px-4 py-2 bg-white/10 backdrop-blur-md text-white-pure rounded-full text-xs font-medium border border-white/20">
+                    {item.location}
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="relative z-10">
+                  <h3 className="text-3xl md:text-4xl font-display font-medium text-white-pure mb-4 group-hover:text-brand-blue transition-colors">
+                    {item.name}
+                  </h3>
+                  
+                  <div className="flex flex-wrap items-center gap-6 mb-6 text-white/70 text-sm">
+                    <span className="flex items-center gap-2"><BedDouble size={18} className="text-brand-blue" /> {item.specs.beds} Kamar</span>
+                    <span className="flex items-center gap-2"><Bath size={18} className="text-brand-blue" /> {item.specs.baths} Kamar Mandi</span>
+                    <span className="flex items-center gap-2"><Scaling size={18} className="text-brand-blue" /> {item.specs.size}m²</span>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-6 border-t border-white/10">
+                    <div>
+                      <p className="text-white/50 text-xs uppercase tracking-widest mb-1">Harga Penawaran</p>
+                      <p className="text-2xl md:text-3xl font-bold text-white-pure">{item.price}</p>
+                    </div>
+                    <div className="w-14 h-14 rounded-full bg-brand-blue text-white-pure flex items-center justify-center shadow-lg shadow-brand-blue/40 group-hover:scale-110 transition-transform">
+                      <ArrowUpRight size={24} />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+
+            {/* Featured Small Items + Promo CTA Grid */}
+            <div className="lg:col-span-1 grid grid-cols-1 gap-6">
+              {RECOMMENDATIONS.slice(0, 2).map((item) => (
+                <Link 
+                  key={`featured-small-${item.id}`}
+                  href={`/properti/${item.id}`}
+                  className="group relative flex rounded-3xl overflow-hidden bg-white-pure border border-border-line/10 hover:border-brand-blue/30 transition-all duration-500 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_50px_-12px_rgba(13,138,188,0.15)] h-[200px]"
+                >
+                  {/* Left: Image Area */}
+                  <div className="relative w-[40%] overflow-hidden">
+                    <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style={{ backgroundImage: `url(${item.image})` }}></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-black-pure/10 to-transparent"></div>
+                    
+                    {/* Floating Star Badge */}
+                    <div className="absolute top-3 left-3 w-8 h-8 rounded-full bg-brand-blue text-white-pure flex items-center justify-center shadow-lg shadow-brand-blue/30 border border-white/20">
+                      <Star size={14} fill="white" />
+                    </div>
+                  </div>
+                  
+                  {/* Right: Content Area */}
+                  <div className="w-[60%] p-6 flex flex-col justify-between relative bg-gradient-to-br from-white-pure to-surface-gray/50">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-bold text-brand-blue uppercase tracking-[0.1em]">Luxury Listing</span>
+                        <div className="w-1 h-1 bg-brand-blue/30 rounded-full"></div>
+                        <span className="text-[10px] font-medium text-text-gray">{item.badge}</span>
+                      </div>
+                      <h4 className="text-lg font-medium text-text-dark mb-1 group-hover:text-brand-blue transition-colors line-clamp-1 leading-tight">{item.name}</h4>
+                      <p className="text-[11px] text-text-gray flex items-center gap-1.5 font-medium">
+                        <MapPin size={12} className="text-brand-blue" />
+                        {item.location}
+                      </p>
+                    </div>
+
+                    <div className="flex items-end justify-between">
+                      <div>
+                        <p className="text-xl font-bold text-text-dark tracking-tight">{item.price}</p>
+                        <div className="flex items-center gap-3 mt-2 text-[10px] text-text-gray/60 font-semibold">
+                          <span className="flex items-center gap-1"><BedDouble size={12} /> {item.specs.beds}</span>
+                          <span className="flex items-center gap-1"><Bath size={12} /> {item.specs.baths}</span>
+                          <span className="flex items-center gap-1"><Scaling size={12} /> {item.specs.size}m²</span>
+                        </div>
+                      </div>
+                      <div className="w-8 h-8 rounded-full bg-brand-blue/10 text-brand-blue flex items-center justify-center group-hover:bg-brand-blue group-hover:text-white-pure transition-all duration-300">
+                        <ArrowUpRight size={16} />
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+              
+              {/* Promo Card / Add-on CTA */}
+              <div className="relative rounded-2xl overflow-hidden p-6 bg-brand-blue-deep flex flex-col justify-between group cursor-pointer border border-brand-blue/20 h-[180px]">
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-125 transition-transform duration-700">
+                  <Crown size={80} />
+                </div>
+                
+                <div>
+                  <h4 className="text-white-pure font-medium mb-1">Ingin Properti Anda Di Sini?</h4>
+                  <p className="text-white/60 text-[10px] leading-relaxed">
+                    Tingkatkan visibilitas listing Anda 10x lipat dengan fitur Featured Listing.
+                  </p>
+                </div>
+                
+                <Link href="/dashboard/subscription" className="flex items-center gap-2 text-xs font-bold text-brand-blue-light group-hover:text-white-pure transition-colors">
+                  PELAJARI SELENGKAPNYA
+                  <ArrowRight size={14} />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Additional Items - HORIZONTAL SLIDER */}
+          <div className="relative mt-12 group/slider">
+            <div 
+              id="featured-slider"
+              className="flex gap-6 overflow-x-auto pb-8 scrollbar-hide snap-x snap-mandatory scroll-smooth"
+              style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}
+            >
+              {RECOMMENDATIONS.map((item) => (
+                <Link 
+                  key={`featured-slider-${item.id}`}
+                  href={`/properti/${item.id}`}
+                  className="flex-none w-[320px] md:w-[380px] snap-start group/card relative pb-12"
+                >
+                  {/* Top Image Area */}
+                  <div className="relative aspect-[4/3] rounded-[32px] overflow-hidden shadow-xl">
+                    <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover/card:scale-110" style={{ backgroundImage: `url(${item.image})` }}></div>
+                    
+                    {/* Populer Badge */}
+                    <div className="absolute top-5 left-5 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full flex items-center gap-2 shadow-sm border border-white/20">
+                      <div className="w-2 h-2 rounded-full bg-brand-blue animate-pulse"></div>
+                      <span className="text-xs font-bold text-brand-blue tracking-tight">Populer</span>
+                    </div>
+                  </div>
+
+                  {/* Floating Content Box */}
+                  <div className="relative -mt-20 mx-4 bg-white-pure rounded-3xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-border-line/10 group-hover/card:border-brand-blue/30 transition-all duration-500 z-10">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h4 className="text-xl font-bold text-text-dark group-hover/card:text-brand-blue transition-colors line-clamp-1">{item.name}</h4>
+                        <p className="text-xs text-text-gray flex items-center gap-1 mt-1">
+                          <MapPin size={14} className="text-brand-blue" />
+                          {item.location}
+                        </p>
+                      </div>
+                      <button className="w-10 h-10 rounded-full bg-blue-50 text-brand-blue flex items-center justify-center hover:bg-brand-blue hover:text-white-pure transition-colors">
+                        <Bookmark size={18} />
+                      </button>
+                    </div>
+
+                    <div className="mt-4 mb-5">
+                      <p className="text-2xl font-bold text-text-dark tracking-tight">{item.price}</p>
+                    </div>
+
+                    <div className="pt-4 border-t border-border-line/30 flex items-center justify-between text-[11px] font-medium text-text-gray">
+                      <div className="flex items-center gap-2">
+                        <BedDouble size={16} className="text-brand-blue/60" />
+                        <span>{item.specs.beds} Kamar Tidur</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Bath size={16} className="text-brand-blue/60" />
+                        <span>{item.specs.baths} Kamar Mandi</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Scaling size={16} className="text-brand-blue/60" />
+                        <span>{item.specs.size}m²</span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {/* Slider Navigation Buttons */}
+            <div className="absolute top-1/2 -left-6 -translate-y-1/2 opacity-0 group-hover/slider:opacity-100 transition-opacity z-20">
+              <button 
+                onClick={() => document.getElementById('featured-slider')?.scrollBy({ left: -350, behavior: 'smooth' })}
+                className="w-14 h-14 rounded-full bg-white-pure shadow-premium border border-border-line/20 flex items-center justify-center text-text-dark hover:bg-brand-blue hover:text-white-pure transition-all"
+              >
+                <ChevronLeft size={28} />
+              </button>
+            </div>
+            <div className="absolute top-1/2 -right-6 -translate-y-1/2 opacity-0 group-hover/slider:opacity-100 transition-opacity z-20">
+              <button 
+                onClick={() => document.getElementById('featured-slider')?.scrollBy({ left: 350, behavior: 'smooth' })}
+                className="w-14 h-14 rounded-full bg-white-pure shadow-premium border border-border-line/20 flex items-center justify-center text-text-dark hover:bg-brand-blue hover:text-white-pure transition-all"
+              >
+                <ChevronRight size={28} />
+              </button>
             </div>
           </div>
         </div>
