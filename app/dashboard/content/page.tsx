@@ -7,13 +7,13 @@ import { generatePropertyCaption, generateDailyMarketingTip } from '@/lib/groq';
 import { useSubscriptionLimits } from '@/hooks/useSubscriptionLimits';
 import { createClient } from '@/lib/supabase/client';
 import { uploadPropertyImage } from '@/hooks/useProperties';
-import { 
-  Sparkles, 
-  Send, 
-  Calendar, 
-  Clock, 
-  CheckCircle2, 
-  AlertCircle, 
+import {
+  Sparkles,
+  Send,
+  Calendar,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
   ChevronRight,
   MoreVertical,
   Check,
@@ -112,7 +112,7 @@ export default function ContentStudioPage() {
       if (!user) throw new Error('Not authenticated');
 
       const publicUrl = await uploadPropertyImage(file, user.id);
-      
+
       // Update property images in database so it persists
       if (selectedProperty) {
         const updatedImages = [...(selectedProperty.images || []), publicUrl];
@@ -120,12 +120,12 @@ export default function ContentStudioPage() {
           .from('properties')
           .update({ images: updatedImages })
           .eq('id', selectedProperty.id);
-          
+
         if (!updateError) {
-           // Optimistically update local state
-           setProperties(prev => prev.map(p => 
-             p.id === selectedProperty.id ? { ...p, images: updatedImages } : p
-           ));
+          // Optimistically update local state
+          setProperties(prev => prev.map(p =>
+            p.id === selectedProperty.id ? { ...p, images: updatedImages } : p
+          ));
         }
       }
 
@@ -176,13 +176,13 @@ export default function ContentStudioPage() {
         platforms: ['instagram', 'facebook', 'tiktok'],
         language: 'indonesia'
       });
-      
+
       setCaptions(result);
-      
+
       // Log AI usage
       await logUsage('ai_caption', 1);
       refreshLimits(); // Refresh local usage state
-      
+
       showToast('✨ Caption berhasil digenerate!');
     } catch (error) {
       console.error('Failed to generate:', error);
@@ -270,7 +270,7 @@ export default function ContentStudioPage() {
           </h1>
           <p className="text-sm font-normal text-text-gray/50">Buat konten marketing & jadwalkan iklan dengan AI</p>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <button className="p-2.5 rounded-xl bg-white-pure border border-border-line/10 text-text-gray hover:text-brand-blue transition-colors shadow-sm">
             <Settings size={20} strokeWidth={1.5} />
@@ -328,8 +328,8 @@ export default function ContentStudioPage() {
                   <span className="text-[10px] font-bold text-brand-blue">{usage.aiCaptions} / {limits.aiCaptions === 999999 ? '∞' : limits.aiCaptions}</span>
                 </div>
                 <div className="w-full h-1.5 bg-white-pure rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-brand-blue transition-all duration-1000" 
+                  <div
+                    className="h-full bg-brand-blue transition-all duration-1000"
                     style={{ width: `${Math.min(100, (usage.aiCaptions / limits.aiCaptions) * 100)}%` }}
                   ></div>
                 </div>
@@ -347,14 +347,13 @@ export default function ContentStudioPage() {
                       <a href="/dashboard/listing" className="text-brand-blue font-bold text-xs mt-1 block">+ Tambah Listing</a>
                     </div>
                   ) : properties.map(p => (
-                    <button 
+                    <button
                       key={p.id}
                       onClick={() => setSelectedPropertyId(p.id)}
-                      className={`flex items-center gap-3 p-3 rounded-2xl transition-all border ${
-                        selectedPropertyId === p.id 
-                          ? 'bg-brand-blue/5 border-brand-blue/20 ring-1 ring-brand-blue/10' 
-                          : 'bg-surface-gray/50 border-transparent hover:bg-surface-gray'
-                      }`}
+                      className={`flex items-center gap-3 p-3 rounded-2xl transition-all border ${selectedPropertyId === p.id
+                        ? 'bg-brand-blue/5 border-brand-blue/20 ring-1 ring-brand-blue/10'
+                        : 'bg-surface-gray/50 border-transparent hover:bg-surface-gray'
+                        }`}
                     >
                       {p.images?.[0] ? (
                         <img src={p.images[0]} className="w-12 h-12 rounded-xl object-cover shadow-sm" alt={p.title} />
@@ -377,7 +376,7 @@ export default function ContentStudioPage() {
               {selectedProperty && (
                 <div className="space-y-3 pt-3 border-t border-border-line/10">
                   <label className="text-xs font-bold text-text-gray uppercase tracking-widest pl-1">Media Postingan</label>
-                  
+
                   {/* Existing Images Thumbnails */}
                   <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
                     {(() => {
@@ -389,11 +388,10 @@ export default function ContentStudioPage() {
                         <button
                           key={idx}
                           onClick={() => setSelectedMedia(img)}
-                          className={`relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border-2 transition-all ${
-                            (selectedMedia === img || (!selectedMedia && img === selectedProperty.images?.[0]))
-                              ? 'border-brand-blue ring-2 ring-brand-blue/20'
-                              : 'border-transparent hover:border-brand-blue/50'
-                          }`}
+                          className={`relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border-2 transition-all ${(selectedMedia === img || (!selectedMedia && img === selectedProperty.images?.[0]))
+                            ? 'border-brand-blue ring-2 ring-brand-blue/20'
+                            : 'border-transparent hover:border-brand-blue/50'
+                            }`}
                         >
                           <img src={img} className="w-full h-full object-cover" alt={`img-${idx}`} />
                           {(selectedMedia === img || (!selectedMedia && img === selectedProperty.images?.[0])) && (
@@ -408,14 +406,14 @@ export default function ContentStudioPage() {
 
                   {/* Upload Custom Media */}
                   <div>
-                    <input 
-                      type="file" 
-                      id="upload-media" 
-                      className="hidden" 
+                    <input
+                      type="file"
+                      id="upload-media"
+                      className="hidden"
                       accept="image/*"
                       onChange={handleFileUpload}
                     />
-                    <label 
+                    <label
                       htmlFor="upload-media"
                       className={`flex items-center justify-center gap-2 w-full py-3 border border-dashed border-border-line/30 rounded-xl text-sm font-medium text-text-gray hover:bg-surface-gray hover:text-brand-blue transition-colors cursor-pointer ${isUploadingMedia ? 'opacity-50 pointer-events-none' : ''}`}
                     >
@@ -434,7 +432,7 @@ export default function ContentStudioPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-3">
                   <label className="text-xs font-bold text-text-gray uppercase tracking-widest pl-1">Nuansa / Gaya</label>
-                  <select 
+                  <select
                     value={tone}
                     onChange={(e) => setTone(e.target.value as any)}
                     className="w-full bg-surface-gray/50 border border-border-line/10 rounded-2xl p-3 text-sm focus:ring-4 focus:ring-brand-blue/5 outline-none font-medium text-text-dark appearance-none cursor-pointer"
@@ -447,7 +445,7 @@ export default function ContentStudioPage() {
                 </div>
                 <div className="space-y-3">
                   <label className="text-xs font-bold text-text-gray uppercase tracking-widest pl-1">Template</label>
-                  <select 
+                  <select
                     value={template}
                     onChange={(e) => setTemplate(e.target.value as any)}
                     className="w-full bg-surface-gray/50 border border-border-line/10 rounded-2xl p-3 text-sm focus:ring-4 focus:ring-brand-blue/5 outline-none font-medium text-text-dark appearance-none cursor-pointer"
@@ -460,7 +458,7 @@ export default function ContentStudioPage() {
                 </div>
               </div>
 
-              <button 
+              <button
                 onClick={handleGenerate}
                 disabled={isGenerating}
                 className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2.5 transition-all shadow-xl shadow-brand-blue/20 bg-brand-blue text-white-pure hover:bg-brand-blue-deep active:scale-[0.98] ${isGenerating ? 'opacity-80' : ''}`}
@@ -500,14 +498,14 @@ export default function ContentStudioPage() {
                 <Smartphone size={18} className="text-text-gray" />
                 <h3 className="font-bold text-text-dark">Live Social Preview</h3>
               </div>
-              
+
               <div className="flex bg-white-pure/80 p-1.5 rounded-full border border-border-line/10 shadow-sm">
                 {[
                   { id: 'instagram', icon: InstagramIcon, color: activePlatform === 'instagram' ? 'bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white' : 'text-text-gray hover:bg-surface-gray' },
                   { id: 'facebook', icon: FacebookIcon, color: activePlatform === 'facebook' ? 'bg-[#1877f2] text-white' : 'text-text-gray hover:bg-surface-gray' },
                   { id: 'tiktok', icon: TikTokIcon, color: activePlatform === 'tiktok' ? 'bg-[#000000] text-white' : 'text-text-gray hover:bg-surface-gray' },
                 ].map((plat) => (
-                  <button 
+                  <button
                     key={plat.id}
                     onClick={() => setActivePlatform(plat.id as any)}
                     className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${plat.color}`}
@@ -524,7 +522,7 @@ export default function ContentStudioPage() {
                 <div className="relative w-[280px] h-[580px] bg-black rounded-[3rem] border-8 border-[#1a1a1a] shadow-2xl overflow-hidden">
                   {/* Phone Notch */}
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-black rounded-b-2xl z-20"></div>
-                  
+
                   {/* Platform Header */}
                   <div className="bg-white p-4 pt-8 border-b border-border-line/5 flex items-center justify-between">
                     <p className="text-xs font-black tracking-tight">{activePlatform.toUpperCase()}</p>
@@ -574,7 +572,7 @@ export default function ContentStudioPage() {
                       </span>
                       <span className="bg-surface-gray px-2 py-0.5 rounded text-[10px] text-text-gray/60 font-medium">Tersimpan Otomatis</span>
                     </label>
-                    <textarea 
+                    <textarea
                       value={captions[activePlatform] || ''}
                       onChange={(e) => setCaptions(prev => ({ ...prev, [activePlatform]: e.target.value }))}
                       placeholder="Caption akan muncul di sini..."
@@ -597,7 +595,7 @@ export default function ContentStudioPage() {
                 </div>
 
                 <div className="mt-8 grid grid-cols-1 gap-3">
-                  <button 
+                  <button
                     onClick={() => addToQueue(activePlatform)}
                     disabled={!captions[activePlatform]}
                     className="w-full py-4 bg-white-pure border border-brand-blue/20 text-brand-blue rounded-full font-bold hover:bg-brand-blue/5 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:grayscale"
@@ -605,7 +603,7 @@ export default function ContentStudioPage() {
                     <span>Masukkan ke Antrean</span>
                     <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                   </button>
-                  <button 
+                  <button
                     onClick={() => {
                       const caption = captions[activePlatform];
                       if (!caption || !selectedPropertyId) return;
@@ -681,102 +679,103 @@ export default function ContentStudioPage() {
                   : item.suggestedTime?.replace('AI Suggestion: ', '') || 'Belum dijadwalkan';
                 const isAISuggestion = !item.scheduled_at;
                 return (
-                <tr key={item.id} className="hover:bg-surface-gray/20 transition-colors group">
-                  <td className="px-8 py-5">
-                    <div className="flex items-center gap-4">
-                      <div className="relative">
-                        {propImg ? (
-                          <img src={propImg} className="w-14 h-14 rounded-xl object-cover shadow-md" alt="p" />
-                        ) : (
-                          <div className="w-14 h-14 rounded-xl bg-brand-blue/10 flex items-center justify-center">
-                            <Sparkles size={20} className="text-brand-blue" />
+                  <tr key={item.id} className="hover:bg-surface-gray/20 transition-colors group">
+                    <td className="px-8 py-5">
+                      <div className="flex items-center gap-4">
+                        <div className="relative">
+                          {propImg ? (
+                            <img src={propImg} className="w-14 h-14 rounded-xl object-cover shadow-md" alt="p" />
+                          ) : (
+                            <div className="w-14 h-14 rounded-xl bg-brand-blue/10 flex items-center justify-center">
+                              <Sparkles size={20} className="text-brand-blue" />
+                            </div>
+                          )}
+                          <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-md">
+                            <Sparkles size={12} className="text-brand-blue" />
                           </div>
-                        )}
-                        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-md">
-                          <Sparkles size={12} className="text-brand-blue" />
+                        </div>
+                        <div className="max-w-[300px]">
+                          <p className="font-bold text-text-dark truncate">{propName}</p>
+                          <p className="text-xs text-text-gray mt-1 line-clamp-1">{item.caption}</p>
                         </div>
                       </div>
-                      <div className="max-w-[300px]">
-                        <p className="font-bold text-text-dark truncate">{propName}</p>
-                        <p className="text-xs text-text-gray mt-1 line-clamp-1">{item.caption}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-8 py-5">
-                    <div className="flex items-center gap-2">
-                       {item.platform === 'instagram' && <InstagramIcon size={16} className="text-[#E4405F]" />}
-                       {item.platform === 'facebook' && <FacebookIcon size={16} className="text-[#1877F2]" />}
-                       {item.platform === 'tiktok' && <TikTokIcon size={16} className="text-black" />}
-                       {item.platform === 'whatsapp' && <span className="text-green-500 font-bold text-xs">WA</span>}
-                       <span className="text-sm font-semibold text-text-dark capitalize">{item.platform}</span>
-                    </div>
-                  </td>
-                  <td className="px-8 py-5">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-bold text-text-dark">{scheduledTime}</span>
-                      {isAISuggestion && (
-                        <span className="text-[10px] text-brand-blue font-black tracking-wider uppercase mt-0.5">Disarankan AI</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-8 py-5">
-                    {item.status === 'waiting' ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-100 text-orange-700 text-xs font-bold border border-orange-200">
-                        <Clock size={12} strokeWidth={2.5} />
-                        Menunggu Persetujuan
-                      </span>
-                    ) : item.status === 'scheduled' ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold border border-blue-200">
-                        <CalendarDays size={12} strokeWidth={2.5} />
-                        Dijadwalkan
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200">
-                        <CheckCircle2 size={12} strokeWidth={2.5} />
-                        Dipublikasi
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-8 py-5">
-                    {item.status === 'waiting' ? (
+                    </td>
+                    <td className="px-8 py-5">
                       <div className="flex items-center gap-2">
-                        <button 
-                          onClick={() => approveItem(item.id)}
-                          disabled={isApproving}
-                          className="w-10 h-10 rounded-xl bg-emerald-500 text-white-pure flex items-center justify-center shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all hover:scale-110 disabled:opacity-50"
-                          title="Setujui & Jadwalkan"
-                        >
-                          <Check size={20} strokeWidth={3} />
-                        </button>
-                        <button 
+                        {item.platform === 'instagram' && <InstagramIcon size={16} className="text-[#E4405F]" />}
+                        {item.platform === 'facebook' && <FacebookIcon size={16} className="text-[#1877F2]" />}
+                        {item.platform === 'tiktok' && <TikTokIcon size={16} className="text-black" />}
+                        {item.platform === 'whatsapp' && <span className="text-green-500 font-bold text-xs">WA</span>}
+                        <span className="text-sm font-semibold text-text-dark capitalize">{item.platform}</span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-5">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-text-dark">{scheduledTime}</span>
+                        {isAISuggestion && (
+                          <span className="text-[10px] text-brand-blue font-black tracking-wider uppercase mt-0.5">Disarankan AI</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-8 py-5">
+                      {item.status === 'waiting' ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-100 text-orange-700 text-xs font-bold border border-orange-200">
+                          <Clock size={12} strokeWidth={2.5} />
+                          Menunggu Persetujuan
+                        </span>
+                      ) : item.status === 'scheduled' ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold border border-blue-200">
+                          <CalendarDays size={12} strokeWidth={2.5} />
+                          Dijadwalkan
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200">
+                          <CheckCircle2 size={12} strokeWidth={2.5} />
+                          Dipublikasi
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-8 py-5">
+                      {item.status === 'waiting' ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => approveItem(item.id)}
+                            disabled={isApproving}
+                            className="w-10 h-10 rounded-xl bg-emerald-500 text-white-pure flex items-center justify-center shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all hover:scale-110 disabled:opacity-50"
+                            title="Setujui & Jadwalkan"
+                          >
+                            <Check size={20} strokeWidth={3} />
+                          </button>
+                          <button
+                            onClick={() => removeItem(item.id)}
+                            disabled={isSaving}
+                            className="w-10 h-10 rounded-xl bg-white-pure border border-border-line/10 text-text-gray hover:text-red-500 transition-all shadow-sm flex items-center justify-center disabled:opacity-50"
+                            title="Hapus"
+                          >
+                            <X size={20} strokeWidth={2.5} />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
                           onClick={() => removeItem(item.id)}
-                          disabled={isSaving}
-                          className="w-10 h-10 rounded-xl bg-white-pure border border-border-line/10 text-text-gray hover:text-red-500 transition-all shadow-sm flex items-center justify-center disabled:opacity-50"
+                          className="p-2 text-text-gray/30 hover:text-red-400 transition-colors"
                           title="Hapus"
                         >
-                          <X size={20} strokeWidth={2.5} />
+                          <X size={18} strokeWidth={2} />
                         </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => removeItem(item.id)}
-                        className="p-2 text-text-gray/30 hover:text-red-400 transition-colors"
-                        title="Hapus"
-                      >
-                        <X size={18} strokeWidth={2} />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              )})}
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
-        
+
         <div className="p-6 bg-surface-gray/30 border-t border-border-line/5 text-center">
-            <button className="text-sm font-bold text-brand-blue hover:text-brand-blue-deep transition-colors px-6 py-2">
-              Lihat Semua Antrean (History)
-            </button>
+          <button className="text-sm font-bold text-brand-blue hover:text-brand-blue-deep transition-colors px-6 py-2">
+            Lihat Semua Antrean (History)
+          </button>
         </div>
       </div>
     </div>
