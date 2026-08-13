@@ -103,12 +103,9 @@ export default function HomePage() {
         <div className="container-standard relative z-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
             <div className="max-w-xl">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-50 border border-brand-blue/20 rounded-full mb-6">
-                <Sparkles size={14} className="text-brand-blue" />
-                <span className="text-brand-blue font-bold text-[10px] uppercase tracking-[0.2em]">FEATURED ADD-ON</span>
-              </div>
-              <h2 className="text-4xl md:text-6xl font-display font-bold text-text-dark leading-tight">
-                Properti <span className="text-brand-blue italic">Unggulan</span> Minggu <br className="hidden md:block" /> Ini
+              <p className="text-brand-blue text-xs font-medium tracking-widest uppercase mb-2">Featured Add-on</p>
+              <h2 className="text-3xl md:text-4xl font-display font-medium text-text-dark">
+                Properti Unggulan Minggu Ini
               </h2>
             </div>
             <p className="text-text-gray text-sm md:text-base max-w-xs md:text-right">
